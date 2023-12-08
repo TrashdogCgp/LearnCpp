@@ -1,0 +1,58 @@
+1.3
+Introduction to objects and variables
+We recall that statements execute sequentially and perform actions that execute the goal of the program.
+But how does this happen? Usually by manipulating data, with data being any information that can be moved, processed, or stored by a computer.
+
+A single piece of data is called a value.
+
+RAM is main memory for a computer. OS will load the program to RAm when we run a program, and hardcoded data is loaded at this point.
+The OS reserves some additional RAm for the program to use while running. Common uses for this memory are storing values entered by the user, or values calculated.
+In older programming languages, you'd often directly access RAM addresses.
+In C++, that's... different. And discouraged.
+
+Rather than direct memory access, we access memory indirectly through an object.
+An object is a region of storage (usually memory) that can store a value, and has other associated properties (covered in future lessons).
+A variable is an object that has a name (identifier).
+
+Note that in C++, the term object excludes functions. This is a narrower definition than what's general for programming.
+
+To create a variable, we use a declaration statement called a definition.
+
+int x; //example definition, except we'll clarify definition vs declaration later, says the tutorial
+
+When the program is called, the variable will be instantiated.
+Instantiation means the object is created and assigned a memory address. Variables must be instantiated before they can be used to store values.
+An instantiated object is sometimes called an instance.
+
+A data type tells the compiler what type of value the variable will store.
+In C++, type of a variable must be known at compile time (when program is compiled) and that type can't be changed without recompiling the program.
+
+We can define multiple variables of the same type in a single statement by separating the names with a comma.
+int a; int b;
+is the same as
+int a, b;
+
+Best practice is to avoid this, though; instead, define each variable in a separate statement on its own line and use a single-line comment to document what it's used for.
+
+Quiz:
+1. What is data?
+Information that can be manipulated (stored, moved, processed) by a computer.
+
+2. What is a value?
+A value is a single piece of data.
+
+3. What is a variable?
+A variable is named data (a named region of memory), with the name being used to store a value.
+
+4. What is an identifier?
+An identifier is the name used to access a variable.
+
+5. What is a type?
+A type is an attribute of a value that tells the program how to interpret a value in memory.
+
+6. What is an integer?
+An integer is a number without a decimal point or fractional component.
+
+
+
+
