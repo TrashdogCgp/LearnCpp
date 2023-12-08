@@ -1,0 +1,14 @@
+Finishing chapter 0 and moving on through as much of chapter 1 as I can.
+I want this stuff out of the way, but refuse to skip things.
+I've browsed the stuff from chapter 18 on, and it looks much more interesting.
+Going to try to stay motivated, and ensure that I stay focused, until then.
+
+After reading the rest of it, the most impactful part of ch0 was actually VSCode settings.
+Adjusting a project manually wasn't that bad, but I'm not sure how to set defaults for tasks.json, and that might become important as I go through the rest of these lessons.
+Had to set language standard in compiler flags, set warning levels, and set compiler to treat warnings as errors. Also had to disable compiler extensions in that same json file.
+Worth figuring out where/how the default is set!
+
+
+
+
+

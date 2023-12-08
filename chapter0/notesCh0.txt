@@ -99,8 +99,85 @@ The C++ standard requires that all cpp source files end in a newline.
 
 0.9
 Configuring compiler: Build configurations
+A build configuration (also called build target) is a collection of project settings that determines how the IDE builds the project. This typically includes executable name, directories the IDE will look in for other code and libraries, whether to keep debug info, and compiler optimization.
+These settings should usually be default unless you have a good reason.
+Debug config is designed to help debug, and is generally used when writing programs. This turns off optimizations and includes debugging info. Programs are slower and larger, but much easier to debug this way.
+Release configuration is for public release, primarily. Optimized for size and speed, doesn't contain extra debug info.
 
+Visual Studio also creates separate build config for different platforms, e.g. x86 (32 bit) and x64 (64 bit) platforms.
 
+How to set this stuff?
+Well, when you first ran the program in VSCode, a new file called tasks.json was created in the .vscode folder in the explorer pane.
+Find args there and locate the line ${file} in that section.
+Above that line, add a new line containing the following command (one per line) when debugging:
+"-ggdb"
+Above the file line, add new lines with the following for release builds:
+"-02"
+"-DNDEBUG"
 
+0.10 - Configuring your compiler: Compiler extensions
+C++ standard defines rules about how programs should behave in certain circumstances, and compilers usually follow these rules. However, many compilers implement their own changes. These are called compiler extensions.
+Using a compiler extension allows you to write programs that aren't compatible with the C++ standard, but these programs usually won't compile on other compilers without these extensions. Or they'll run, but do so incorrectly.
+Compiler extensions are often enabled by default, which sucks when you don't know.
+Best practice: Disable compiler extensions by default to ensure programs and practices remain compliant with C++ standards.
 
+To disable compiler extensions on VSCode, we open tasks.json, find "args", locate "${file}", and add "-pedantic-errors" above it.
+
+Additionally, the tutorial recommended File>Preferences>Settings - insert final newline in both Workspace Settings and User Settings (check the box in both tabs).
+
+Note that these settings are on a per-project basis; you need to set them every time you make a new project, or create a template project with those settings and create new projects off of that.
+
+TODO: Figure out how to make a template project for VSCode, or how to change the default tasks.json file
+
+0.11
+Configuring your compiler: Warning and error levels
+If you really screw up and violate the language rules, the compiler will emit an error during compilation, providing a line number containing the error and some text about expectation vs finding. The actual error may be elsewhere, but still, fix it and try again.
+In other cases, warnings happen because the compiler thinks it sees an error, but isn't sure. Warnings don't halt compilation, but do notify the programmer that something seems incorrect.
+
+Best practice: Pretend warnings are errors and fix them as you encouhnter them; otherwise, serious warnings may be lost amongst non-serious warnings.
+
+In most cases, warnings can be resolved by fixing the issue or rewriting the line of code to not generate the warning.
+In rare cases, you have to tell the compiler to just shut up, which is not something C++ does for you, but is instead something compilers allow you to do.
+
+By default, most compilers only warn about obvious issues. However, you can request your compiler be more proactive about producing warnings.
+
+Best practice: Turn warning levels up to maximum to identify possible issues.
+
+We do this in VSCode by adding the following to tasks.json in the usual place:
+                "-Wall",
+                "-Weffc++",
+                "-Wextra",
+                "-Wconversion",
+                "-Wsign-conversion",
+
+You can, and allegedly should, also tell your compiler to treat warnings as errors (halt compilation if it finds warnings).
+For this, in tasks.json, we add:
+"-Werror"
+
+0.12
+Configuring your compiler: Choosing a language standard
+Generally, compilers pick a standard to default to, but it's not actually the most recent by default. Many default to C++14, which is missing some stuff.
+Finalized language standards are named after their year of release, but there are code names sometimes.
+c++1x = C++11
+c++1y = C++14
+c++1z = C++17
+c++2a = C++20
+c++2b = C++23
+
+This is cryptic and annoying, and hopefully won't be something I have to memorize?
+
+It's somewhat common to choose a language standard that's a version or two back from the latest, e.g. C++17 or C++14 right now for me.
+This is usually supposed to make sure compilers don't have issues, and make sure best practices for newer features are well understood.
+
+For learning, there's little downside to choosing the latest standard.
+
+Thankfully, for VSCode, the compiler flags for choosing a standard are fairly straightforward.
+"-std=c++20" enables C++20, and the rest are pretty intuitive as well.
+This flag, of course, goes in tasks.json in the args section, above that file block.
+
+So, that's about it for chapter 0!
+But one last thing. C++ language standards are described by a standards document, which is a formal technical document for rules and reqs of a given standard.
+This thing is written for compiler writers, not for learning the language. People will occasionally quote the standards document to explain how things work.
+But this dry, dense thingy is also not even free. You'd have to get a draft close to publication time.
+Also note that compilers don't always have complete support for new language features, so don't expect C++23 to work right off the bat next year.
 
