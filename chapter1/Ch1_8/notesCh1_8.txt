@@ -1,0 +1,54 @@
+1.8
+Whitespace and basic formatting
+
+Whitespace refers to characters used for formatting purposes. Spaces, tabs, and newlines count.
+The syntax of the language requires separation of elements by whitespace.
+When whitespace is required as a separator, the compiler doesn't care how much whitespace is used, as long as some exists.
+In certain cases (single-line comments being an example), newlines must be used as a separator.
+Preprocessor directives must also be placed on separate lines.
+
+Within quoted text, whitespace is taken literally by its width (e.g. std::cout << "Hello       world");
+
+Newlines are not allowed in quoted text.
+Quoted text separated by nothing but whitespace (space, tab, newline) will be concatenated.
+
+e.g.
+std::cout << "Hello "
+     "world!"; // prints "Hello world!"std::cout << "Hello "
+
+Since whitespace is generally ignored in code, we can use it to format for easier reading.
+Statements can be split over multiple lines if desired, which can be useful for making particularly long statements readable.
+
+C++ is said to be a whitespace-independent language because unlike some languages, it doesn't enforce any kind of formatting restrictions on the programmer.
+This is good and also bad, but our rule of thumb is that the best styles are the ones that produce the most readable code and consistency.
+
+Tutorial recommends that tabs be set to 4 spaces worth of indentation. Some IDEs default to 3 spaces, which is fine, too, I guess?
+
+There are two acceptable styles for function brace spacing.
+1. Recommended by Google C++ style guide
+int main() {
+}
+
+2. Common alternative, with the advantage that the brace pairs always indent at the same level
+int main()
+{
+}
+
+Each statement within curly braces should start a tab off from the opening brace of the function it belongs to.
+
+80 lines is the default standard for max length for a line; if a line will be longer, it should be split into multiple lines.
+To make this more practical, consider indenting each subsequent line with an extra tab or just alilgning it with the line above if that's easier to read.
+
+If a long line is split with an operator, the operator should be placed at the beginning of the next line, not the end of the current line.
+e.g.
+std::cout << 3 + 4
+    + 5 + 6
+    * 7 * 8;
+
+Use whitespace to make code easier to read by aligning values or comments, or by adding spacing between blocks of code.
+
+These tutorials will follow these conventions. Hopefully they won't be hard to do intuitively, or at least, hopefully I'll notice some bad habits if I have them.
+
+
+
+
