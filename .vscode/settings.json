@@ -1,4 +1,7 @@
 {
     "cmake.configureOnOpen": false,
-    "files.insertFinalNewline": true
+    "files.insertFinalNewline": true,
+    "files.associations": {
+        "iostream": "cpp"
+    }
 }

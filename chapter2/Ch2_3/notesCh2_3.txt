@@ -1,0 +1,26 @@
+2_3
+Void functions, non value returning functions
+
+To tell a compiler that a function does not return a value, a return type of void is used.
+
+A function that does not return a value is called a non-value returning function (or a void function)
+
+A void function does not require a return statement. However, a return statement (with no return value) can be used in a void function.
+Such a statement will return the function to the caller at the point where the return statement is executed. This same thing would happen at the end of the function anyway.
+
+Best practice: Do not put a return statement at the end of a non-value returning function.
+
+Void functions can't be used in expressions that require a value.
+e.g. std::cout << voidFunction(); //compile error, no value provided
+
+Quiz
+1. Inspect the programs and state what the output, or whether they will not compile.
+
+a) prints out:
+A
+B
+
+b) (code omitted) Will not compile because the function attempts to use a void function's return value (or lack thereof) as an operand.
+
+
+
