@@ -1,0 +1,95 @@
+1.4
+Variable assignment and initialization
+This lesson covers how to actually put values into variables and use those variables.
+
+Assignment-- = is the assignment operator.
+By default, assignment copies the value on the right side of the assignment operator to the variable on the left side of the operator.
+This is called copy assignment.
+
+One downside of assignment is that it requires at least two statements: one to define the variable, and one to assign the value.
+These steps can be combined. When a variable is defined, you can provide an initial value.
+This is called initialization.
+The value used to initialize a variable is called an initializer.
+
+Initialization is surprisingly complicated.
+Six basic ways to initialize variables, though.
+
+int a; //no initializer
+int b = 5; //(Copy initialization)
+int c(6); // (Direct initialization)
+int d {7};//(direct list initialization)
+int e = {8}; // (copy list initialization)
+int f {}; // (value initialization)
+
+Default Initialization
+With no value provided, as for a above, it's called default initialization. In most cases, this is an undefined value.
+
+Copy Initialization
+When an initializer is provided after an equals sign, this is copy initialization, as inherited from C.
+Much like copy assignment, this copies the right hand value into the created left hand variable.
+Copy init had fallen out of favor in modern C++ due to being less efficient. But C++17 has fixed this, so it's not really discouraged!
+It's also used whenever values are implicitly copied or converted, e.g. passing arguments to a function by value, returning by value, or catching exceptions by value.
+
+Direct Initialization
+When an initializer is provided in parenthesis, this is direct initialization.
+It was introduced to allow for more efficient init of complex objects (e.g. class types). It fell out of favor in modern C++ as well due to being superseded by list initialization. But since list initialization has its own quirks, it's finding use again in certain cases.
+It's also used when values are explicitly cast to another type. But it's also annoying that it makes variables look kinda like functions.
+
+List initialization
+The modern way in C+ is using list initialization--curly braces with the initializer.
+Also called uniform init or brace init.
+Three forms of it, too!
+int width {5}; //direct list init
+int height = {6}; //copy list init
+int depth {}; //value init
+
+List init has an added benefit of disallowing "narrowing conversions"; if you try to brace initialize a variable using a value it can't (safely) hold, the compiler will complain.
+e.g. int x{4.1}; //compiler complains that int can't hold a number with a fractional value
+Meanwhile, copy or direct init would just quietly drop the 0.1 from the end (albeit maybe with a warning, but not with an error).
+
+List init is usually preferred over the rest because it works in most cases, disallows narrowing conversions, and supports initialization with lists of values.
+
+Value Initialization
+Value init takes place when a variable is initialized using empty braces.
+In most cases, it'll initialize to zero (or empty) depending on type.
+If it does initialize to zero, it's called zero initialization.
+
+Note that if you're actually using the zero value you're initializing to, then use list init instead of value init.
+But if you're overwriting the value right away, just use value init.
+
+Note that you SHOULD initialize your variables upon creation.
+If you don't, it results in undefined behavior.
+
+Initializing multiple variables
+Why not do it?
+Not much compelling in their argument, tbh, but they say there's a common pitfall that makes it easy to leave a value uninitialized.
+
+Unused initialized variables will usually generate warnings.
+If you treat warnings as errors, these will... well, cause errors, which will cause the compilation to fail.
+
+[[maybe_unused]] attribute
+Consider a case where wwe define a bunch of values for math/physics, e.g. pi, gravity, Boltzmann's constant, etc
+If we use these often, they'll probably be imported all together.
+But the compiler would complain about the unused ones! This is annoying.
+So C++17 introduced [[maybe_unused]], which allows us to tell the compiler we're fine with a variable not being used.
+
+Example:
+[[maybe_unused]] double pi {3.1415926535897932};
+This will prevent the compiler from putting a warning out.
+
+Quiz
+1. What is the difference between initialization and assignment?
+Initialization creates the variable and assigns an initial value to the variable. Assignment just gives a variable a value.
+
+2. What form of initialization should you prefer when you want to init a variable with a specific value?
+Direct list initialization, aka brace initialization, e.g.
+int x{5};
+
+3. What are default initialization and value initialization? What is the behavior of each? Which should you prefer?
+Default initialization happens when you declare a variable without assigning a value at all, e.g. int x;
+Value initialization happens when you declare a variable with an empty brace, e.g. int x{};
+Default initialization usually leaves the declared variable with an indeterminate value.
+Value initialization usually makes the variable 0 or empty (zero-initialization), depending on its type.
+Prefer value initialization over default initialization when not intending to give an initial value.
+
+
