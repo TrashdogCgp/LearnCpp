@@ -1,0 +1,7 @@
+Things to do when time permits:
+
+*Enable word wrap by default in VSCode
+*Set defaults for tasks.json to include compiler version, warning levels, etc (see notesCh0.txt)
+*Set default settings, since it would only open in read-only mode prior
+
+

@@ -1,0 +1,42 @@
+1.1
+Statements and the structure of a program
+A statement is a type of instruction that causes the program to perform some action.
+Statements are by far the most common type of instruction in a C++ program, because they're the smallest independent unit of computation in the C++ language.
+Most, but not quite all, statements end in a semicolon.
+Types of statement are: Declaration, Jump, Expression, Compound, Selection (conditionals), Iteration (loops), and try blocks.
+
+A function is a collection of statements that get executed sequentially (in order, top to bottom).
+Every C++ program must have a special function called main, which is executed when a program is run.
+
+The name of a function or object or type or template, etc, is called its identifier.
+
+Syntax is the rules that govern how sentences are constructed in a language.
+If you violate a C++ language rule via invalid syntax, the compiler will issue you a syntax error.
+Thankfully, syntax errors are usually straightforward to find and fix.
+
+Quiz-
+1. What is a statement?
+An instruction that causes the program to perform an action.
+
+2. What is a function?
+A function is a collection of statements that execute sequentially, enclosed in a function body, named by an identifier.
+
+3. What is the name of the function that all programs must have?
+main(), all lower case
+
+4. When a program is run, where does execution start?
+Execution starts at main(), at the top of the function body
+
+5. What symbol are statements often ended with?
+;
+
+6. What is a syntax error?
+An error that results from violating the structural rules of the C++ language
+
+7. What is the C++ Standard Library?
+A commonly used library containing basic C++ functionality including I/O.
+
+
+
+
+

@@ -1,0 +1,66 @@
+1.7
+Keywords
+
+C++ reserves 92 words as of C++23 for its own use. These are keywords (also called reserved words) and each has a special meaning in the C++ language.
+There's a long list of them, of course.
+There are also some special identifiers, which have a specific meaning in certain contexts but aren't reserved otherwise.
+These special identifiers are override, final, import, and module.
+
+Along with a set of operators, these keywords and special identifiers define the entire C++ language, excluding preprocessor commands.
+Because keywords and special identifiers have special meanings, most IDEs will change their text color to make them stand out.
+
+Identifiers (function/variable/other item name) have to follow some rules.
+*Identifier cannot be a keywords
+*Identifier can only be composed of letters, numbers, and underscores. No other symbols, no whitespace.
+*Identifier must begin with a letter or an underscore, no starting with numbers
+*C++ is case sensitive, so nValue is different than nvalue.
+
+Identifier best practices:
+Convention in C++ is that variable names should begin with a lowercase letter. If the name is one word, the whole thing should be lowercase letters.
+Most often, function names also start with lowercase letters (though some disagree here; I personally am actually used to starting functions with uppercase letters, but maybe that's some C# holdover in my puny little brain)
+At least, in the C++ standard library, functions all start with lowercase.
+Identifier names that start with a capital letter are usually used for user-defined types (struct, class, enum).
+If a name is multi-word, camelCase is the go-to, and snake_case is for other languages. The tutorial doesn't exactly insist on this, but I sure do. CAMEL POWER!
+
+With all that being said, match the style of the code base you're working on.
+
+Best practice: When working on existing code, use the conventions of that program even if they don't conform to best practices. Use best practices (modern stuff) when writing new programs.
+
+Also, avoid naming identifiers starting with an underscore; these are usually for OS/library/compiler use.
+
+Identifiers should make clear what their value means. Identifiers should be named in a way that would help someone with no familiarity figure out what your code is doing as quickly as possible.
+
+Rule of thumb: make the length of an identifier proportional to how widely it is used, e.g. trival case can have a short name with little meaning like x or i. Something used more broadly, like a function called all over the program, should have a descriptive, longer name.
+Avoid abbreviations if possible, unless they're unambiguous. They tend to just make code harder to read.
+
+Quiz
+
+Determine if each variable name is conventional (best practice), unconventional (not best practice), or invalid (won't compile)
+
+1. int sum{};
+conventional, assuming it's obvious what the sum pertains to
+
+2. int _apples{};
+Unconventional, shouldn't start with an underscore
+
+3. int VALUE{};
+Unconventional, shouldn't be all caps
+
+4. int my variable name {};
+Invalid, has white space
+
+5. int TotalCustomers {};
+Unconventional, PascalCase here when it should be camelCase (yes, I might be using these terms incorrectly if you're suuuuuuuper pedantic)
+
+6. int void {};
+Invalid, can't use a keyword for an identifier
+
+7. int numFruit {};
+Conventional
+
+8. int 3some {};
+Invalid, can't start an identifier with a number.
+
+9. int meters_of_pipe {};
+Mehhhhhhhhh? Basically conventional, but I really prefer camelCase. 
+

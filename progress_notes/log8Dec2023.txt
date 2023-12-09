@@ -1,0 +1,18 @@
+Going over variable assignment and initialization to start today.
+This is basic, but I have to admit I don't know the terms as well as I should; list initialization is obvious enough, and I remembered direct, but copy list initialization has remained fuzzy and out of my thoughts until now.
+Need to memorize those and be able to type out all six from memory--
+
+default init (int x;)
+copy init (int x=0;)
+direct init (int x(0);)
+direct list init (int x{0};)
+copy list init (int x = {0};)
+value init (int x{};)
+
+Would like to make sure I can type that out on command, so I'll try to think about it just before I sleep tonight and make sure that's in my head.
+
+Irrelevant, but wireless keyboard is really being persnickety today and it's making typing more strenuous and less efficient.
+Might need to replace the battery, but until I go get a replacement, expect a few more typos than usual.
+
+
+

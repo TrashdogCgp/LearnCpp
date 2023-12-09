@@ -1,0 +1,16 @@
+1_x
+Summary and Quiz!
+
+All review in the summary.
+
+1) What is the difference between initialization and assignment?
+Initialization gives an initial value to a variable at the time of its creation.
+Assignment gives a value to a variable after it has already been created.
+
+2) When does undefined behavior occur? What are the consequences of undefined behavior?
+Undefined behavior occurs when executed code does something not defined by the C++ language standard.
+Results vary wildly; undefined behavior can work as intended by the programmer, work inconsistently, or completely not work.
+
+3) Write a program that asks the user to enter a number, then a second number.
+The program should tell the user what the results of adding and subtracting the two numbers is.
+See ch1_x.cpp

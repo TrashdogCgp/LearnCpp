@@ -1,0 +1,62 @@
+1.5
+Introduction to iostream: cout, cin, and endl
+
+The input/output (io) library is part of the C++ standard library that deals with basic input and output.
+Using it requires inclusion of iostream.
+
+iostream contains a few predefined variables, one of the more useful ones being std::cout.
+This allows us to send data to the console to be printed as text, and stands for "character output".
+
+insertion operator, <<, sends Hello World text in our hello world program.
+We definitely know how this works, so no example included just yet.
+
+std::endl tells the console to move the cursor to the next line (prints a newline character).
+
+Best practice: Output a newline whenever a line of output is complete.
+
+Note that std::cout is buffered. Statements in our program request that output be sent to the console, but that output is not typically sent immediately. Instead, it's buffered (region of memory set aside to collect such data, called a buffer) and periodically flushed (data collected in buffer is transferred to its destination).
+This means that if the program crashes, aborts, or is paused before the buffer is flushed, any output still waiting in the buffer is not displayed.
+Unbuffered output would have each individual output request sent directly to the output device.
+Buffering increases performance by minimizing number of slow transfers when there are multiple output requests.
+
+std::endl flushes the buffer, whereas \n does not flush the buffer while still moving the cursor to the next line of the console.
+This makes \n frequently higher performance, and also more concise and easy to add to existing text.
+Best practice: Prefer '\n' over std::endl when outputting text to the console.
+
+std::cin is also a predefined iostream variable. std::cin reads from the keyboard using extraction operator, >>
+Inputs must be stored in a variable to be used.
+Note that we can get multiple inputs from a single line:
+
+int x{};
+int y{};
+std::cout << "Enter two integers:\n"
+std::cin >> x >> y;
+
+Best practice: There's debate over whether or not you need to initialize a variable before giving it user-provided values. We default to initializing the variable first (value init ok)
+
+Note that the io library doesn't give a way to accept keyboard input without the user having to press enter. You'll need a third party library for that.
+
+Quiz
+1. See ch1_5.cpp
+
+a) enter an letter, such as h:
+This outputs 0. I expected it to treat h as a char and cast its ascii value, tbh...
+
+b) enter a number with a fractional component, such as 0.5 or 3.2
+This will cause x to truncate the fractional component away. 0.5 will produce 0, 3.2 will produce 3.
+
+c) enter a small negative integer, such as -3
+This will work just fine and output -3
+
+d) A word, such as Hello
+Just like when we entered h, it outputs 0
+
+e) A huge number
+X will output the largest number an int can hold. I expected it to experience integer overflow and end up with some smaller number, but I guess that's not how things work?
+
+f) A small number followed by some letters, such as 123abc
+x takes on the value of the numeric portion of the input.
+I honestly have no freaking idea why.
+
+
+

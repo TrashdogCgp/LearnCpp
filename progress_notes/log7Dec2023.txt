@@ -8,6 +8,9 @@ Adjusting a project manually wasn't that bad, but I'm not sure how to set defaul
 Had to set language standard in compiler flags, set warning levels, and set compiler to treat warnings as errors. Also had to disable compiler extensions in that same json file.
 Worth figuring out where/how the default is set!
 
+Also, alt + z toggles word wrap! This will be helpful.
+Except my stupid computer has some Radeon thing that makes alt + z complain about graphics card driver mismatch, which I guess I'll fix eventually.
+Still need to figure out how to set these defaults...
 
 
 

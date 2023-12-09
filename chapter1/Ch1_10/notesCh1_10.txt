@@ -1,0 +1,57 @@
+1_10
+Introduction to expressions
+
+An expression is a combination of literals, variables, operators, and function calls that calculates a single value.
+The process of executing an expression is called evaluation, and the value produces is called the result.
+
+While most expressions calculate a value, expressions can also identify an object (which can be evaluated to get the object's value) or a function (which can be called to get the value returned by the function). Apparently we have to wait until chapter 12 for value categories, lvalue/rvalue.
+For now, we'll assume all expressions calculate values.
+
+When an expression is evaluated, each term in the expression is evaluated until a single value remains.
+
+Literals evaluate to their own values.
+Variables evaluate to the value of the variable.
+Operators use their operands to evaluate to some other value.
+Function calls evaluate to whatever value the function returns.
+
+Expressions involving operators with side effects are more tricky.
+
+Note that expressions don't end on a semicolon, and can't be compiled by themselves (probably because of the missing semicolon).
+
+Wherever you can use a single value in C++, you can use a value-producing expression instead, and the expression will evaluate to produce a single value.
+
+Expressions cannot exist on their own; they have to be part of a statement.
+Expression statements are statements that consist of an expression followed by a semicolon.
+When the expression statement is executed, the expression is evaluated.
+
+A subexpression is an expression used as an operand.
+A full expression is an expression that is not a subexpression.
+A compound expression is an expression that contains two or more operators.
+
+1. What is the difference between a statement and an expression?
+An expression evaluates to a value, while a statement is a set of instructions that causes the program to execute some behavior. Expressions cannot exist on their own, and need to be part of a statement.
+
+2. Indicate whether each of the following are statements without expressions, statements with expressions, or expression statements.
+
+a) int x;
+Statement without expression
+
+b) int x = 5;
+Statement with expression
+
+c) x = 5;
+Expression statement
+
+d) foo(); //foo is a function
+Expression statement
+
+e) std::cout << x; //Hint: operator << is a binary operator
+Expression statement, evaluates to std::cout
+
+3. Determine what values the following program outputs without running it... see ch1_10.cpp
+5
+4
+0
+
+
+

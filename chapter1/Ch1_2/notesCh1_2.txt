@@ -1,0 +1,16 @@
+1.2
+Comments
+
+Summary first.
+At the library, program, or function level, use comments to describe WHAT.
+Inside the library, program, or function, use commends to describe HOW.
+At the statement level, use comments to describe WHY.
+
+Single-line and multi-line comments exist and are things.
+This much we've known for some time.
+
+Comments should be used for three things: what, how, and why.
+At the statement level, don't try to tell what code is doing; if it's complicated enough to need a comment explaining what it's doing, you probably need to rewrite the statement, not comment it.
+
+Not much more to this lesson other than demonstrating how comments work.
+
