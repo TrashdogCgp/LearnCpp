@@ -1,0 +1,74 @@
+1_9
+Introduction to literals and operators
+
+Literals, also known as literal constants, are fixed values that have been directly inserted into source code.
+
+Literals and variables have both value and type.
+Their values appear directly in the executable code, unless they're optimized out.
+
+Operators
+In math, an operation is a process involving zero or more input values (called operands) that produces a new value (output value).
+The specific operation to be performed is denoted by a symbol called an operator.
+
+In C++, the output value of an operation is often called a return value.
+Non-arithmetic C++ operators:
+Insertion <<
+Extraction >>
+equality ==
+....and some are keywords
+new
+delete
+throw
+
+We'll be appending the operator's symbol to the word operator when using operators, e.g. operator+ for the plus symbol operator.
+
+Unary operators act on one operand, e.g. the - operator
+Given -5, operator- takes literal operand 5 and flip its sign to a new output value of -5.
+Binary operators operate on two operands (called left and right). Addition, insertion, extraction, and a bunch of other things are examples of binary operators.
+Ternary operators act on three operands. There's only one of them, and some of my friends hate it.
+Nullary operators act on zero operands. There's also only one of these in C++, and it's the throw operator.
+
+Note that operators can vary in meaning depending on usage/context, e.g. operator- can be negative or subtract, unary or binary.
+
+Operators can be chained so that one operator's output can be used as the input for another operator. e.g. 2 + 3 * 5 uses 15 as right side operand for operator+
+PEMDAS applies here too; parethesis first, and mult/div before add/sub.
+There will be a deeper dive on operators later.
+
+Most operators in C++ just use their operands to calculate a return value. Some operators, like delete and throw, don't produce return values.
+Some operators have additional behaviors. An operator or function with some observable effect beyond producing a return is said to have a side effect.
+REINFORCE: Side effects are observable effects from a function or operator other than returning a value.
+
+Usually, operators with side effects are called for the behavior of the side effects, rather than for the return value produced.
+
+Note that operator= has a side effect, but also does totally produce a return value.
+x=5 returns x.
+std::cout <<5  returns std::cout
+This behavior allows the operators to be chained.
+
+x=y=5 evaluates as x=(y=5)
+But
+std::cout << "Hello " << "world" evaluates as (std::cout << "Hello ") << "world"
+We'll talk about operator precedence and associativity in lesson 6.1
+
+Quiz: What output do these produce?
+
+1. std::cout << 3 + 4 << '\n';
+7
+
+2. std::cout << 3 + 4 - 5 << '\n';
+2
+
+3. std::cout << 2 + 3 * 4 << '\n';
+14
+
+4. int x {2};
+std::cout << (x = 5) << '\n';
+5
+
+
+
+
+
+
+
+

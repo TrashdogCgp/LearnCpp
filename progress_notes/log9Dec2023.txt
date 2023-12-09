@@ -1,0 +1,11 @@
+It's Saturday, so I can get an early start and put in a lot of time.
+I'm committing this file to the repo early so I'm accountable for living up to that promise.
+I do plan on peeling off of the learncpp lessons to work on a Python project for a friend, though.
+
+Didn't have the energy to actually write any of this down yesterday, but I went through 1.9 and 1.10 last night before bed.
+Going to pick up at 1.9 this morning and take notes.
+
+Pretty eager to get past chapter 3 so things can start actually getting interesting.
+
+
+
