@@ -1,0 +1,30 @@
+1_11
+Developing your first program (loooooooool)
+
+First, we create a program that asks the user to enter an integer, waits for them to input an integer, then tells them what 2 times that number is.
+
+I'll humor this tutorial on its description of methodology.
+
+We tackle this in steps.
+First, we create a new project. Then, we create main() and give it the needed return 0; statement.
+Next, we tell the user that we need them to enter an integer.
+Then, we receive input form the user.
+
+Amusing little skit where they run into a compile error by using the insertion operator instead of the extraction operator.
+
+The last step is to double the number and print it out.
+The tutorial goes over three ways to do it.
+The bad way is doubling the variable that was read in, but it's bad because it overwrites the user's input, so if the program wanted to do something else with that input later, it's no longer in memory.
+The okay way is initializing a new variable with double the user-input variable, and then printing that out.
+The good way is leaving the user-input variable alone, and putting the doubling in as an expression:
+std::cout << "Double your number is: " << num * 2 << '\n';
+
+Author's note takeaway from tutorial:
+You have to write a program once to know how it should've been done the first time.
+When we focus on getting programs to work, it doesn't make much sense to invest a lot of time into code we may just discard. So we take shortcuts. We skip over error handling and comments, add in debugging... and this means our initial solutions aren't robust or consise or good at all.
+So the next step is to clean up code. Remove or comment out temporary/debugging code, add comments, handle error cases, format code, and enforce best practice.
+Keep in mind: You SHOULD optimize for maintainability first, and performance second where possible or necessary.
+
+Quiz: Modify the solution to "best solution" implementation so that it outputs triple the user's input as well.
+see ch1_11.cpp
+
