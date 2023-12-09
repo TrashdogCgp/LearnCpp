@@ -11,5 +11,8 @@ value init (int x{};)
 
 Would like to make sure I can type that out on command, so I'll try to think about it just before I sleep tonight and make sure that's in my head.
 
+Irrelevant, but wireless keyboard is really being persnickety today and it's making typing more strenuous and less efficient.
+Might need to replace the battery, but until I go get a replacement, expect a few more typos than usual.
+
 
 

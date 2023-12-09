@@ -1,0 +1,52 @@
+1.6
+Uninitialized variables and undefined behavior
+
+Unlike some programming languages, C++ doesn't initialize to a given value automatically.
+Uninitialized variables are variables that haven't been given a known value (usually through initialization or assignment)
+
+Initialized and uninitialized are not strict opposites! Initialized means the object was provided with an initial value at the point of definition. Uninitialized means the object hasn't been given a known value (through any means, including assignment). Thus, an object that isn't initialized but is assigned a value is no longer uninitialized (because it's given a known value).
+
+An aside from the tutorial page!
+Lack of initialization is a performance optimzation inherited from C, when computers were much slower. Declaring 100000 variables and initializing would be slow for little benefit, assuming you're overwriting those variables anyway.
+For now, we should init variables because the benefits are much stronger than the costs.
+
+When we use values from uninitialized variables, we get unexpected results that may or may not change every time you run the program.
+Note that Visual Studio, at least, will initialize these variables by default when running in Debug, so to see the wonky behavior, run in release.
+
+See ch1_6.cpp, note that it happened to output 0 for me. I need to make sure I'm not in debug if I want to run it for real random garbage values. As Trashdog, I should really prioritize garbage values.
+
+Using garbage values (uninitialized variable values) is our first example of undefined behavior, abbreviated UB.
+This is the result of executing code with behavior not well-defined by the C++ language. Since no rules determine what happens, you can't predict the outcome.
+
+As a rule, take pains to avoid all situations that result in UB.
+
+Implementation-defined behavior and unspecified behavior
+Implementation-defined behavior means the behavior of some syntax is left up to the compiler.
+For example:
+
+std::cout << sizeof(int) << '\n';
+Sometimes this will produce 4, but sometimes it'll yield 2.
+
+Unspecified behavior is almost identical to implementation-defined behavior in that the behavior is left up to the implementation, but the implementation is not required to document the behavior.
+
+Best practice: We want to avoid both of these, because it means our program won't always work as expected on other compilers or with different project settings.
+
+Quiz:
+1. What is an uninitialized variable? Why should you avoid using them?
+An uninitalized variable is a variable that has not been given a value. Avoid using them because initializing is cheap on even remotely modern computers, and uninitalized variables start with an indeterminate value (UB).
+
+2. What is undefined behavior, and what can happen if you do something that exhibits undefined behavior?
+UB is execution of code with behavior not defined by the C++ standard, which thus produces unpredictable results. If you exhibit UB, your program may work fine, work differently on different machines, or completely break. It's hard to predict!
+
+
+
+
+
+
+
+
+
+
+
+
+
