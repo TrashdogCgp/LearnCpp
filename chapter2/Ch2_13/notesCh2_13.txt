@@ -1,0 +1,31 @@
+2_13
+How to design your first programs
+
+Super important thing to remember is to design the program before you start coding.
+Step 1: Define your goal
+Step 2: Define requirements
+Step 3: Define tools, targets, and backup plan
+Step 4: Break hard problems down into easy problems
+Step 5: Figure out the sequence of events
+
+Honestly, reading through this, but not taking notes due to the sheer tedium of trying to type all of this out.
+Trying to explain problem solving is... verbose, for sure.
+
+Text goes into top-down vs bottom-up
+For top-down, start with a goal and break out subtasks.
+For bottom-up, list tasks and construct hierarchy from there.
+
+When implementing:
+Step 1: Outline your main function with commented out function placeholders.
+Step 2: Implement each function (define function prototype, write function, test function)
+Step 3: Final testing
+
+Advice:
+Keep programs simple to start.
+Add features over time.
+Focus on one area at a time.
+Test each piece of code as you go.
+Don't invest in perfecting early code.
+Optimize for maintainability over performance.
+
+

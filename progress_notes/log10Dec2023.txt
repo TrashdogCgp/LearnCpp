@@ -1,0 +1,7 @@
+Ran into more trouble than expected getting VSCode to actually see multiple cpp files with a header file included.
+Except it turned out to be a mismatched curly brace, so that... was a lot of time spent trying to figure out what I needed to know for makefiles.
+Still want to get good with makefiles, will probably take a detour at some point and spend a day on that.
+
+
+
+

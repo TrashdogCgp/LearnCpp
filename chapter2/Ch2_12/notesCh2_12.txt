@@ -1,0 +1,36 @@
+2_12
+Header guards
+
+We've noted before that variables/functions can only have one defniition for a given identifier (one definition rule).
+Thus, a program that defines a variable identifier more than once will have a compile error.
+Similarly, more than one definition for a function will cause a compile error.
+
+While this is easy to fix, header can easily be included more than once, like when a header file includes another header file (common thing!).
+
+Header guards are our answer here.
+Header guards are conditional compilation directives that take the following form:
+#ifndef SOME_UNIQUE_NAME
+#define SOME_UNIQUE_NAME
+//stuff that should be defined
+#endif
+
+Preprocessor will check to see whether the unique name has been previously defined. If this is the first time we're including the header, then it won't have been defined yet. So then it defines the name and includes the contents of the file the first time, and then ignores it afterward.
+
+It's recommended that you use a more complex/unique name for header guards, because in large projects, there's a possibility for guard name conflicts.
+
+Note that the goal of header guards is to prevent a code file from receiving more than one copy of a guarded header.
+Header guards don't prevent a given header file from being included (once) into separate code files. This can cause unexpected problems.
+To avoid these unexpected problems, the best way to work around it is to put definitions for functions in one of the cpp files so that the header only has a forward declaration.
+
+So... why use header guards if they protect you from including function definitions in your headers, which you're not supposed to do anyway?
+Well, there are some cases where it's necessary to put non-function definitions in a header file. Think classes.
+
+#pragma once is an alternative to header guards, but they kinda do the same thing. Implementation is not standardized, though.
+
+Recommend traditional header guards because pragma once isn't defined by the C++ standard, and some compilers may not implement it.
+
+
+
+
+
+
