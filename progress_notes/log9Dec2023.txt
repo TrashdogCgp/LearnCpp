@@ -10,6 +10,22 @@ Pretty eager to get past chapter 3 so things can start actually getting interest
 I also really need to figure out how to resolve this stupid graphics card driver thing that cropped up a couple of months ago.
 It's getting on my last nerves, and I'm considering getting a 4k monitor thanks to how obnoxious it is trying to deal with page format stuff and fixed-size tab widgets. Probably better to have that accursed Radeon driver thing intact before then.
 
+Chapter 2 is referring to compile time vs runtime properties.
+It hasn't been made entirely clear what these are, or what the significance of them are; the tutorial only vaguely explains the concept for each.
+Might be worth getting a thorough rundown on runtime and compile time properties.
+
+Got to Ch2_8 and it involves multiple files.
+Having multiple files compile without #include statements isn't quite as dummy-proof in VSCode as it is in VS proper.
+Required a separate set of tasks.json settings for just the Ch2_8 folder, and to have those settings apply, I had to open that folder as the project.
+But it did work!
+Will try again in the future with #include statements, which I expect to be a little less project-settings-dependent, albeit not totally independent.
+
+Hate to admit it, but the linker talk in 2_8 doesn't actually make very much sense.
+I don't get why forward declaring a function defined in a different file makes the definition visible to the linker.
+I don't think the distinction between the compiler and linker, or the functionality of the linker overall, was very clear.
+What exactly makes something visible to the linker? Does it just have the ability to see everything compiled in a program and try to match identifiers? Is there more to this that I'm not understanding?
+
+
 
 
 

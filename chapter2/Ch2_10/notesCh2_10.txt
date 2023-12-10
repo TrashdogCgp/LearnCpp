@@ -1,0 +1,85 @@
+2_10
+Introduction to the preprocessor
+
+Compilers don't actually compile each code file exactly as you've written it.
+Preprocessing occurs prior to compilation.
+The preprocessor (a program) makes various changes to the text of the code. It doesn't modify the original files, but rather, changes made by the preprocessor happen either temporarily in-memory or using temporary files.
+
+Mostly, the preprocessor strips out commends and enforces that each code file ends in a new line.
+However, there's one big role it plays, which is processing #include directives.
+
+When the perprocessor finishes processing a code file, the result is called a translation unit.
+The process of preprocessing, compiling, and linking is called translation.
+Hence, translation unit from the preprocessor.
+Preprocessor directives (also just called directives) are instructions that start with # and end with a newline (not a semicolon).
+These tell the preprocessor to perform certain text manipulation tasks.
+The preprocessor doesn't understand C++ syntax. Directives have their own separate syntax.
+
+Common preprocessor directives:
+
+#include
+Preprocessor replaces the #include directive with the contents of the included file.
+When the preprocessor has finished processing the code file plus all of the #included content, the result is a translation unit.
+The translation unit is sent to the compiler to be compiled.
+
+Macro defines
+#define
+In C++, a macro is a rule that defines how input text is converted into replacement output text.
+The #define directive can create macros.
+Function-like macros act like functions, and serve a similar purpose. Their use is generally unsafe, and normal functions can do what they do just fine instead.
+
+Object-like macros can be defined in one of two ways:
+#define identifier
+#define identified substitution_text
+
+The top definition has no substitution text, but the bottom one does.
+
+Macro identifiers use the same naming rules as normal stuff. No number starts, prefer not to start with an underscore, and the works.
+Conventionally, macro names should be all upper-case, separated by underscores.
+
+When the preprocessor encounters this directive, any further occurrence of the identifier is replaced by the substitution text.
+e.g.
+std::cout << "My name is: " << INSTRUCTOR_NAME << '\n';
+is converted by the preprocessor to:
+std::cout << "My name is: " << "Alex" << '\n';
+
+These were used in C to assign names to literals. This is no longer necessary, and object-like macros with substitution text should generally only be seen in legacy code. C++ has better methods for this.
+
+When you define object-like literals without substitution text, any occurrence of the identifier is removed and replaced by nothing.
+This form has uses, and unlike the version with substitution text, is generally considered acceptable to use.
+
+Conditional compilation preprocessor directives allow you to specify conditions for something compiling or not.
+There are a few of these, but we'll cover #ifdef, #ifndef, and #endif
+
+#ifdef allows the preprocessor to see if an identifier has been #defined. If so, the code between #ifdef and the corresponding #endif is compiled. If not, it's ignored.
+
+#ifndef is just the opposite of #ifdef
+
+#if 0 can be used to exclude a block of code from being compiled (as if in a comment block)
+e.g.
+#if 0
+{a lot of code}
+#endif
+
+This is a convenient way to comment out code that contains multi-line comments, which are harder to comment out due to not nesting.
+You can re-enable the code by changing #if 0 to #if 1
+
+See the following, too:
+#define PRINT_JOE
+
+#ifdef PRINT_JOE
+// ... some code here
+
+So we've defined PRINT_JOE as... nothing. So why isn't the PRINT_JOE on the #ifdef line not removed?
+Well, macros only cause text substitution for non-preprocessor commands. Since #ifdef PRINT_JOE is a preprocessor command, text substitution does not apply within this command.
+Note that the final output of the preprocessor (translation unit, right?) does not contain directives at all. They're stripped before compilation, because the compiler wouldn't know what to do with them.
+
+Scope of #defines:
+Preprocessors don't know about C++ scope, like, at all.
+You'll usually want preprocessor directives outside of functions for readability, though.
+Once the preprocessor has finished, all defined identifiers from that file are discarded. Directives are only valid from the point of definition to the end of the file in which they're defined. Directives defined in one code file do not impact other code files in the same project.
+This will be of consequence when we talk about header guards.
+
+
+
+

@@ -1,0 +1,53 @@
+2_5
+Introduction to local scope
+
+Variables defined inside the body of a function are called local variables (as opposed to global variables, which we'll discuss later).
+Function parameters are also generally considered to be local variables, so we count them as such.
+
+We've gone over instantiation (creating variables)... so when is an instantiated variable destroyed?
+Well, local variables are destroyed in the opposite order of creation at the end of the set of curly braces in which they're defined (end of the function for a function parameter)
+
+Object lifetime is defined as the time between its creation and destruction. Note that variable creation/destruction happen during runtime, not compile time.
+Object lifetime, then, is a runtime property.
+
+These object lifetime rules are guarantees; objects must be created and initialized no later than the point of definition, and destroyed no earlier than the end of the curly braces in which they're defined.
+In actuality, C++ specs give compilers flexibility to determine when local variables are created/destroyed. Objects may be created earlier or destroyed later than the guaranteed times, for the sake of optimization.
+Most often, local variables are created when the function is entered, and destroyed in opposite order of creation when the function is exited.
+We'll discuss this more when we get to the call stack.
+
+Scope- determines where the identifier can be seen and used within the source code.
+When an identifier can be seen and used, we say it's in scope.
+When an identifier can't be seen and can't be used, we say it's out of scope.
+Scope is a compile-time property, and you'll get a compile error from trying to use an identifier when it's not in scope.
+
+Since a local variable's scope begins at variable definition and stops after the curly braces in which it's defined, variables can't be used before their definition.
+Local variables defined in one function are also not in scope for other functions that are called.
+
+The terms "out of scope" and "going out of scope can apparently be pretty confusing.
+An identifier is out of scope anywhere it can't be accessed within the code.
+Going out of scope typically applies to objects rather than identifiers. We say an object goes out of scope at the end of the scope in which it was initialized.
+
+Not all types of variables are destroyed when they go out of scope. We'll see that in future lessons.
+
+Functional separation- variable names within different scopes have nothing to do with each other.
+Variables named x and y in main are distinct from variables named x and y defined in a called function.
+When inside the respective function body, the x and y identifiers refer to the locally scoped variables x and y within that function. Neither main nor the called function would know that the other function has variables with the same names.
+Because the scopes don't overlap, it's always clear to the compiler which x and y are being referred to at a given time.
+
+In modern C++, the best practice is that local variables inside the function body should be defined as close to their first use as reasonable.
+In more primitive compilers, the C language used to require all local variables to be defined at the top of the function. This was suboptimal because:
+The intended use of variables isn't apparent at the point of definition.
+The intended init value may not be accessible at the point of definition.
+There may be a lot of code between initalization and first use.
+
+Quiz
+1. What does the program print? see ch2_5_1.cpp
+main: x = 1 y = 2
+doIt x = 1 y = 4
+doIt x = 3 y = 4
+main x = 1 y = 2
+
+
+
+
+

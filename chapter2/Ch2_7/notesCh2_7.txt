@@ -1,0 +1,163 @@
+2_7
+Forward declarations and definitions
+
+Compilers compile the contents of code files sequentially. If we define functions after main(), the compiler will give us an error saying that the to-be-defined function's identifier is not found. Visual Studio can do some weird things to let you know this issue is present.
+
+Best practice: When addressing compilation errors or warnings in programs, resolve the first issue listed and then compile again.
+
+To resolve this identifier issue, you can reorder the function definitions. Putting your function above main() will make the compiler stop complaining, because by the time main() calls add(), the compiler will already know what add() is.
+But this isn't always possible! If we write two functions, A and B, it's possible for A to call B and B to call A. In this case, there's no way to order the functions in a way that the compiler won't blow up about.
+
+A forward declaration allows us to tell the compiler about the existence of an identifier before actually defining the identifier.
+For functions, we can tell the compiler that a function exists before we define the function body. That way, when the compiler encounters a call to the function, it'll understand that we're calling the function, and it'll be able to check our usage against the signature of the called function, even if it doesn't have a definition yet.
+
+For a forward declaration, we use a function declaration statement (aka function prototype).
+The function declaration consists of the function's return type, name, and parameter types, terminated with a semicolon.
+e.g.
+int add(int x, int y);
+Also valid:
+int add(int, int);
+However, we prefer to name our parameters (using the same names as the actual function) for consistency and ease of interpretation.
+
+See ch2_7.cpp
+
+Note that it's actually pretty easy to create function declarations by copying and pasting the function header and adding a semicolon.
+
+So why forward declare?
+Most often, it's to tell the compiler about the existence of a function that's defined in a different code file. Reordering isn't possible because the caller and callee are in completely different files.
+Forward declarations can also define our functions in an order-agnostic manner; we can organize more intuitively if we don't have to worry about ordering them on dependency.
+
+If you declare a function but don't define it, behavior depends. If the program never calls the declared (but undefined) function, then the program will compile fine. But if the function is called, the program will compile and then the linker will complain about being unable to resolve the function call.
+
+Aside from functions, forward declarations can be used with variables and types. Syntax for these will be a little different, see future lessons.
+
+In C++, declaration and definition are frequently used interchangeably. But there's a difference!
+Declaration tells the compiler about the existence of an identifier and its associated type info.
+Definition is a declaration that actually implements or instantiates the identifier (for functions/types, and for variables, respectively).
+
+Declarations that aren't definitions are called pure declarations.
+Types of pure declarations include forward declarations for functions, variables, and types.
+
+Commonly, the term declaration is typically used to mean a pure declaration, and definition is meant as a definition that also serves as a declaration. 
+
+When the compiler encounters an identifier, it will check to ensure use of that identifier is valid (in scope, valid syntax, etc).
+In most cases, a declaration is sufficient to allow the compiler to ensure an identifier is being used properly.
+However, there are a few cases where the compiler must be able to see a full definition to use an identifier (e.g. template definitions, type definitions, both coming later on)
+
+The One Definition Rule- ODR
+*Within a file, each function, variable, type, or template can only have one definition. Definitions occurring in different scopes (e.g. local variables defined in different functions or namespaces) do not violate this rule.
+*Within a program, each function or variable can only have one definition. This rule exists because programs can have more than one file. Functions and variables not visible to the linker are excluded from this rule.
+*Types, templates, inline functions, and inline variables are allowed to have duplicate definitions in different files, so long as each definition is identical. We'll bring this back up later.
+
+Violating the first part of the ODR will cause the compiler to issue a redefinition error.
+Violating the second part will cause the linker to issue a redefinition error.
+Violating the third part results in undefined behavior.
+
+Quiz
+1. What is a function prototype?
+A function prototype is a declaration statement for a function. It contains the return type, name, and parameters without the function body defined. It is used to flag the existence of the function to the compiler before the function definition has been compiled.
+
+2. What is a forward declaration?
+A forward declaration is a statement that declares a variable, function, or type without definining it. They are used to tell the compiler about the declared entity's existence and can avoid the need to order function definitions according to dependencies.
+
+3. How do we declae a forward declaration for functions?
+Take the function signature and add a semicolon (function prototype). Function body not required.
+Or in other words, something to the tune of:
+returnType identifier(parameters);
+
+4. Write the function declaration for this function (use the preferred form with names):
+Function to declare:
+int doMath(int first, int second, int third, int fourth)
+{
+    return first + second * third / fourth;
+}
+
+Answer:
+int doMath(int first, int second, int third, int fourth);
+
+5. For each of the following programs, state whether they fail to compile, fail to link, or compile and link successfully.
+(source code, then answers, sorry for cluttering these notes; don't want to make 5 new freaking files:)
+
+a.
+#include <iostream>
+int add(int x, int y);
+
+int main()
+{
+    std::cout << "3 + 4 + 5 = " << add(3, 4, 5) << '\n';
+    return 0;
+}
+
+int add(int x, int y)
+{
+    return x + y;
+}
+
+b.
+#include <iostream>
+int add(int x, int y);
+
+int main()
+{
+    std::cout << "3 + 4 + 5 = " << add(3, 4, 5) << '\n';
+    return 0;
+}
+
+int add(int x, int y, int z)
+{
+    return x + y + z;
+}
+
+c.
+#include <iostream>
+int add(int x, int y);
+
+int main()
+{
+    std::cout << "3 + 4 = " << add(3, 4) << '\n';
+    return 0;
+}
+
+int add(int x, int y, int z)
+{
+    return x + y + z;
+}
+
+d.
+#include <iostream>
+int add(int x, int y, int z);
+
+int main()
+{
+    std::cout << "3 + 4 + 5 = " << add(3, 4, 5) << '\n';
+    return 0;
+}
+
+int add(int x, int y, int z)
+{
+    return x + y + z;
+}
+
+e.
+#include <iostream>
+int add(int, int, int);
+
+int main()
+{
+    std::cout << "3 + 4 + 5 = " << add(3, 4, 5) << '\n';
+    return 0;
+}
+
+int add(int x, int y, int z)
+{
+    return x + y + z;
+}
+
+
+
+a. Fails to compile. Compiler will complain that it can't find an add function that takes three arguments.
+b. Fails to compile. Function prototype only has two parameters, and main() is defined before the add() that takes three parameters.
+c. Compiles, but doesn't link. add() function with two input parameters is never defined, only declared.
+d. Compiles and links. Forward declaration is valid and definition is below main().
+e. Compiles and links, but not ideal on the style because the parameters in the forward declaration aren't named in accordance with the definition.
+
