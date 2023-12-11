@@ -1,0 +1,25 @@
+2_6
+Why functions are useful, and how to use them effectively
+
+Benefits of using functions, vice putting all the code in the main function:
+Organization- The larger programs get, the more complicated things get. Treat a function like a mini-program that we can write separately from the main program, without having to think about the whole program. Reducing one complicated program into smaller, more manageable chunks will reduce the overall complexity of our program.
+Reusability- Once a function is written, it can be called multiple times from within the program. This follows DRY and reduces copy/paste errors. Functions can also be shared with other programs, reducing the code that has to be written and tested.
+Testing- Since functions reduce code redundancy, there's less code to test in the first place. Also functions being self-contained means we don't have to test it again after we ensure it works, unless we change it.
+Extensibility- When we need to extend our program to handle a case that wasn't handled before, functions let us make the change in one place and have it apply everywhere the function is called.
+Abstraction- You only need to know name, inputs, outputs, and location for a function. You don't need to know its workings or dependencies to use it. Note how useful this is just in the standard library alone.
+
+Effectively using functions (guidelines):
+Groups of statements that appear more than once should generally become functions, e.g. reading user input multiple times in the same way or outputting something the same way multiple times.
+Code with well-defined inputs and outputs is a good candidate for becoming a function, especially if it's complicated. Even if it's only done once, for example, code that sorts a list would be a good thing to turn into a function.
+A function should generally perform one (and only one) task.
+When a function is too long or complicated, it can be split into subfunctions.
+This is called refactoring.
+
+
+
+
+
+
+
+
+

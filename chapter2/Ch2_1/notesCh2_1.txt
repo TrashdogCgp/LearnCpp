@@ -1,0 +1,40 @@
+2_1
+Introduction to functions
+Last chapter, we defined a function as a collection of statements that execute sequentially.
+Here, we update that definition.
+A function is a reusable sequence of statements designed to do a particular job.
+
+Every executable program must have the main() function.
+User-defined functions can take over from main to improve the manageability of main.
+
+A function call is an expression that tells the CPU to interrupt the current function and execute another function.
+The CPU calls (executes) the called function and then returns to the point where the function was called, and resumes excution.
+
+The function initiating the function call is the caller. The function being called is the callee or called function.
+
+Syntax is:
+returnType functionName() {body}
+
+First line is informally called the function header, and it tells the compiler about the function's existence, name, and some other info (return/parameter type, for example).
+
+Functions are called by appending a pair of parentheses to the function name (e.g. callFunc();)
+If you forget the parentheses, the program may not compile, and if it does, the function won't be called.
+
+Unlike some otehr programming languages, C++ does not allow functions to be defined inside of other functions.
+
+Quiz
+
+1. In a function definition, what are the curly braces and statements in between called?
+Function body
+
+2. What does the following program print? Do not compile this, just trace the code.
+See ch2_1.cpp
+Printouts, though:
+
+Starting main
+In doA()
+In doB()
+In doB()
+Ending main()
+
+

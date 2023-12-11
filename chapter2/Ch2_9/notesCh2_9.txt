@@ -1,0 +1,58 @@
+2_9
+Naming collisions and an introduction to namespaces
+
+C++ requires that identifiers be non-ambiguous. If two identical identifiers are introduced in the same program in a way the compiler/linker can't tell apart, the compiler/linker will produce an error.
+This is called a naming collision (or naming conflict).
+This gives a compiler error if conflicts are within the same file, and a linker error if conflicts are within different files.
+
+Local scope helps to prevent naming collisions by keeping local variables defined inside functions from conflicting with each other.
+But local scope doesn't work for function names. So how do we avoid conflicts on functions?
+
+A namespace is a region that allows you to declare names inside of it for disambiguation.
+The namespace provides a scope region (namespace scope) to the names declared inside of it, so any name declared in the namespace won't be mistaken for identical names in other scopes.
+
+The global namespace is an implicitly defined namespace, and any name not defined in a class, function, or namespace is part of this.
+Only declarations and definitions can appear in a namespace. This means we can define variables in the global namespace, though this should be avoided.
+This also means that other types of statements (expression statements, for example) cannot be placed in the global namespace.
+Global namespace example:
+
+#include <iostream>
+int globalThing{0};//can declare and initialize globalThing in global namespace
+void func();//can declare function
+
+//Can also define main() in the global namespace, as we kind of even have to
+int main()
+{
+    std::cout << globalThing << '\n';
+}
+
+Reinforce:
+Only declarations and definitions can appear in a namespace, including the global namespace.
+
+The std namespace
+When C++ was originally designed, all the identifiers in the C++ standard library were part of the global namespace.
+This meant conflicts. So C++ moved the functionality into the standard (std) namespace.
+
+There are a few ways to access an identifier defined in a namespace.
+
+Explicit namespace qualifier std::
+The most straightforward way is explicitly using the std:: prefix.
+:: is called the scope resolution operator.
+std::cout means "the cout that lives in namespace std"
+This is the safest way to use cout, because there's no ambiguity about which cout we're referencing.
+
+Best practice: Use explicit namespace prefixes to access identifiers defined in a namespace
+
+Using namespace std (avoid it)
+Another way to access identifiers in a namespace is to use a using directive statement, e.g. "using namespace std;"
+
+A using directive lets us access the names in a namespace without using a namespace prefix.
+This is bad practice, though, because it opens up conflicts with names that overlap with the namespace from the using directive.
+
+
+
+
+
+
+
+

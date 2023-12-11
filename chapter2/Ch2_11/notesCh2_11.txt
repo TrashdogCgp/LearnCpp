@@ -1,0 +1,77 @@
+2_11
+Header Files
+
+Forward declaring gets tedious, so we have header files with .h extensions (sometimes hpp or no extension at all).
+The primary purpose of a header file is to propagate declarations to cpp code files.
+
+Think back to cout, which is not declared anywhere in our main file, but was declared in the iostream header file.
+The preprocessor copies all content from iostream, including forward declarations for std::cout, into the file doing the include.
+
+Headers consist of only two parts:
+Header guard (next lesson)
+Content of header file, which should be forward declarations for all identifiers we want other files to be able to see.
+
+Best practice: Prefer a .h suffix for header file names (unless project already uses other convention)
+
+Header files are often paired with code files, with the header file providing forward declarations for the corresponding code file.
+
+When the preprocessor processes an #include "thing.h" line, it copies the contents of thing.h into the current file at that point, so forward declarations will copy into the cpp file that includes the h file.
+
+Including definitions in a header file results in a violation of the one-definition rule.
+If the header is included onto more than one source file, things will break.
+
+Note that in the future, these tutorials will introduce additional kinds of definitions that can be safely defined in header files (because they're exempt from the ODR). This includes definitions for inline functions, inline variables, types, and templates.
+
+Code files should include their paired header files (if one exists). e.g. add.cpp should include add.h to allow the compiler to catch errors at compile time rather than link time.
+
+Do not #include cpp files.
+This can cause naming collisions between source files, make it harder to avoid ODR issues, and cause recompilation of other cpp files on any change.
+It's also just not conventional.
+
+Notice that #include <iostream> doesn't use quotes. The angled brackets gives the preprocessor an indication as to where to look for header files.
+When we use angled brackets, we tell the preprocessor that this header file is something we didn't write ourselves, so it'll lookn in the include directories.
+Include directories are configured as part of the project/IDE/compiler settings, and it usually defaults to directories that come with the compiler and/or OS.
+When we use double-quotes, we tell the preprocessor that the header is a file we wrote. The preprocessor will first search for the header file in the current directory, then search the include directories if it can't find a matching header there.
+
+Best practice: When including a header file from the standard library, use the version without the .h extension if it exists. User-defined headers should still use a .h extension.
+If a header file without .h extension declares names into the global extension, avoid those names because they may not be available in the global namespace on other compilers. Prefer the names declared in the std namespace instead.
+
+so, how to include headers from other directories?
+One (bad) way to do this is using a relative path to the header file you want as part of the include line, e.g. #include "../headers/myHeader.h"
+This sucks because it requires directory structure to stay consistent.
+
+Better method:
+Tell compiler or IDE that you have a bunch of headers in some other location, so it will look there when it can't find them in the current directory. This is usually done by setting an include path or search directory in your IDE project settings.
+
+For VSCode, in tasks.json configuration, add a new line in the Args section:
+"-I/source/includes"
+Pretty sure this has to be adjusted to the actual source directory you want to include, starting... relative to the .vscode folder level?
+More on that later, demo works for now with previous tasks.json settings
+
+Note that headers may include other headers. It's common that a header file will need a declaration or definition from a different header file, which has them include other header files.
+When your code file includes the first header file, you'll also get all other header files that it included.
+These are called transitive includes.
+Transitive includes are included implicitly rather than explicitly.
+
+Best practice: Each file should explicitly include all header files it needs to compile. Do not rely on transitive includes from other headers.
+
+If your header files are written correctly and include what they need, the order of inclusion shouldn't matter.
+
+Best practice: To maximize the chance that missing includes will be flagged by the compiler, order includes as follows:
+The paired header fileOther headers from your project
+3rd party library headers
+Standard library headers
+(sort alphabetically within same category unless required to do otherwise)
+This way, if a user-defined header is missing an include for, say, a 3rd party library, you're more likely to catch it in a compile error and get a chance to fix it.
+
+More best practices:
+Always include header guards (we’ll cover these next lesson).
+Do not define variables and functions in header files (for now).
+Give a header file the same name as the source file it’s associated with (e.g. grades.h is paired with grades.cpp).
+Each header file should have a specific job, and be as independent as possible. For example, you might put all your declarations related to functionality A in A.h and all your declarations related to functionality B in B.h. That way if you only care about A later, you can just include A.h and not get any of the stuff related to B.
+Be mindful of which headers you need to explicitly include for the functionality that you are using in your code files, to avoid inadvertent transitive includes.
+A header file should #include any other headers containing functionality it needs. Such a header should compile successfully when #included into a .cpp file by itself.
+Only #include what you need (don’t include everything just because you can).
+Do not #include .cpp files.
+Prefer putting documentation on what something does or how to use it in the header. It’s more likely to be seen there. Documentation describing how something works should remain in the source files.
+

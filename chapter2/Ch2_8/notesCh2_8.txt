@@ -1,0 +1,27 @@
+2_8
+Programs with multiple code files
+
+Splitting programs into multiple files just makes sense for reusability and organization. IDEs make this much easier.
+Best practice: When you add new code files to your project, give them a .cpp extension.
+
+For VS Code, create the new file to include.
+In tasks.json, you can either be explicit about what files get compiled (replace ${file} with the name of each file you want to compile, one per line), or you can have VS Code automatically compile all .cpp files in the directory by replacing ${file} with ${fileDirname}\\**.cpp
+Note that this required me to open the folder containing the .cpp files as the primary folder in VSCode; if I were to change the higher-level tasks.json file, I'd probably break my ability to compile everything else.
+
+In the file containing main(), we have to forward declare the add() function.
+This is because the compiler compiles each file individually; it doesn't know about the contents of other code files. Even if the compiler saw the definition of function add() previously, if it compiled the file containing add() before the file containing main(), it won't remember add() from that compilation.
+This limited visibility and short memory is intentional for a few reasons:
+It allows source files to compile in any order.
+When we change a source file, only that source file needs to be recompiled.
+It reduces the possibility of naming conflicts between identifiers in different files.
+
+When we forward declare add(), the linker will connect the function call to add() in main.cpp to the definition in our other file.
+This method gives files access to functions that live in another file.
+
+Totally worth noting that the tutorial admits that plenty of things can go wrong when you try working with multiple files in a less-than-familiar IDE. 
+
+Quiz
+
+1. Split the following program into two files (main.cpp and input.cpp).
+See folder ch2_8_quiz, which you'll have to open as the main project.
+Note that tasks.json had to be adjusted in order to make the multi-file approach work.

@@ -1,0 +1,81 @@
+2_2
+Function return values (value-returning functions)
+
+Considering a program that takes in a value from the user, then tells the user what double that value is.
+What if we want to break it into multiple functions, with a function getting a value from the user?
+
+They show an example that doesn't have a return statement, and acknowledge that this won't work.= because the fetched user input is lost when the function terminates and returns to main().
+
+When you write a user-defined function, you get to determine whether your function will return a value back to the caller or not.
+You must indicate your function's return type and use a return statement to do this.
+Return type is the type defined before the function's name.
+A return statement is used to return a value to the caller, with the value called a return value.
+When the return statement executes, the function exits and the return value is copied from the function back to the caller.
+This process is called return by value.
+
+The tutorial gives an example of a function that only returns 5 as an integer:
+int returnFive()
+{
+    return 5;
+}
+It also specifies that return values will not be printed unless the caller sends them to the console via std::cout.
+
+After this demo, they fix the program from the beginning to return the user-input value.
+
+Now, if we reisit main, we understand how the function works a little better. When the program executes, the OS makes a function call to main. Execution starts at the top of main, and its statements are executed sequentially.
+Finally, main returns an integer value (usually 0) and the program terminates.
+The return value from main is sometimes called a status code (also exit code or sometimes return code), used to indicate program success/failure.
+Return 0 means the program executed successfully.
+
+C++ standard only defines three status codes: 0, EXIT_SUCCESS, and EXIT_FAILURE.
+The first two mean success, and the latter means failure. Both of the latter two are preprocessor macros defined in <cstdlib>
+To maximize portability, only use these returns to indicate termination status.
+
+C++ disallows explicit calling of the main() function, although because C allows main() to be called explicitly, some C++ compilers will allow it for compatibility reasons.
+
+Value-returning functions return a value. This is the case if the return type is anything other than void.
+
+A value-returning function must return a value of that type, otherwise undefined behavior will result.
+A modern compiler will generate a warning over such a case, but if the program runs, it'd have undefined behavior.
+Don't rely on the compiler to detect if you've forgotten a return value; in some complicated cases, the compiler may not be able to properly tell whether or not the function returns a value in all cases.
+
+Best practice: Make sure your functions with non-void return types return a value in all cases. Otherwise, expect undefined behavior.
+
+main() will implicitly return 0 if no return statement is provided. This is the only exception to the rule of a value-returning function needing to return a value via return statement.
+It's still best practice to explicitly return a value from main() both to show intent, and for consistency with other functions.
+
+A value-returning function can only return a single value back to the caller each time it's called.
+Note that the value provided in a return statement doesn't need to be literal. It can be any valid expression's result, including a variable or a return from another function call.
+This limitation (single return) can be worked around, but that'll be a future topic.
+
+The meaning of the value returned by a function is at the discretion of its author.
+Sometimes, returns are used as status codes. Sometimes, the return value is something calculated or selected.
+Since there's a lot of variety in intentions, it's a good idea to document your function with a comment indicating the return values' meaning.
+
+Functions help with not violating the DRY tenet (don't repeat yourself).
+They're also part of the essence of modular programming, where you can write a function, test it, ensure that it works, and then reuse it as many times as we want and expect it to continue to work.
+
+Best practice: Follow DRY. If you need to do something more than once, consider how to modify your code to remove as much redundancy as possible. Variables can be used to store the results of calculations that need to be used more than once, which would then cut down on repeating the calculation. Functions can be used to define a repeatedly-executed sequence of statements.
+
+Quiz
+1 Inspect the programs and determine what they will output or, if they'll generate a compiler error.
+
+a) Outputs 16 (7 + 9)
+
+b) Omitting source code; won't compile due to attempting to define return9() within the body of return7().
+C++ does not allow nested functions.
+
+c) Outputs nothing, but compiles!
+
+d) Outputs:
+5
+5
+
+e) Omitting source code. Won't compile; return is a keyword and can't be used as an identifier
+
+f) Undefined behavior! returnFive is not called because the parentheses aren't appended to the identifier.
+
+2. What does DRY stand for, and why is it useful to follow?
+Don't repeat yourself. Means reuse code as much as you can and minimizing redundancy; if you have to do something twice, use the same code for it both times rather than copying the code.
+Useful to follow because it cuts down on code bloat/size/complexity and allows changes to be applied all over with a single modification rather than requiring the user to hunt them down.
+

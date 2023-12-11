@@ -1,0 +1,55 @@
+2_4
+Introduction to function parameters and arguments
+
+While we've returned values, we need a way to pass values from main() or other functions into a called function so that the passed variable can be used in the function body.
+
+A function parameter is a variable used in the header of a function.
+Function parameters work almost identically to variable defined inside the function, but with one difference: they're initialized with a value provided by the caller of the function.
+
+Function parameters are defined in the function header by placing them in the parentheses after the function name, with multiple parameters separated by commas.
+
+An argument is a value that is passed from the caller to the function when a function call is made.
+doPrint() //no arguments
+printValue(6) //argument here is 6
+add(2,3) // arguments are 2 and 3
+
+When a function is called, all of the parameters of the function are created as variables, and the value of each argument is copied into the matching parameter (using copy initialization).
+This process is called pass by value.
+Function parameters that use pass by value are called value parameters.
+
+Note that the number of arguments in a function call generally must match the number of function parameters, or the compiler will throw an error.
+The argument passed to a function can be any valid expression (as the argument is essentially just an initializer for the parameter, and initializers can be any valid expression)
+
+The tutorial goes over several code snippets illustrating this use of expressions as arguments.
+
+Unreferenced parameters- functions can have parameters that are not used in the body of the function.
+If the unused function parameter were simply removed, then any existing call to the function would break, but the function also doesn't even use the parameter in the function body.
+
+In a function definition, the name of a function parameter is actually optional. Therefore, in cases where a function parameter needs to exist, but isn't used in the function body, you can simply omit the name.
+A parameter without a name is called an unnamed parameter.
+The Google C++ style guide recommends using a comment to document what the unnamed parameter was, e.g.:
+void doSomething(int /*count*/){   }
+
+Best practice: When a function parameter exists but is not used in the body of the function, don't give it a name.
+Optionally, put a name inside of a comment.
+
+Quiz
+1. What is wrong with the program fragment?
+Function multiply() has a void return type in its signature, but returns an integer result anyway
+
+2. What two things are wrong with this program fragment?
+Function multiply() does not contain a return statement despite having a return type of int.
+main() calls multiply() with one argument, but its signature calls for two arguments.
+
+3. What does the program print? see ch2_4_3.cpp
+Returns evaluation of 6 * 4 from the multiply() call.
+Program prints:
+24
+
+4. Write a function called doubleNumber() that takes one integer parameter. The function should return double the value of the parameter.
+
+5. Write a complete program that reads an int from the user, doubles it using the doubleNumber() function from the previous question, and then prints the doubled value out to the console.
+
+See ch2_4_4.cpp for questions 4 and 5.
+
+
