@@ -1,0 +1,11 @@
+3_2 
+Syntax and semantic errors
+
+This chapter is about finding and removing bugs in our C++ programs, including learning how to use the integrated debugger in the IDE.
+
+Common error categories: syntax error and semantic error (logic mistakes).
+
+A syntax error occurs when your statement is not valid by C++ language grammar.
+A semantic error occus when a statement is syntactically valid, but doesn't do what the programmer intended.
+
+In most cases, compilers won't catch semantic errors because compilers are designed to enforce grammar, not intent.

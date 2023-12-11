@@ -1,0 +1,43 @@
+3_6
+Using an integrated debugger: stepping
+
+When you run a program, execution begins at the top of the main function, then proceeds sequentially statement by statement until the end.
+At any time, the program is keeping trach of a lot: value of variables you're using, which functions are called, and the current point of execution within the program (tells what to execute next).
+This tracked info is called program state.
+
+Prior to this less, there's been an unstated assumption that once we run code, it'll run to completion without a chance for us to intervene and inspect program results.
+Mode IDEs come with a debugger that... kind of invalidates that assumption.
+
+The debugger is a program that allows the programmer to control how another program executes and examine program state.
+Initially, debuggers (like gdb) were separate programs with command-line interfaces, where the programmer had to type arcane commands to get them to work.
+Nowadays, IDRs have integrated debuggers, using the same interface as the code editor to debug in the same environment used to write code.
+
+Recall that to set VS Code to debug mode:
+
+Above the “${file}” line, add a new line containing the following command (one per line) when debugging:
+"-ggdb",
+
+When debugging, the step into command executes the next statement in the normal execution path of the program.
+It then pauses execution of the program so we can examine program state using the debugger.
+If the statement contains a function call, step into causes the program to jump to the top of the function being called, where it will pause.
+
+When debugging, there's a chance that cout being buffered will cause it not to output when you hit that line.
+std::cout << std::unitbuf; //Enable automatic flushing for cout, may be necessary for debugging
+
+Can also use a conditional compilation preprocessor directive
+#ifdef DEBUG
+std::cout << std::unitbuf; // enable automatic flushing for std::cout (for debugging)
+#endif
+
+The step over command executes the next statement in the normal execution path of a program.
+Step over will execute an entire function without stopping, and will return control to you after the function has been executed.
+
+The step out command doesn't just execute the next line of code; it instead executes all remaining code in the function currently being executed, then returns control to you when the function has returned.
+
+When stepping through a program, you can normally only step forward. If you step past your intented destination, the usual thing to do is stop debugging and start from the top with a bit more caution.
+
+Some debuggers have introduced step back, but it's... pretty hard to implement for the debugger, and consequently not that widespread.
+
+
+
+

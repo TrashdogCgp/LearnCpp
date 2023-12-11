@@ -1,0 +1,17 @@
+3_2
+The debugging process
+
+Bugs stem from a simple premise: Something you thought was correct, isn't.
+Figuring out why/where can be challenging.
+Note that the techniques for debugging are meant to be used with larger, more complex programs than what we've had exposure to so far.
+The approaches outlined will seem like overkill.
+
+Approach:
+Find the root cause of the problem (usually the line of code that’s not working)
+Ensure you understand why the issue is occurring
+Determine how you’ll fix the issue
+Repair the issue causing the problem
+Retest to ensure the problem has been fixed and no new problems have emerged
+
+
+

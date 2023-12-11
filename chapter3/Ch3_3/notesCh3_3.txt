@@ -1,0 +1,20 @@
+3_3
+A strategy for debugging
+
+Most of the work is finding, not fixing, the error.
+So how do you find errors?
+
+Code inspection
+In many cases, especially in smaller programs, we can see the issue pretty quickly.
+However, as programs get more complex, finding issues by code inspection gets more difficult, too.
+
+Running the program
+Figure out how to reproduce the problem, run the program and gather info to narrow down where the problem is.
+We'll discuss techniques in this chapter to facilitate this approach.
+
+Reproducing the problem is the most important step in finding the problem. This means making the problem consistently appear.
+Reproduction steps are a list of clear and precise steps that can be followed to cause an issue to recur with high predictability.
+100% reproducability isn't necessary, but higher is better.
+
+We'll start with approaches for making guesses at where problems are in the next chapter.
+

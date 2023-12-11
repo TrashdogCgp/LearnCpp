@@ -1,0 +1,47 @@
+3_10
+Finding issues before they become problems
+
+What can we do about errors?
+
+Well, the best thing is just not making errors in the first place. So:
+Follow best practices.
+Don't program when tired or already frustrated.
+Understand where the common pitfalls are in a language.
+Don't let functions get too long.
+Prefer the standard library to your own code, when possible
+Comment code thoroughly and liberally
+Start with simple solutions, then layer in complexity
+Avoid clever/non-obvious solutions
+Optimize for maintainability over performance
+
+Refactoring code is the process of making structural changes to code without changing its behavior (typically to make your program more organized, modular, or performant).
+One example of refactoring that's relevant here is breaking a single long function into multiple shorter functions.
+A function that takes up a full screen worth of code is generally regarded as too long; if you have to scroll to read it, comprehension drops significantly.
+
+When making changes to code, make behavioral changes OR structural changes, and then retest for correctness.
+Making both at the same time facilitates errors, and they're harder to find, too.
+
+Defensive programming is a practice whereby the programmer tries to anticipate all of the ways the software could screw up or be misused.
+There will be topics on this in future lessons, as well as error handling.
+
+Since not making errors is difficult long-term, the next best thing to do is catch errors that you do make quickly.
+
+Testing functions- unit testing is a good way to catch errors.
+
+Constraints-based techniques involve adding some extra code to check that assumptions/expectations aren't violated.
+For example, if we write a function to calculate the factorial of a number, we would want to check that the number is non-negative.
+assert and static_assert are common methods of doing this.
+
+Static analysis tools are programs that can analyze your code to identify specific semantic issues. The issues found by these may or may not be the cause of your problems.
+On large programs, these are highly recommended, since they can surface tens or hundreds of potential issues.
+SonarLint is a free example, with SonarQube being the paid version.
+https://www.sonarsource.com/open-source-editions/
+
+
+
+
+
+
+
+
+
