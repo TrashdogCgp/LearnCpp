@@ -1,0 +1,27 @@
+3_8
+Using an integrated debugger: Watching variables
+
+Stepping through the program is only half of what makes the debugger useful.
+The debugger also lets you examine values of variables as you step through.
+
+In VSCode, the watch window appears in debug mode, docked on the left above the call stack.
+The watch window is a window where you can add variables you would like to continually inspect.
+These variables will be updated as you step through your program.
+If the watch window isn't already on your screen when you enter debug mode, you can bring it up through your IDE's window commands (typically View or Debug menu)
+
+There are usually two different ways to add variables to the watch window:
+Pull up the watch window and type in the name of the variable you'd like to watch in the leftmost column of the watch window
+or
+In the code window, right click on the variable you'd like to watch, and choose Add Watch or Watch [variable name].
+
+Some debuggers will allow you to set a breakpoint on a watched variable rather than a line.
+
+The watch window will also allow you to evaluate simple expressions, like x + 2.
+
+Because inspecting values of local variables inside a function is common while debugging, many debuggers will offer some way to quickly watch all local variables in scope.
+in VSCode, this is in the VARIABLES section that's docked to the left in debug mode.
+
+
+
+
+

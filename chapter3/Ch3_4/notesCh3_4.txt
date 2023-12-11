@@ -1,0 +1,30 @@
+3_4
+Basic debugging tactics
+
+Basic tactics for homing in on where problems are
+
+Commenting out code
+If programs exhibit erroneous behavior, one way to reduce the amount of code you have to search through is commenting out some code and seeing if the issue persists.
+
+Having good version control is important here, because if you make changes, you might miss undoing one or two.
+
+An alternative approach to adding/removing comment lines or debug statements is to use a 3rd party library that will let you leave debug statements, but compile them out in release mode via a preprocessor macro.
+
+Another common problem is calling a function too many times or not enough times.
+In such cases, it can be helpful to place statements at the top of functions to print the function's name.
+Then, when the program runs, you can see what's called.
+
+When printing for debugging purposes, use std::cerr instead of std::cout.
+cout may be buffered, so there'll be a pause between asking to put out information and actually getting that info. Program might crash before then.
+std::cerr is not buffered, which means it outputs immediately.
+Note that when doing this, you may need to disable "treat warnings as errors" to compile.
+
+When adding temporary debug statements, it can be helpful to not indent them. This makes them easier to find for removal later.
+
+In addition to printing debug statements, we can print the value of variables to ensure that they're correct.
+
+Printing statements to debug isn't great because:
+Debug statements clutter your code.
+Debug statements clutter the output of your program.
+Debug statements require modification of your code to both add and remove, which can introduce new bugs.
+Debug statements must be removed after you're done with them, so they're not reusable.

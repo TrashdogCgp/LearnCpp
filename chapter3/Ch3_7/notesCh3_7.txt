@@ -1,0 +1,24 @@
+3_7
+Using an integrated debugger: Running and breakpoints.
+
+Stepping can take a while, so modern debuggers have other features to help debug.
+
+Run to cursor executes the program until execution reaches the statement selected by your cursor.
+Then it returns control to you so you can debug starting at that point.
+In VS Code, when debugging, right click a statement in your code and choose Run to Cursor from the context menu.
+
+The continue debug command continues to run the program like normal until the program terminates, or until something triggers control to return back to you again (breakpoints, for example)
+
+The continue commnd has a counterpart called start. The start command does the same as continue, but from the beginning of the program. It can only be invoked when not debugging already.
+
+Next, breakpoints.
+Breakpoints are special markers that tell the debugger to stop execution at the program at when it hits the breakpoint in debug mode.
+
+There's also the set next statement command, which allows us to change the point of execution to some other statement (jumping).
+This can be used to jump the point of execution forwards and skip some code that would otherwise execute. It can apparently also have something run again that already executed.
+In VSCode, set next by right clicking on a statement and choosing jump to cursor.
+
+(note that these were all demo'd on the code in ch3_6.cpp)
+
+
+

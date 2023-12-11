@@ -1,0 +1,16 @@
+3_x
+Quiz
+(source code not included; tedious and doesn't illustrate the chapter's concept very well tbh)
+
+1. Fix the program by changing line 17 to:
+int x{readNumber};
+
+2. Fix the program by changing line 21 to:
+y = readNumber();
+
+3. On line 4, the call stack looks like:
+d
+b
+a
+main
+

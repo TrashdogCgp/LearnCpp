@@ -1,0 +1,15 @@
+3_9
+Using an integrated debugger: The call stack
+
+Modern debuggers contain one more debugging info window: The call stack window.
+When a program calls a function, it bookmarks the location, makes the function call, then returns; this is tracked in the call stack.
+The call stack is a list of all the active functions that have been called to get to the current point of execution.
+
+The call stack window is a debugger window that shows the current call stack. If you don't see the call stack window, you need to tell the IDE to show it.
+
+The line numbers after the function names show the next line to be executed in each function.
+Since the top entry on the call stack represents the current executing function, the line number here shows the next line that will execute when execution resumes.
+The remaining entries in the call stack represent functions that will be returned to at some point, so the line number for these represents the next statement that will execute after the function is returned to.
+
+The call stack is especially useful in conjunction with breakpoints, when your breakpoint is hit and you want to know how you got there.
+

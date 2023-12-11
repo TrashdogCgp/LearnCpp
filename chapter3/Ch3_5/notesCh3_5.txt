@@ -1,0 +1,42 @@
+3_5
+More debugging tactics
+
+Previous lesson criticized debug statements because they:
+clutter code
+clutter code's output
+require modification of code to add and remove, which can even make bugs
+must be removed after you're done with them, so they're not reusable
+
+One way o make it easier to disable and enable debugging throughout a program is to make debug statements conditional using preprocessor directives.
+e.g. 
+#ifdef ENABLE_DEBUG
+std::cerr << "getUserInput() called\n";
+#endif
+
+We can enable debugging by commenting/uncommenting #define ENABLE_DEBUG
+This addresse the issue with having to remove debug statements, but it clutters the code even more.
+Another downside is that typos are a big deal in this case; debugging might not behave as expected.
+
+Using a logger
+An alternative approach to conditionalized debugging via preprocessor is sending debug info to a log.
+A log is a sequential record of events that have happened, usually time-stamped.
+Logs are usually written to a file on disk (log file) to be reviewed later.
+Most apps and OS's write log files that can be used to help diagnose issues that occur.
+
+Because log info is separate from program output, you can avoid the clutter from normal output and debug output.
+Log files can also easily be sent to others for diagnosis.
+
+C++ contains an output stream called std::clog intended for writing logging info.
+However, by default, it writes to the same stream as std::cerr, with this stream being the standard error stream.
+
+The tutorial shows the plog logger: https://github.com/SergiusTheBest/plog
+
+They use the insertion operator on PLOGD, which is defined by the plog library.
+
+Inclusion, initialization, and use of a logger will depend on the specific selected logger.
+Unfortunately, the tutorials won't use a logger much in the future, but they're worth considering for debugging purposes!
+
+
+
+
+
