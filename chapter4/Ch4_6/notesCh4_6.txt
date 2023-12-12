@@ -1,0 +1,69 @@
+4_6
+Fixed-width integers and size_t
+
+Since the C++ standard only defines a minimum size for int types, we might just waste space or make assumptions that cause misbehavior (e.g. 4 byte int assumed, 2 byte int actual, overflow or undefined behavior can happen).
+
+C99 introduced fixed-width integers in the stdint.h header that are guaranteed to be the same size on any architecture.
+They are:
+std::int8_t, std::uint8_t, std::int16_t, std::uint16_t, std::int32_t, std::uint32_t, std::int64_t, std::uint64_t
+
+Note that int8_t is treated like a signed char on many systems, and uint8_t is treated like an unsigned char on many systems.
+
+C++ adopted these as of C++11, and they can be accessed in the <cstdint> header, where they're in the std namespace.
+
+The fixed-width integers have two downsides that are typically raised.
+
+First, the fixed-width integers are not guaranteed to be defined on all architectures; they exist on systems where there are fundamental types matching their widths and following a certain binary representation.
+If the corresponding fixed-width integer doesn't exist on an architecture where they're being used, the program will fail to compile.
+This is an unlikely problem.
+
+Second, if you use a fixed-width integer, it may be slower than a wider type on some architectures.
+CPU might be faster for 64-bit integers than for 32-bit integers, so std::int32_t may be slower than the 64 bit equivalent.
+That doesn't mean your program will be faster if you used the wider int, though; programs are often constrained by memory usage rather than CPU, so the larger memory footprint may slow the program down more than the CPU would have.
+It's kind of case by case.
+
+Fast and least integers:
+To help address those downsides, C++ also defines two alternative sets of integers.
+
+The fast types are std::int_fast{N}_t and std::uint_fast{N}_t.
+They provide the fastest signed int type that's at least 32 bits.
+By fastest, we mean the type the CPU can most quickly process.
+
+The least types (std::int_least{N}_t and std::uint_least{N}_t) provide the smallest signed/unsigned integer types with a width of the least number of bits, e.g. std::uint_least32_t for the smallest unsigned integer type that's at least 32 bits.
+
+Fast and least have their own downsides.
+First, they're not commonly used, so lack of familiarity can lead to errors.
+Second, the fast types can waste memory, as their actual size may be larger than their indicated name.
+
+std::int8_t and std::uint8_t likely behave like chars instead of integers.
+Due to an oversight in the C++ specification, most compilers define and treat these types like signed char and unsigned char.
+These might, then, behave differently than the rest of the fixed-width types, which can cause errors and is system-dependent.
+When storing integral values, it's best to avoid these two; use std::int16_t instead.
+
+Best practice:
+Prefer int when size of integer doesn't matter.
+Prefer std int{N}_t for storing a quantity that needs a guaranteed range 
+Prefer std uint{N}_t
+
+Avoid:
+short and long integers-- use a fixed-width type instead
+Unsigned types for holding quantities
+The 8-bit fixed-width integer types
+The fast and least fixed-width types
+Any compiler-specific fixed-width integers, like VS defining __int8, __int16, etc.
+
+std::size_t is defined as an unsigned integral type, usually used to represent the size or length of objects.
+It turns out that sizeof() returns a size_t, treated as an unsigned int.
+
+std::size_t is defined in a number of different headers.
+<cstddef> is the best one to include, because it contains the least other defined identifiers.
+std::size_t varies in size depending on the system, but it's guaranteed to be unsigned and at least 16 bits. On most systems, it'll use the address width of the application. So on 64-bit applications, it'll be 64 bits.
+
+sizeof() must be able to return the size of an object using a value of type std::size_t, so the largest object a system can create (in bytes) can only be the largest value of size_t.
+Any object larger than the largest value storable by std::size_t is considered ill-formed.
+This will cause a compile error.
+Note that this mean the size of std::size_t imposes a strict upper limit to an object's size.
+In practice, the largest object you can create may be a lot smaller than this amount.
+Some compilers limit the largest creatable object to half the maximum value of std::size_t.
+
+
