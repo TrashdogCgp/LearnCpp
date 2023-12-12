@@ -1,0 +1,58 @@
+4_3
+Object sizes and the sizeof operator
+
+Object sizes- Memory on modern machines is organized into bytes, with each byte having a unique memory address.
+Most objects take up more than one byte of memory, though.
+
+To generalize, an object with n bits can hold 2^n unique values.
+So the size of an object puts a limit on the values it can store. Objects with more bytes can store a larger number of unique values.
+
+Since modern computers tend to have tons of memory, the amount of bytes we use for an object usually isn't significant. However, for some programs with large amounts of data, the difference between 1 and 8 byte objects can matter.
+
+Perhaps surprisingly, the C++ standard doesn't define the exact size of any of the fundamental data types.
+Instead, it defines a minimum bit size for integral and char types, and leaves the actual size to be implementation-defined.
+The C++ standard also doesn't assume that a byte is 8 bits.
+
+We'll be making some assumptions that are generally true:
+A byte is 8 bits
+Memory is byte addressable, so the smallest object is 1 byte
+Floating point support is IEEE-754 compliant
+We're working on 32-bit or 64-bit hardware.
+
+Given that, we can state the following:
+
+bool- 1 byte
+char- 1 byte
+wchat_t- minimum 1 byte, typical size 2 bytes or 4 bytes
+char8_t- 1 byte
+char16_t- 2 bytes
+char32_t- 4 bytes
+
+short- 2 bytes
+int- minimum 2 bytes, typical 4 bytes
+long- minimum 4 bytes, typical 4 or 8 bytes
+long long- 8 bytes
+
+float- 4 bytes
+double- 8 bytes
+long double- minimum 8 bytes, typical 8, 12, or 16 bytes
+
+pointer- minimum size 4 bytes, typical size 4 or 8 bytes
+
+For maximum portability, don't assume that values are larger than the specified minimum size.
+You can use static_assert to have the compiler fail a build if it's compiled on an architecture where the assumption is not true. We cover this in chapter 8.
+
+To determine the size of data types on a machine, C++ provides an operator called sizeof.
+The sizeof operator is a unary operator that takes a type or a variable, and returns its size in bytes.
+
+Results from sizeof may vary based on compiler, computer architecture, OS, compile settings, or other factors, even.
+
+Trying to use sizeof on an incomplete type (e.g. void) will result in a compilation error.
+
+sizeof does not include dynamically allocated memory an object is using. That's for later.
+
+CPUs are optimized to process data of a certain size, and types that match that size may be processed quicker. A 32-bit int could be faster than a 16-bit short on such a computer, so don't assume less memory taken translates to slower processing.
+
+
+
+

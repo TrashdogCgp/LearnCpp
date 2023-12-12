@@ -1,0 +1,66 @@
+4_4
+Signed integers
+
+An integer is an integral type that can represent positive and negative whole numbers.
+C++ has four primary fundamental integer types for use:
+short int
+int
+long int
+long long int
+
+The key difference is varying size. Larger integers can hold larger numbers.
+Remember that C++ only guarantees a minimum size for integers, not a specific size.
+
+While they're not discussed in this less, the bool and char types are technically integral types (since they store their values as integer values).
+
+When writing negative numbers, we use the negative sign.
+Integers are signed in C++ by default, so their signs are stored as part of the number.
+
+In binary representation, a single bit (sign bit) stores the sign of the number.
+The non-sign bits (called magnitude bits) determine the magnitude of the number.
+
+We prefer to use abbreviated names for int types, excluding the int suffix.
+e.g. rather than
+short int x;
+we prefer to just say
+short x;
+
+There's also the signed keyword, e.g.
+signed short x;
+However since integers are signed by default, this is redundant and shouldn't be used.
+
+We call the set of specific values that a data type can hold: range
+The range of an int is determined by two factors: bit size and whether or not it's signed.
+A signed 8 bit integer has a range of -127 to 128.
+
+When we try to assign a value to an integer, but the value is outside the range, the behavior is undefined.
+C++20 says: 
+“If during the evaluation of an expression, the result is not mathematically defined or not in the range of representable values for its type, the behavior is undefined”
+This is colloquially called overflow.
+
+If an arithmetic operation attempts to create a value outside the range that it can be represented, this is called integer overflow.
+For signed integers, integer overflow will result in undefined behavior.
+
+e.g. 
+int x { 2'147'483'647 }; // the maximum value of a 4-byte signed integer
+x += 5; //integer overflow, undefined behavior in C++
+
+In general, overflow results in lost info, which is almost never desirable.
+If there's a chance the object might need a value outside its range, use a type with a bigger range.
+
+When dividing two integers, C++ works as expected if the quotient is a whole number.
+However, integer division drops (does not round, just drops) the fractional part because integers can't hold fractional values.
+
+Be careful when using integer division, because you'll lose any fractional parts of the quotient. The results are predictable, so use int division if its results are what you want.
+
+Quiz
+1. What would the range of a 5-bit signed number be?
+-16 to 15
+
+2.
+a) what is the result of 13/5?
+2
+b) what is the result of -13/5?
+-2
+
+
