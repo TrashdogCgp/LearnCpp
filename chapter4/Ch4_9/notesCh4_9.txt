@@ -1,0 +1,40 @@
+4_9
+Boolean values
+
+Yes/no is common in real life, so in programming, there's Boolean.
+
+bool b; //boolean declaration
+
+Just as the unary minus operator (-) can make an integer negative, the logical NOT operator (!) can flip a Boolean value from true to false, or false to true.
+
+bool b1 { !true }; //initialize with value of false
+
+bool variables are stored as integers. True becomes 1, and false becomes 0.
+When they evaluate, they're also evaluated to integers.
+Since they actually store integers, they're considered an integral type.
+
+When printing, if you want std::cout to print true or false instead of 1 or 0, you can use the output manipulator std::boolalpha.
+You can then use std::noboolalpha to turn it off.
+
+When using uniform initialization, you can initialize using integer literals.
+You SHOULD use true/false, but you can use 1 or 0.
+But while 0 is solely false, any other integer converts to true.
+e.g.
+bool b1 = 4; //initialize to true with copy intialization
+bool bNo {2}; //error; narrowing conversions not allowed with list initialization.
+
+Inputting boolean values using std::cin can be trippy.
+As it turns out, std::cin only accepts two inputs for boolean variables: 0 and 1 (true/false can't just be typed out).
+All other inputs will cause std::cin to silently fail, and a failed input will yield a zero.
+This will result in false every time.
+
+std::cin >> std::boolalpha; //manipulator allows true/false to be entered in via words, but 0 and 1 will no longer work and will resolve to false as any non-true input.
+
+Boolean values are often return values for functions that check whether or not something is true.
+Convention starts these functions with the word is (e.g. isEqual).
+
+
+
+
+
+

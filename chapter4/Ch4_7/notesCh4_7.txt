@@ -1,0 +1,49 @@
+4_7
+Introduction to scientific notation
+
+Scientific notation is apparently its own section, for figuring out floating point numbers and their limitations.
+
+C++ uses the letter e to represent the "times 10 to the power of" part of scientific notation.
+For numbers smaller than 1, the exponent can be negative.
+
+How to convert numbers to scientific notation
+
+Use the following procedure:
+
+Your exponent starts at zero.
+Slide the decimal left or right so there is only one non-zero digit to the left of the decimal.
+Each place you slide the decimal to the left increases the exponent by 1.
+Each place you slide the decimal to the right decreases the exponent by 1.
+Trim off any leading zeros (on the left end of the significand)
+Trim off any trailing zeros (on the right end of the significand) only if the original number had no decimal point. We’re assuming they’re not significant. If you have additional information to suggest they are significant, you can keep them.
+
+Keep in mind that when converting to scientific notation, trailing zeros after a decimal are considered significant, so we keep them.
+
+Quiz
+
+1) Convert these to scientific notation and determine sig fig count.
+
+a. 34.50
+3.450e1, 4 sig figs
+
+b. 0.004000
+4.000e-3, 4 sig figs
+
+c. 123.005
+1.23005e2, 6 sig figs
+
+d. 146000
+1.46e5, 3 sig figs
+
+e. 146000.001
+1.46000001e5, 9 sig figs
+
+f. 0.0000000008
+8e-10, 1 sig fig
+
+g. 34500.0
+3.45000e4, 6 sig figs
+
+f. 146000, assume 0's are significant
+1.46000e5, 6 sig figs
+
