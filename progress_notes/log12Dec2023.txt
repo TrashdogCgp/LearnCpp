@@ -19,6 +19,9 @@ Also an approachable floating point guide here:
 https://floating-point-gui.de/
 Look at this if the opportunity presents itself; not doing that tonight, I regret to admit.
 
+Note the term "output manipulator".
+Don't forget this; you know what it is, but don't forget it on straight-up recall.
+
 
 
 

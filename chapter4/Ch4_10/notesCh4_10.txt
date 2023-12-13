@@ -1,0 +1,61 @@
+4_10
+Introduction to if statements
+
+The simplest kind of conditional statement in C++ is called an if statement.
+An if statement allows us to execute one or more lines of code only if a condition is true.
+
+A condition (also called conditional expression) is an expression that evaluates to a bool.
+The equality operator == is used to test whether two values are equal, and returns true if the operands are equal, or false if they're not.
+
+For some reason, this tutorial only has if statements conditionally execute a single statement, not a block. If statements with blocks are all the way in chapter 8. Ouch.
+
+However, if-else is in this chapter.
+if(condition)
+    true_statement;
+else
+    false_statement;
+
+We can also chain if statements and if-else statements.
+if(condition)
+    true_statement;
+else if(other_condition)
+    other_statement;
+else
+    false_statement;
+
+Less than operator (<) and greater than operator (>) test whether values are less than or greater than other values.
+
+Note that conditional expressions for if statements can be function calls that return a bool.
+
+Non-boolean conditionals are also a thing.
+If a conditional expression is converted to a bool, non-zero values convert to boolean true and zero-values convert to boolean false.
+Apparently an empty string ("") literal counts as true!
+But single char '\0' doesn't.
+
+A return statement that is not the last statement in a function is called an early return.
+Such a statement will cause the function to return to the caller when the return statement is executed (before the function would otherwise return to the caller, hence "early).
+
+An unconditional early return isn't very useful, but we can put conditions on the early return for a lot better use.
+
+Historically, early returns were frowned upon, but in modern programming, they're more accepted because they can make functions simpler or abort early due to error conditions.
+
+Quiz
+1) What is an early return, and what is its behavior?
+An early return is a return statement within a function that is not the last line of the function. It returns to the caller without executing the remaining lines of the function it's in.
+
+2. A prime number is a whole number greater than 1 that can only be divided evenly by 1 and itself. Write a program that asks the user to enter a number 0 through 9 (inclusive).
+If the user enters a prime number, print "The digit is prime", otherwise print "The digit is not prime".
+see ch4_10_2.cpp (cheated by using || operator, but dgaf)
+
+3. How can the length of the following code be reduced (without changing the formatting)?
+Change the following:
+  if (height >= 140.0)
+    return true;
+  else
+    return false;
+
+to:
+    return (height >= 140.0);
+
+
+

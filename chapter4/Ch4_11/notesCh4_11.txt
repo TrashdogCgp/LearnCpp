@@ -1,0 +1,79 @@
+4_11
+Chars
+
+We've stored numbers up to this point, but what about letters/punctuation?
+
+The char data type was designed to hold a single character. A character can be a number, letter, symbol, or whitespace.
+
+Char is an integral data type, so the underlying value is stored as an integer. The integer stored by char is interpreted as an ASCII character.
+
+ASCII stands for American Standard Code for Information Interchange, representing English characters (plus a few other symbols) as numbers between 0 and 127 (called an ASCII code or code point).
+
+Character literals are always placed between single quotes (e.g. 'g','1')
+
+Tutorial has an ASCII table detailing all 127 codes.
+Maybe that's not a huge priority for me to memorize, but some of these (file separator, for example) are cryptic and might be worth looking up.
+
+Codes 0-31 are called the unprintable chars, mostly used to do formatting and control printers.
+Most of them are also obsolete now, and results from trying to print them depend on the OS.
+Codes 32-127 are the printable characters, and they represent letters, numbers, and punctuation most computers use to display basic text.
+
+You can initialize chars with list initiation (among other methods) using character literals.
+char ch2 {'a'};
+
+You can also intialize chars using integers, but this should be avoided where possible:
+char ch2{97}; //also lower case 'a'
+Character numbers are intended to be used when we want to represent numbers as text, rather than as numbers to apply math ops to.
+
+When using std::cout to print a char, std::cout outputs the char variable as an ASCII character.
+
+Inputting chars
+std::cin will let you enter multiple characters.
+However, a char variable can only hold 1 character. std::cin will then leave other input characters on the buffer that std::cin uses, and it can be extracted with subsequent calls to std::cin.
+
+To read more than one char in at a time, you'll want to use a string instead of a char. A string is a collection of sequential characters (and thus, can hold multiple symbols).
+
+Char is defined by C++ to always be 1 byte in size. By default, it may be signed or unsigned (usually signed, though). To hold ASCII characters, you don't need to specify a sign because both signed and unsigned characters can hold values between 0 and 127.
+
+A signed char can hold a number between -128 and 127.
+An unsigned char can hold a number between 0 and 255.
+If using chars to hold small integers (only recommended if explicitly optimizing for space), always specify whether it's signed or unsigned.
+
+Escape sequences
+There are some characters in C++ with special meaning; these are escape sequences.
+An escape sequence starts with a backslash, then a following letter or number.
+'\n' is the most common escape sequence, which prints a new line.
+Another common one is '\t' for a horizontal tab.
+
+There's a table here with the escape sequences as well.
+One interesting thing with an interesting result in the example:
+
+Hex number	\x(number)	Translates into char represented by hex number
+
+std::cout << "6F in hex is char '\x6F'\n";
+
+output:
+6F in hex is char 'o'
+
+The difference between putting symbols in single and double quotes:
+Single characters go between single quotes.
+Text between double quotes is treated as a string, even if it's just one character.
+
+Best practice: Put standalone chars in single quotes. This helps the compiler optimize more efficiently.
+
+For backwards compatibility reasons, many C++ compilers support multicharacter literals, which are char literals with multiple characters (e.g. '56').
+If supported, their value is implementation-defined (depends on compiler).
+Since they're not part of the C++ standard, and their value is not strictly defined, multicharacter literals should be avoided.
+Best practice: Avoid multicharacter literals (e.g. '56').
+
+wchar_t should be avoided in almost all cases; its size is unreliable, defined by the implementation.
+It's largely deprecated.
+Deprecated means still supported, but no longer recommended for use because it has been replaced by something better or is no longer considered safe.
+
+char16_t and char32_t were added to C++11 to provide explicit support for 16-bit and 32-bit unicode characters.
+char8_t was added in C++20.
+These types have the same size as their uint_leastN_t counterparts. In theory, this means these char types could be longer than their number indicates, but they should be the same on most architectures.
+You only need to use these if you want unicode compatibility. Unicode and localization are generally outside the scope of these tutorials.
+
+
+

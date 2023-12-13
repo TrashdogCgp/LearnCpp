@@ -1,0 +1,90 @@
+4_12
+Intro to type conversion and static_cast
+
+Consider the following (uglified and condensed) code:
+
+#include <iostream>
+void print(double x) // print takes a double parameter
+{std::cout << x << '\n';}
+
+int main()
+{   print(5); // what happens when we pass an int value?
+	return 0; }
+
+Since print() has a double parameter type, but the caller is passing in the value 5 (an int), what happens?
+In most cases, C++ will allow us to convert values of one fundamental type to another (type conversion). This, 5 will be converted to 5.0 (double value) and then copied into parameter x.
+
+When the compiler does type conversion on our behalf without explicit instruction, we call it implicit type conversion.
+The above code illustrates this; we don't tell the compiler to convert int 5 to double 5.0, but it does so when the compiler notices the type mismatch (expected double, int argument). It implicilty converts the integer to a double.
+
+The above program provided an int literal when the function expected a double parameter.
+If we provided an int variable instead, the outcome would be identical.
+
+Type conversion produces a new value.
+Even though it's called type conversion, type conversion doesn't actually change the value or type of the value being converted. Instead, the value is used as input, and the conversion results in a new value of the target type (via direct initialization).
+
+So yes.
+Type conversion uses direct initialization to produce a new value of the target type from a value of a different type.
+
+Although implicit type conversion is sufficient for most cases where type conversion is needed, there are a few cases where it's not.
+Consider a revision of the prior program:
+
+#include <iostream>
+void print(int x) // print now takes an int parameter
+{	std::cout << x << '\n';}
+
+int main()
+{   print(5.5); // warning: we're passing in a double value
+	return 0;}
+
+Similar to prior, the compiler will implicitly convert the double argument to an int value so that it can be passed to print().
+However, the compiler will generate a warning.
+See 0.11 for a review on treating warnings as errors in the compiler.
+When it compiles, though, passing in value 5.5 will have the program print 5, since ints can't hold fractional components.
+The compiler will warn us when it does implicit type conversion of floats to integral values because converting a floating point value to an integral value results in data/precision loss.
+
+This topic is much meatier than this particular lesson gives insight into.
+Chapter 10 will start on a lot more of this talk.
+
+Explicit type conversion
+If we wanted to intentionally pass a double to a function taking an int, knowing the fractional component will be dropped, we can do explicit type conversion.
+Explicit type conversion allows the programmer to explicitly tell the compiler to convert a value from one type to another, accepting the result of that conversion (lost value is our own fault)
+
+For explicit type conversion, we usually use the static_cast operator, which has funky syntax:
+static_cast<new_type>(expression)
+
+static_cast takes the value from an expression as an input, and returns that value converteed to the specified type by new_type.
+
+Note that when C++ syntax makes use of angled brackets (<>), the thing between those brackets is usually going to be a type; this is how C++ usually deals with code that needs a parameterized type.
+
+If we want an example, we can static_cast the value from a char to an int:
+
+char ch{97};
+std::cout << ch << " has ASCII value: " << static_cast<int>(ch) << '\n';
+
+It's worth noting that the argument to static_cast evaluates as an expression. When we pass in a variable, that variable is evaluated to produce its value, and that value is converted to the new type. The variable itself is not affected by this casting operation.
+
+You can also used static_cast to convert an unsigned int to a signed number.
+This doesn't do range checking, so undefined behavior occurs if you cast a value to a type whose range doesn't contain that value.
+Casting unsigned int to int will yield unpredictable results if unsigned int's value is greater than the max value of a signed int.
+
+As noted in 4_6, most compilers treat int8_t identically to signed char.
+This can be a problem because printing out an int8_t will actually just print out a character.
+To ensure an int8_t is treated as an integer, use static_cast:
+
+std::int8_t myInt{65};
+std::cout << static_cast<int>(myInt) << '\n'; //will always print 65, not ascii 'A'
+
+int8_t can also have issues with char inputs from the console.
+If we enter 35 when cin requests an int, the input routine interprets a series of characters, not an integer, due to treating int8_t like a char.
+The other fixed-width types won't do this, but if we enter that aforementioned 35 to an int8_t, it will only receive the 3 as input, leaving the '5' on the input stream buffer.
+
+Quiz:
+1) Write a short program where the user is asked to enter a single character. Print the value of the character and its ASCII code using static_cast.
+
+2) Modify the program you wrote for quiz 1 to use implicit type conversion instead of static_cast.
+Note that you should usually favor explicit conversions over implicit, so don't really do this in practice; this is just a test of understanding.
+
+
+
+
