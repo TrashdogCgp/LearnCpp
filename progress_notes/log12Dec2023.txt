@@ -22,7 +22,12 @@ Look at this if the opportunity presents itself; not doing that tonight, I regre
 Note the term "output manipulator".
 Don't forget this; you know what it is, but don't forget it on straight-up recall.
 
-
+Went over const expressions, const as a qualifier, and constexpr for enforcing that constants are compile-time constants.
+Went over the difference between runtime and compile-time constants.
+Not totally sure that constexpr sunk in the way it was supposed to.
+Perhaps as worrisome, the tutorial admits that some of their upcoming examples don't use best practice for constexpr.
+Hopefully it'll come up more and also click.
+Oof.
 
 
 

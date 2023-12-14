@@ -1,0 +1,75 @@
+5_2
+Constant expressions, compile-time const, and runtime const
+
+This lesson will cover another property of constants: whether they're runtime or compile-time constants.
+
+C++ compilers have a lot of freedom to optimize programs. The as-if rule says that the compiler can modify a program however it likes to produce more optimized code, as long as these mods don't affect a program's observable behavior.
+
+There's one exception to the as-if rule: unnecessary calls to a copy constructor can be omitted even if those copy constructors have observable behavior. This is covered in Ch 14_15.
+
+Compiler optimization is up to the compiler itself. However, we can help the compiler optimize better.
+
+#include <iostream>
+
+int main()
+{	int x { 3 + 4 };
+	std::cout << x << '\n';
+	return 0; }
+
+The above code has an interesting optimization possibility hidden within.
+If this program were compiled exactly as written, the compiler would generate an executable that calculates the result of 3+4 at runtime (when the program runs). If the program were executed a million times, 3+4 would be evaluated a million times, producing 7 every time.
+This is a waste of processing.
+
+A constant expression is an expression that can be evaluated by the compiler at compile-time. To be a constant expression, all the values in the expression must be known at compile-time (also, operators and functions called must support compile-time evaluation).
+
+When the compiler encounters a constant expression, it -may- evaluate the expression at compile-time, and then replace the constant expression with the result of the evaluation.
+This optimization is nice, but requires compile optimizations to be turned on. Evaluating constant expressions at compile-time makes our compilation take longer, but only once (rather than on every run). The resulting executables are faster and use less memory.
+Compile-time evaluation is one of the most important and evolving areas of modern C++.
+
+Note that in the program, std::cout << x is not a constant expression, because we can't output values to the console at compile-time. This expression will always evaluate at runtime.
+An expression that must be evaluated at runtime is sometimes called a runtime expression.
+
+Rather than just replacing 3+4 with 7, though, there's another optimization opportunity.
+The program allocates memory fo x, stores 7 in that memory, and then in the next statement goes back to memory to get the value of x to print it.
+Since the value of x never changes, this memory access is wasteful.
+
+In other words, the compiler could optimize the program by replacing x with 7, not having to go to memory to get that value of x.
+
+However, to make this optimization, the compiler has to be sure that x isn't changed between its definition and its use.
+Since x is non-constant, the compiler would have to do its own analysis. While a sophisticated modern compiler could be able to do this for simple cases, more complicated cases would impede this operation.
+For a trival amount of work, we can help the compiler make this optimization.
+
+A compile-time constant is a constant whose value is a constant expression.
+Literals are one type of compile-time constant.
+Const variables may or may not be compile-time constants (depending on how they're initialized).
+
+A const variable is a compile-time constant if its initializer is a constant expression.
+Note that the initialized of a compile-time const can be any constant expression.
+All of the following would be compile-time const variables:
+const int z { 3 };     // 3 is a constant expression, so z is compile-time const
+const int a { 1 + 2 }; // 1 + 2 is a constant expression, so a is compile-time const
+const int b { z * 2 }; // z * 2 is a constant expression, so b is compile-time const
+
+Compile-time constants enable the compiler to perform optimizations that aren't available with non-compile-time constants.
+In many cases, they can be optimized out of the program entirely. For example the compiler can simply replace identifiers with literals to avoid having to fetch the value from memory.
+
+In cases where a compile-time constant variable cannot be optimized out, the variable will still be created (and initialized) at runtime.
+
+A const variable is a runtime constant if its initializer is a non-constant expression.
+Runtime constants are constants whose initialization values can't be determined until runtime.
+Even if they have a const qualifier, values that aren't known until runtime will be runtime constants, not compile-time constants.
+
+Reinforce:
+Compile-time constants can be used in constant expressions and allow for better optimization.
+Runtime constants can only be used in non-constant expressions. Their primary use is to ensure an object's value is not modified.
+
+
+
+
+
+
+
+
+
+
+
