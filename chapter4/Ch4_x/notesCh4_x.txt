@@ -1,0 +1,41 @@
+Ch4_x
+Quiz
+
+Pick the appropriate data type for a variable in each of the following situations. Be as specific as possible If the answer is an integer, pick int if size isn't important, or a specific fixed-width integer type based on range.
+
+a) Age of user (in years)
+int
+
+b) Whether the user wants to check for updates
+bool
+
+c) pi
+double
+
+d) Number of pages in a textbook (assume size isn't important)
+int
+
+e) Length of a couch in ft, 2 decimal places (size is important)
+float
+
+f) How many times you've blinked since you were born (millions range)
+std::int32_t
+
+g) A user selecting an option from a menu by letter
+char
+
+h) The year someone was born (assuming size is important)
+std::int16_t
+
+2. Write the following program: The user is asked to enter 2 floating point numbers (use doubles). The user is then asked to enter one of the following mathematical symbols: +, -, *, or /. The program computes the answer on the two numbers the user entered and prints the results. If the user enters an invalid symbol, the program should print nothing. 
+
+3. Write a short program to simulate a ball being dropped off of a tower. To start, the user should be asked for the height of the tower in meters. Assume normal gravity (9.8 m/s2), and that the ball has no initial velocity (the ball is not moving to start). Have the program output the height of the ball above the ground after 0, 1, 2, 3, 4, and 5 seconds. The ball should not go underneath the ground (height 0).
+
+Use a function to calculate the height of the ball after x seconds. The function can calculate how far the ball has fallen after x seconds using the following formula: distance fallen = gravity_constant * x_seconds2 / 2
+
+
+
+
+
+
+

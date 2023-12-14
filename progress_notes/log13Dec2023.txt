@@ -1,0 +1,6 @@
+Note: in launch.json, I set stopAtEntry back to false because the debugging was starting to get annoying.
+Starting the morning off with an oh-so-welcome Xfinity internet outage, but using my phone to pull up the pages.
+Start with if statements, nothing new there so far.
+
+
+

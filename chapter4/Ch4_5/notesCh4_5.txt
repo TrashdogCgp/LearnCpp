@@ -1,0 +1,50 @@
+4_5
+Unsigned integers, and why to avoid them
+
+Unsigned integers are integers that can only hold non-negative whole numbers.
+By convention, they're defined the same way as their signed counterparts, but with the keyword unsigned before the type.
+An unsigned int assumes all values are positive.
+
+Because unsigned ints can store more positive numbers without taking up extra memory, they're well suited for networking and low-memory systems.
+
+Unsigned integer overflow-
+If we try to store the number 280 in a 1-byte unsigned int, we get overflow.
+Oddly, the C++ standard says a computation involving unsigned operands can never overflow.
+This is weird, because it still exhibits behavior most programmers would consider overflow.
+
+If an unsigned value is out of range, it's divided by one greater than the largest number of the type, and only the remainder is kept.
+So... not undefined behavior?
+With 280 being too big for 0 to 255, it's divided by 256 and the remainder is 24.
+24 is then stored.
+
+It's also possible to wrap around the other direction; 0 - 1 would produce the max value of the unsigned int in question.
+
+Many big names believe developers should avoid unsigned integers.
+This is largely because of two behaviors that can cause problems.
+First, with signed values, it takes more work to accidentally overflow the top or bottom range because these values are far from 0... and with unsigned ints, the bottom of the range is 0, which is where most of our values might be expected.
+Subtraction gets wonky if a negative occurs by some fluke, because you'll get some huge number instead.
+
+But more insidiously, unexpected behavior comes from mixing signed and unsigned integers. In C++, if a math operation has one signed and one unsigned int, the signed int will usually become an unsigned int, and the result will be unsigned.
+Also, comparing an unsigned int to a signed int gets weird.
+    signed int s { -1 };
+    unsigned int u { 1 };
+    if (s > u)
+    {std::cout<<"lolwut";}
+This happens because -1 is implicitly converted to the signed max-ish value, which is alrger than 1.
+
+Compilers should warn about signed/unsigned mismatch in these cases. The compiler will also generate identical warnings for cases where signed/unsigned are both positive, though, so it's hard to tell when there's an actual problem.
+
+Given these complications, the advice is:
+Best practice: Favor signed numbers over unsigned numbers for holding quantities (even strictly non-negative quantities) and math operations. Avoid mixing signed and unsigned numbers.
+
+There are still a few cases in C++ where it's okay/necessary to use unsigned numbers.
+First, unsigned numbers are preferred when dealing with bit manipulation.
+Second, unsigned numbers are still unavoidable sometimes, mainly with array indexing.
+Third, embedded systems have unsigned ints much more commonly used for performance reasons.
+
+
+
+
+
+
+

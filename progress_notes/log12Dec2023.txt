@@ -1,0 +1,29 @@
+Started off with fixed-width integers in 4_6 and that was actually pretty interesting!
+Didn't know about fast and least types before, too bad they're generally better off avoided.
+
+The background for size_t (return type of sizeof, and represents the maximum size for an object created on the system) is actually kinda trippy as well.
+Also weird that they limit the size of objects to half of the size_t maximum, as allegedly clarified in this rather long StackOverflow post:
+https://stackoverflow.com/a/42428240
+
+More on this when I come back from work, I hope.
+
+Floating point numbers now!
+https://float.exposed/0x3dcccccd
+This allegedly makes clear how floating numbers are stored.
+Unfortunately, while I'm still putting in my minimum of an hour after work today, my head is actually starting to spin a bit and I'm not processing well.
+Looks like what it shows... is that a double starts with a sign, then shows exponent, then dedicates a lot of bits to significand (raw number to apply to exponent).
+Site is actually pretty cool and shows evaluation in base 10, with a 2^n exponent and a significand that's very... long.
+Worth looking back at if things get fuzzy in the future!
+
+Also an approachable floating point guide here:
+https://floating-point-gui.de/
+Look at this if the opportunity presents itself; not doing that tonight, I regret to admit.
+
+Note the term "output manipulator".
+Don't forget this; you know what it is, but don't forget it on straight-up recall.
+
+
+
+
+
+

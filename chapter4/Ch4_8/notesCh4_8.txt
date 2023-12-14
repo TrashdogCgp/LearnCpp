@@ -1,0 +1,83 @@
+4_8
+Floating point numbers
+
+A floating point type variable is a variable that can hold a number with a fractional component.
+The floating part of the name refers to the fact that the decimal point can "float", that is, support a variable number of digits before and after the decimal point.
+
+There are three different floating point data types: float, double, and long double.
+C++ doesn't define these sizes either, apart from guaranteeing a minumum.
+Floating point representation usually follows IEEE 754 binary format, so:
+Float is 4 bytes, double is 8 bytes, long double can be 8 bytes, 80 bits (often padded to 12 bytes), or 16 bytes.
+
+Floating point data is always signed.
+
+When using floating point literals, always include at least one decimal place (even if the decimal is 0). This helps the compiler understand that the number is a floating point number and not an integer.
+
+Note that by default, floating point literals are of type double.
+An f suffix denotes a literal type of float.
+
+Best practice: Always make sure the type of your literals matches the type of the variables they're assigned to or used to initialize. Otherwise, an unnecessary conversion will result, possibly with loss of precision.
+
+Printing floating point numbers:
+std::cout << 9876543.21 << '\n';
+output is: 9.87654e+06
+
+The tutorial isn't clear on what exactly the criteria is for printing on scientific notation.
+Note that by default, std::cout will not print the fractional part of a number if the fractional part is 0.
+
+Note a 16 byte size float has the same maximum number as an 80 bit float (typically using 12 bytes). This is because the same number of bits is dedicated to the exponent, but the 16 byte number can store more significant digits.
+
+Floating point precision
+Consider 1/3, and how the .3333333 goes on forever.
+This would require infinite memory to store, and we only usually have a few bytes.
+The number actually stored will be close to the desired number, but not exact.
+
+Precision of a floating point number defines how many significant digits it can represent without losing information.
+When outputting floating point numbers, std::cout has a default precision of 6. It assumes all floating points are only significant to 6 digits (minimum precision of a float), and hence it will truncate anything after that.
+
+The number of digits of precision on a floating point variable depends on both the size (floats are less precise than doubles) and the particular value being stored (some values have more precision than others).
+Floats have between 6 and 9 digits of precision, with most float values having at least 7 significant digits.
+Doubles have between 15 and 18 digits of precision, with most double values having at least 16 significant digits.
+Long double has a minimum precision of 15, 18, or 33 significant digits depending on its byte count.
+
+We can override the default precision of std::cout by using an output manipulator function named std::setprecision().
+Output manipulators alter how data is output, and are defined in <iomanip>
+
+std::cout << std::setprecision(17); // show 17 digits of precision
+
+Note that output manipulators are "sticky"; they'll remain set if you set them.
+
+Note that since float values typically have 7 digits of precision, we lose precision if we try to represent a number with more significant digits.
+When precision is lost because a number can't be stored precisely, this is called a rounding error.
+
+Best practice: Favor double over float unless space is at a premium.
+The lack of precision in a float will often lead to inaccuracies.
+
+Floating point numbers are tricky to work with due to non-obvious differences between how binary data is stored and how decimal numbers work.
+1/10 is 0.1 in decimal, but in float, 0.1 is represented by a long sequence 0.00011001100110011 (not sure about that, although the tutorial does say this verbatim...)
+We'll run into precision problems, then.
+
+Note that mathematical operations (adding, multiplying) tend to make rounding errors grow.
+If we add something 10 times with a rounding error on the 17th digit, we can have the rounding error creep into the 16th significant digit.
+Never assume floating point numbers are exact.
+And don't use floating point numbers for financial data where you can avoid it.
+
+There are two special categories of floating point numbers.
+First is Inf, or infinity. It can be positive or negative.
+The second is NaN, which is "not a number". There are several kinds of these.
+
+Both are only available if the compiler uses a specific format (IEEE 754) for floating point numbers. If another format is used, dividing by zero can produce undefined behavior.
+
+double nan {0.0/0.0};
+std::cout << nan << '\n';
+
+Print-out might be:
+#INF
+
+Printouts are platform specific, so results may vary
+
+Best practice: Avoid dividing by 0.0 altogether, even if your compiler supports it.
+
+In conclusion, floating point numbers are useful for storing very large or very small numbers, including with fractional components.
+Floating point numbers often have small rounding errors, even when the number has fewer sig figs than the precision. Many times, these aren't noticed because they're small, and because the numbers are truncated for output. However, comparisons of floats may not give expected results.
+Math on floats causes rounding errors to grow larger.

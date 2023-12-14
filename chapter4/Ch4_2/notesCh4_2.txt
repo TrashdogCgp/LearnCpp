@@ -1,0 +1,23 @@
+4_2
+Void
+
+Void is the easiest to explain, because it basically means no type.
+
+This is our first example of an incomplete type.
+An incomplete type is a type that has been declared, but not defined yet.
+The compiler knows these types exist, but doesn't have enough info to determine how much memory to allocate for those objects.
+Void is intentionally incomplete, and can't be defined.
+Incomplete types can't be instantiated.
+
+Most commonly, void indicates that a function doesn't return a value.
+If the function's return type is void, then trying to return a value will result in a compile error.
+
+In C, void indicates that a function takes no parameters.
+In C++, this is considered deprecated.
+e.g.
+int getValue(void)
+and
+int getValue()
+are equivalent, but the latter is preferred.
+
+Note that void pointers will come back later for an additional (more advanced) use in C++.

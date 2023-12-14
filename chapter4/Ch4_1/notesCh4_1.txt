@@ -1,0 +1,43 @@
+4_1
+Introduction to fundamental data types
+
+Bits, bytes, and memory addressing
+
+We've talked about variables as names for a piece of memory used to store information.
+
+The smallest unit of memory is called a bit, or binary digit.
+
+Memory is organized into sequential units called memory addresses (just called addresses for short). But bits don't get their own unique memory address; memory addresses are limited in quantity, and the need to access bit-by-bit data is rare.
+A byte is a group of bits that are operated on as a unit. The modern standard is that a byte is comprised of 8 sequential bits.
+
+Some older or nonstandard machines may have bytes of a different size, from 1 to 48 bits. However these aren't particularly common, and this tutorial series will continue with 8 bits as the de facto standard.
+
+Because all computer data is just bits, we use a data type (often just called "type" for short) to tell the compiler how to interpret the contents of memory in some meaningful way.
+Integer has been the go-to type so far, but obviously, there's tons more.
+
+For giving an object a value, the compiler and CPU take care of encoding the value into the appropriate sequence of bits for that data type. That sequence of bits goes to memory.
+
+The compiler and CPU tend to do the work of putting values in as bits/bytes, so we don't have to worry too much about how values get converted into bit sequences and back.
+
+C++ has the fundamental data types, aka primitive types, basic types, and built-in types.
+The list:
+float/long/double-Floating point numbers, numbers with a fractional part
+bool- Integral, true or false
+char/wchar_t/char8_t/char16_t/char32_t- Integral, a single character of text
+short int/int/long int/long long int- Integral, positive and negative whole numbers, including 0
+std::nullptr_t- Null pointer
+void- no type
+
+C++ also supports more complex types, called compound types.
+
+Note that integer and integral are similar, but sometimes have different meanings.
+In math, an integer is a number with no decimal or fractional part.
+In C++, the term integer mostly refers to the int data type, but it's sometimes also referring to broader sets of data types that are commonly used to store and display integer values. This includes short, int, long, long long, and their signed/unsigned variants.
+Integral means "like an integer". Most often, integral is used as "integral type", which includes broader sets of types that are stored in memory as integers, even though their behavior might vary.
+This includes bool, integer types, and character types.
+
+In C++, strings are a compound type, not a fundamental type. But they'll be included in this chapter because they're so useful.
+
+
+Note that the _t suffix means type for many of the types defined in newer versions of C++.
+It's just a common nomenclature, but keep in mind that _t suffix usually indicates a type.

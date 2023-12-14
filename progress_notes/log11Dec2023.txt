@@ -1,0 +1,10 @@
+Started chapter 4 on fundamental data types.
+Less time to code today due to workout.
+
+Mainly learned not to mix signed and unsigned integers, and that void is considered an incomplete type.
+Incomplete types can't be instantiated.
+
+Also, C++ only defines a minimum size for given types, not an actual size.
+Implementation is allowed to choose the actual byte size for types, as long as it meets minimum.
+
+
