@@ -1,0 +1,8 @@
+Started off with the lesson on literals, which explained a bit about C strings being weird.
+Null-termination is mentioned, but the tutorial hasn't gone on with what makes them problems.
+They did mention that string literals are guaranteed to exist through the whole program, though.
+And that string literals are created at the start of the program.
+
+
+
+
