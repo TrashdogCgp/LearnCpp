@@ -1,0 +1,52 @@
+5_5
+Numeral systems (decimal, binary, hexadecimal, and octal)
+
+In everyday life, we use decimal numbers, where each numerical digit can be 0-9.
+This is also called base ten.
+
+In binary, base 2, there's just 0 and 1.
+
+Octal and hexadecimal exist and can be used as literals.
+
+Octal is base 8, so the largest number used is 7 (8 is represented as 10).
+To use an octal literal, prefix your literal with a 0.
+int x{ 012 }; // 0 before the number means this is octal
+
+Octal numbers will still print to cout as decimal, so the above x would print out as 10.
+
+Hex is base 16, and uses letters A-F in addition to base numbers.
+
+Because there are 16 different values for a hexadecimal digit, we can say a single hex digit encompasses 4 bits. Consequently, a pair of hex digits can represent a full byte.
+
+Representing in hex is much more concise than binary, so it's used to represent memory addresses or raw data in memory (with unknown type, for instance).
+
+Prior to C++14, there is no support for binary literals. However, hex is a useful workaround for those versions of C++.
+bin = 0xF770; // assign binary 1111 0111 0111 0000 to the variable
+
+In C++14 and on, we can use the 0b prefix for binary.
+bin = 0b1;        // assign binary 0000 0000 0000 0001 to the variable
+
+Because long literals can be hard to read, you can separate digits with a quotation mark. Just note that the quotation mark can't occur befor the first digit of the value.
+
+int bin { 0b1011'0010 };  // assign binary 1011 0010 to the variable
+long value { 2'132'673'462 }; // much easier to read than 2132673462
+
+Digit separators are purely visual and don't affect the literal value in any way.
+
+IO manipulators can change cout via std::dec, std::oct, and std::hex.
+
+Outputting values in binary is a bit harder, because std::cout doesn't have this built in.
+The C++ standard library includes std::bitset, which will do this.
+
+#include<bitset>
+// std::bitset<8> means we want to store 8 bits
+std::bitset<8> bin1{ 0b1100'0101 }; // binary literal for binary 1100 0101
+std::cout << bin1 << '\n';
+
+Chapter 0_1 goes over std::bitset in more detail.
+
+
+
+
+
+

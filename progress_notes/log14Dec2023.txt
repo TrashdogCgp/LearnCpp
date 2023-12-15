@@ -3,6 +3,11 @@ Null-termination is mentioned, but the tutorial hasn't gone on with what makes t
 They did mention that string literals are guaranteed to exist through the whole program, though.
 And that string literals are created at the start of the program.
 
+Decided it's probably a better idea to go rename the folders rather than the note txt files.
+This will give me the ability to look back at my notes and actually know which lesson I'm looking at.
+Kinda embarrassed that I didn't consider that to start. URGH.
 
-
-
+As of getting home from work and putting in a few more lessons, wow.
+constexpr/consteval are some pretty dense reading.
+The conditions for enforcing compile-time compilation are kind of wacky. 
+I think I'll need to read through that again in the future, or just try to use constexpr/consteval and see whether or not the std::is_constant_evaluated() indications and/or compiler errors can help me understand better.

@@ -1,0 +1,55 @@
+5_6
+The conditional operator
+
+The conditional operator (sometimes called the arithmetic if operator) is a ternary operator (takes 3 operands). Since it's the only ternary operator in C++, it's also referred to as "the ternary operator".
+
+It basically is shorthand for doing a particular type of if-else statement.
+
+Form:
+condition ? expression1 : expression2;
+
+If condition evaluates to true, then statement1 is executed, otherwise statement2 is executed.
+
+The conditional operator evaluates as an expression.
+Because the operands of the conditional operator are expressions rather than statements, the conditional operator can be used in places where an expression is required.
+For example, when initializing a variable:
+    constexpr bool inBigClassroom { false };
+    constexpr int classSize { inBigClassroom ? 30 : 20 };
+
+There's no direct if-else replacement for this.
+
+Because C++ prioritizes the evaluation of most operators above that of the conditional operator, it's easy to get unexpected results.
+
+For this reason, the ternary operator should be parenthesized as follows:
+Parenthesize the entire conditional operator when used in a compound expression (expression with other operators).
+For readability, parenthesize the condition if it contains any operators (other than the function call operator).
+
+To comply with C++'s type checking rules, one of the following must be true:
+The type of the second and third operand must match
+or
+The compiler must be able to find a way to convert one or both of the second and third operatnds to matching types. The conversion rules the compiler uses are fairly complex and may yield surprising results in some cases.
+e.g.
+std::cout << (true ? -1 : 2u) << '\n';  // surprising result: -1 converted to unsigned int, result out of range
+
+In general, it's okay to mix operands with fundamental types (but don't mix signed and unsigned values).
+If either operand is not a fundamental type, it's generally best to explicitly convert to a matching type instead so you know what you'll get.
+
+If the compiler can't find a way to convert the second and third operands to a matching type, a compile error will result.
+Correcting for this is necessary for the program to run.
+
+    // We can explicitly convert the types to match
+    std::cout << (x != 5 ? std::to_string(x) : std::string{"x is 5"}) << '\n';
+
+So when should we use the conditional operator? When we want to:
+Initialize an object with one of two values
+Assign one of two values to an object
+Pass one of two values to a function
+Return one of two values from a function
+Print one of two values
+
+Best practice: Avoid the conditional operator in complicated expressions.
+
+
+
+
+
