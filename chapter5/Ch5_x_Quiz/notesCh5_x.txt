@@ -1,0 +1,62 @@
+Ch5_x
+Quiz
+
+1.
+a) Why are named constants often a better choice than literal constants?
+Named constants help avoid magic numbers, and can be reused. They can be modified across all use cases rather than modified individually when a change has to be made.
+
+b) Why are const/constexpr variables usually a better choice than #defined symbolic constants?
+Symbolic constants aren't picked up as well by the compiler/debugger, present more potential for naming conflicts, and are also messier syntax.
+
+2. Find 3 issues affecting the code:
+#include <cstdint> // for std::uint8_t
+#include <iostream>
+
+int main()
+{
+  std::cout << "How old are you?\n";
+
+  std::uint8_t age{};
+  std::cin >> age;
+
+  std::cout << "Allowed to drive a car in Texas [";
+
+  if (age >= 16)
+    std::cout << "x";
+  else
+    std::cout << " ";
+
+  std::cout << "]\n";
+
+  return 0;
+}
+
+Issues:
+no reason to use uint8_t for age; should use int.
+16 can be considered a magic number
+Outputting a single character as a string literal is inefficient; output a single char instead.
+
+3. Add const and/or constexpr to the program:
+see ch5_x_3_original.cpp and ch5_x_3_mod.cpp
+
+4. What are the primary differences between std::string and std::string_view?
+What can go wrong when using a std::string_view?
+
+std::string owns a copy of an initialized or assigned string, while std::string_view does not, but allows viewing of a string literal or a string object owned by another object. std::string_view is consequently cheaper to initialize and copy, but can't modify the string it views.
+
+std::string_view can go wrong when it's viewing an object that is temporary or destroyed. Undefined behavior occurs when a string_view tries to access an object that has been invalidated (destroyed, changed, gone out of scope).
+
+5. Write a program that asks for the name and age of two people, then prints which person is older.
+see ch5_x_5.cpp
+
+6. Complete the following program:
+see ch5_x_6.cpp
+
+
+
+
+
+
+
+
+
