@@ -1,0 +1,10 @@
+At risk of treating this more like a personal journal than an actual log of my studying troubles, I almost completely crumbled and lost all composure this morning.
+I've been trying so hard not to make mistakes at work, but there was a misunderstanding where I was accused of a big one that I triple-checked to ensure I wouldn't make.
+Glad that's out of the way, but that would've really crushed me, probably for the whole weekend.
+
+Anyway, today is std::string and std::string_view, and hopefully also finishing chapter 5.
+The quiz does look a little deeper, on preview/skim, so we'll see if I've retained the whole chapter like I'm supposed to.
+
+
+
+

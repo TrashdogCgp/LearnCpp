@@ -1,0 +1,72 @@
+5_4
+Literals
+
+Literals are values directly inserted into the code.
+Literals are sometimes called literal constants because their meaning can't be redefined (5 always means 5)
+
+Literals have a type.
+The type is deduced from the value of the literal. For example, a whole number (e.g. 5) is deduced to type int.
+
+If a literal is not the desired type, you can change the literal's type by adding a suffix.
+
+(regretfully, while I think this table is worth having in my notes, I've copy/pasted it rather than typing out all of this high-maintenance formatting)
+
+integral	    u or U	unsigned int
+integral	    l or L	long
+integral	    ul, uL, Ul, UL, lu, lU, Lu, LU	unsigned long
+integral	    ll or LL	long long
+integral	    ull, uLL, Ull, ULL, llu, llU, LLu, LLU	unsigned long long
+integral	    z or Z	The signed version of std::size_t (C++23)
+integral	    uz, uZ, Uz, UZ, zu, zU, Zu, ZU	std::size_t (C++23)
+floating point	f or F	float
+floating point	l or L	long double
+string	        s	std::string
+string	        sv	std::string_view
+
+Most suffixes for these literals are not case sensitive. Because lower-case L can look like numeric 1, it's recommended to use literal suffix L over its lower-case counterpart, l.
+
+Generally, integral literals won't need a suffix, even when initializing non-int types.
+For example, when you assign a uint to a value of 6 from a literal, the compiler will convert the int value of 6 to a uint of value 6, then use that as an initializer for the assigned variable.
+
+Floating point literals have a type of double by default.
+The f suffix makes them floats instead.
+
+float f{4.1}; //generates compiler warning; double literal doesn't match float type, which causes lack of precision from conversion to float, hence the warningl
+
+Scientific notation
+double avogadro { 6.02e23 }; // 6.02 x 10^23 is a double literal in scientific notation
+Floats accept this notation.
+
+String literals
+A string is a collection of sequential characters used to represent text.
+"Hello world" was a string literal.
+String literals are placed between double quotes to identify them (as opposed to char literals, between single quotes).
+For historical reasons, string is not a fundamental type in C++. Rather, they're a weird complicated type that's difficult to work with: C strings, inherited from the C language.
+
+Two things about strings are rather far from obvious.
+
+For one, all C-style string literals have an implicit null terminator.
+"hello" is actually hello\0
+The null terminator is used to indicate the end of the string. A string ending in one of these is called a null-terminated string.
+"Hello, world!" has type const char[14] rather than const char[13]. The hidden null terminator counts as a character.
+
+For two, unlike most literals, C-style string literals are const objects created at the start of the program. They're guaranteed to exist for the entirety of the program.
+This will become important when we discuss std::string_view.
+
+Unlike C-style string literals, std::string and std::string_view create temporary objects. These must be used immediately, as they're destroyed at the end of the full expression in which they're created.
+
+Magic numbers are literals that have an unclear meaning or may need to be changed.
+In complex programs, it's difficult to infer what a literal represents, unless there's a comment to explain it.
+
+Magic numbers are considered bad practice because they pose problems if a value needs to change.
+
+Magic numbers can be avoided by using symbolic constants, e.g.
+constexpr int maxStudentsPerClass { 30 };
+
+The name of the constant provides context, and we only need to update the value in one place to change every use of the value.
+
+Note that in obvious contexts, magic numbers aren't totally considered taboo or even magic.
+
+
+
+

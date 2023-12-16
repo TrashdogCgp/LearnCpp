@@ -1,0 +1,125 @@
+5_9
+Intro to std::string
+
+C-style string literals are fine to use, but C-style string variables behave oddly, are hard to work with (can't use assignment to give a c-style string variable a new value), and are dangerous (undefined behavior if you copy a larger C-style string into space allocated for a shorter c-style string).
+In modern C++, c-style string variables are best avoided.
+
+C++ has two string types that are much easier and safer.
+std::string and std::string_view (C++17), which are not fundamental types, are straightforward and useful enough that we'll introduce them here.
+
+The easiest way to work with strings in C++ is std::string, which lives in the <string> header.
+
+Note that strings can be composed of numeric characters as well, but you can't manipulate them as numbers since they're treated as text. C++ will not automatically convert strings to integer or floating point values, or vice-versa.
+There are ways to do these conversions, and we'll cover them in a future lesson.
+
+std::string objects can be output as expected using std::cout.
+Empty strings will print nothing.
+
+Most types have a fixed number of bytes allocated to them. If you want to hold an integral value, for example, that's more than 4 bytes, you probably have to use some type that isn't int.
+std::string can hold strings of different sizes, which is neat.
+
+string input with std::cin may yield some surprises.
+Because std::cin breaks on whitespace, entering, say, your full name won't work with a single cin input.
+
+It turns out that the extraction operator >> only returns characters up to the first whitespace it encounters, so other characters are left in std::cin.
+
+To read a full line of input into a string, you're better off using the std::getline() function instead.
+std::getline() requires two arguments: std::cin and your string variable.
+
+e.g.
+std::getline(std::cin >>std::ws, colorInput);
+
+std::ws is an input manipulator, which alters the way input is accepted. It tells std::cin to ignore any leading whitespace before extraction.
+Why use it?
+Well, when you enter a value using >>, std::cin not only captures the value, but also the newline character ('\n') that occurs when you hit the enter key.
+So if you enter an int input and hit enter, std::cin captuyres "2\n" as input, extracts 2 to the int you specified, and leaves the newline character behind for later.
+Then, when std::getline() goes to extract text to name, it sees "\n" waiting in std::cin and figures we must have previously entered an empty string when we try to fetch the next value from the buffer.
+
+Using the std::ws input manipulator, we can tell std::getline to ignore any leading whitespace characters.
+
+Best practice: If using std::getline() to read strings, use std::cin >> std::ws input manipulator to ignore leading whitespace. This needs to be done for each std::getline() call, as std::ws is not preserved across calls.
+UGH NOW THEY TELL ME.
+I WROTE AND RAN ch5_9.cpp TO SEE WHETHER OR NOT IT WAS PRESERVED ACROSS CALLS.
+
+std::cin ignores leading whitespace. It stops extracting when encountering non-leading whitespace.
+std::getline() does not ignore leading whitespace unless you use input manipulator std::ws. It stops extracting when it encounters a newline.
+
+We can ask a std::string object for its length pretty easily.
+
+std::string name{"Trashdog"};
+std::cout << name << " is " << name.length() << " characters long.'\n'";
+
+Although std::string is required to be null-terminated (as of C++11), the length of std::string does not include the implicit null-terminator character.
+Oof. C++ has null-terminated strings too? That's rough. Wonder if that's still a security issue like it was in C......
+
+Note that length() is a member function; because it's declared in std::string, it's sometimes written as std::string::length() in documentation.
+
+Note that std::string::length() returns a unsigned integral value, most likely of type size_t.
+If you want to assign the length to an int variable, use static_cast to avoid compiler warnings about signed/unsigned conversions.
+
+In C++20, you can also use st::ssize() to get the length of a std::string as a signed integral value.
+
+string name{"Trashdog"};
+std::cout << "Size is: " << std::ssize(name) << '\n';
+
+Whenever std::string is initialized, a copy of the string used to initialize it is made.
+Since this is an expensive process, minimize the number of copies made.
+
+Also, when a std::string is passed to a function by value, the std::string function parameter must be instantiated and initialized with the argument. This results in an expensive copy.
+std::string_view provides an alternative.
+
+Best practice: Do not pass std::string by value, as it makes an expensive copy.
+In most cases, use a std::string_view parameter instead.
+
+When a function returns by value to the caller, the return value is normally copied from the function back to the caller. You'd expect, then, that you shouldn't return std::string by value, as doing so would return an expensive copy of a std::string.
+
+As a rule of thumb, it's okay to return a std::string by value when the return statement resolves to any of the following:
+A local variable of type std::string
+A std::string that has been returned by value from a function call or operator
+A std::string that is created as part of the return statement
+
+Note that std::string supports a capability called move semantics, which allows an object that will be destroyed at the end of the function to instead be returned by value without making a copy.
+Move semantics is beyond the scope of this article, but we learn it in ch 16_4.
+In most other cases, don't return a std::string by value, as doing so will make an expensive copy.
+
+If returning a c-style string literal, use a std::string_view return type instead.
+std::string may also be returned by (const) reference, which is another way to avoid making a copy.
+
+Literals for std::string-
+We can create std::string literals by using a suffix of x after the double-quoted string literal. Otherwise, double-quoted string literals are c-style strings by default.
+e.g.
+using std::string_literals; //need this to use the s suffix
+std::cout << "SKRIM! AAAAAAAAAA\n"s;// s suffix makes this a std::string literal.
+
+The s suffix lives in the namespace std::literals::string_literals.
+The most concise way to access the literal suffixes is via a using-directive: using namespace std::literals.
+However, this imports all of the standard library literals into the scope of the using directive.
+Recommend: "using namespace std::string_literals", which only imports the literals for std::string.
+This is a rare exception where using an entire namespace is generally okay, because collisions with the suffixes are unlikely to collide with your code. Avoid such using-directives outside of functions in header files.
+
+It's not common that you'll need a std::string literal often, but we'll see a few cases (involving type deduction, for one) where using std::string literals instead of c-style string literals makes things easier.
+
+Also note that "Hello"s resolves to std::string{"Hello", 6}
+This creates a temporary std::string initialized with c-style string literal "Hello", which has a length of 6 accounting for the implicit null-terminator.
+
+If you try to define a constexpr std::string, your compiler will probably generate an error.
+This is because constexpr std:string isn't supported at all in C++17 or earlier, and only works in very limited cases in C++20/23
+If you need constexpr strings, use std::string_view instead.
+
+Quiz
+1. Write a program that asks the user to enter their full name and their age.
+As output, tell the user the sum of their age and the number of letters in their name. For simplicity, count any spaces in the name as a letter.
+
+See ch5_9_1.cpp
+
+
+
+
+
+
+
+
+
+
+
+

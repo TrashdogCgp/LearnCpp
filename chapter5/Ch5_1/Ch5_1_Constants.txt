@@ -1,0 +1,70 @@
+5_1
+Constants
+
+In programming, a constant is a value that may not be changed during the program's execution.
+C++ supports two kinds of constants.
+Named constants are constant values associated with an identifier. These are sometimes called symbolic constants, or just constants.
+Literal constants are constant values not associated with an identifier.
+
+We'll cover named constants first.
+
+3 ways to define a named constant in C++:
+Constant variables (this lesson)
+Object-like macros with substitution text (introduced in 2_10)
+Enumerated constants
+
+Constant variable are the most common type of named constant, so we'll start there.
+
+It's sometimes useful to define variables with values that can't be changed. For example, Earth's gravity isn't likely to change anytime soon.
+A variable whose value cannot be changed is called a constant variable.
+
+To declare a constant variable, put const (keyword called const qualifier) adjacent to the object's type.
+
+const double gravity{9.81};
+
+While C++ will accept the qualifier before or after the type, it's much more common to use const before the type because it's more English-like.
+
+Best practice: Place const before the type (because it's more conventional)
+
+Const variables must be initialized when you define them, and that value cannot be changed via assignment.
+
+Note that const variables can be initialized from other variables (including non-const ones).
+
+There are naming conventions for const variables.
+Programmers from C prefer underscored, upper-case names for const variables (e.g. EARTH_GRAVITY).
+More common in C++ is to use camel case, but starting with a k prefix (e.g. k EarthGravity).
+
+Because const variables act like normal variables, there's no reason they need a special naming convention. This tutorial series will continue using the same naming convention used for non-const variables.
+
+Function parameters can be made constants via the const keyword.
+e.g.
+void printInt(const int x)
+
+In modern C++ we don't make value parameters const because we generally don't care if the function's copy of the parameter is changed, since it's destroyed at the end of the function anyway. The const keyword also adds a small amount of needless clutter to the function prototype.
+
+Best practice: Don't use const when passing by value.
+
+A function's return value may also be made const.
+For fundamental types, the const qualifier on a return type is simply ignored.
+For other types, there's little point in returning const objects by value, because they're temporary copies that will be destroyed anyway.
+Returning a const value can also impede certain kinds of compiler optimizations (including move semantics), which impedes performance.
+
+Best practice: Don't use const when returning by value.
+
+We can also define object-like macros with substitution text.
+e.g.
+#define AUTHOR_NAME "Alex"
+
+When the preprocessor processes the file containing this code, it'll replace AUTHOR_NAME with "Alex". These object-like macros with substitution text are also named constants.
+
+Why not use preprocessor macros?
+Well, for one, macros don't follow normal C++ scoping rules. Once a macro is defined, all subsequent occurrences of the macro's name in the current file will be replaced. If that name is used elsewhere, you get unwanted substitution.
+Second, it's harder to debug code using macros. The compiler and debugger never see the macro because it's replaced before they run. Many debuggers can't inspect a macro's value, and often have limited ability when working with macros.
+Third, macro substitution behaves differently than everything else in C++. Inadvertent mistakes can be easily made as a result.
+
+In many applications, a given named constant needs to be used throughout your code, not just one file.
+Chapter 7_9 goes over ways to facilitate this in C++.
+
+A type qualifier (sometimes called qualifier for short) is a keyword applied to a type that modifies how that type behaves. 
+Our const keyword, then, is called a const type qualifier (const qualifier for short).
+As of C++23, the only two type qualifiers are const and volatile.

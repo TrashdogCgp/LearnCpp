@@ -1,0 +1,58 @@
+5_10
+Introduction to std::string_view
+
+For fundamental types, initializing and copying a variable is fast.
+Unlike fundamental types, initializing and copying a std::string is slow.
+It's inefficient to make a copy of a string just to print it to the console, and then destroy it, which wouldn't be too unusual of behavior for a printing function.
+
+To address the issue with std::string being expensive to initialize or copy, C++17 introduced std::string_view, which is from the <string_view> header.
+std::string_view provides read-only access to an existing string (a c-style string, a std::string, or another std::string_view) without making a copy.
+Read-only means we can access and use the value being viewed, but we can't modify it.
+
+e.g.
+    std::string_view s{ "Hello, world!" }; // now a std::string_view
+    printSV(s);
+
+When we initialize std::string_view s with the c-style string literal, we get read-only access to "Hello, world" via s without making a copy of the string.
+
+Best practice: Prefer std::string_view over std::string when you need a read-only string, especially for function parameters.
+
+One of the nice things about std::string_view is that it's flexible; it can be initialized with a c-style string, a std::string, or another std::string_view.
+Both std::string and c-style string will implicitly convert to a std::string_view.
+
+std::string_view will not implicitly convert to std::string. Because std::string copies its initialized (which is expensive), C++ won't allow an implicit conversion of std::string_view to std::string.
+This is to prevent accidentally passing a std::string_view argument to a std::string parameter, which would inadvertently make an expensive copy where such might not be required.
+
+We have two options if this is desired:
+Explicitly create a std::string with a std::string_view initializer
+or
+Convert an existing std::string_view to a std::string using static_cast
+
+e.g.
+void printString(std::string str)
+{	std::cout << str << '\n';}
+
+std::string_view sv{ "Hello, world!" };
+// printString(sv);   // compile error: won't implicitly convert std::string_view to a std::string
+std::string s{ sv }; // okay: we can create std::string using std::string_view initializer
+printString(s);      // and call the function with the std::string
+
+printString(static_cast<std::string>(sv)); // okay: we can explicitly cast a std::string_view to a std::string
+
+Assigning a new string to a std::string_view causes the std::string_view to view the new string. It doesn't modify the prior viewed string in any way.
+
+We can create string_view literals by using a sv suffix after a double-quoted string literal.
+We have to add:
+
+using namespace std::string_view_literals;//access the sv suffix
+std::cout << "Outputting string_view literal'\n"sv;
+
+It's fine to initialize a std::string_view object with a c-style string literal if you don't need to initialize it with a std::string_view literal.
+That said, initializing a std::string_view using a std::string_view literal won't cause problems; std::string_view literals are actually c-style string literals in disguise.
+
+constexpr string_view
+Unlike std::string, std::string_view has full support for constexpr.
+This makes constexpr std::string_view the preferred choice when string symbolic constants are needed.
+We'll continue discussing std::string_view in the next lesson.
+
+

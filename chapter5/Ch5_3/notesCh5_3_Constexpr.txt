@@ -1,0 +1,61 @@
+5_3
+Constexpr variables
+
+When you declare a const with the const keyword, the compiler will implicitly track whether it's runtime or compile-time.
+In most cases, this only matters for optimization, but fhtere are a few cases where C++ requires a constant expression, and only compile-time constant variables can be used in a constant expression.
+
+Because compile-time constants also allow better optimization with little downside, we typically want to use compile-time constants where possible.
+
+When using const, our variables could end up as either a compile-time const or a runtime const, depending on whether or not the initializer is a constant expresion.
+In some cases, it can be hard to tell whether a const variable is compile-time or runtime const.
+
+Examples:
+int x { 5 };       // not const at all
+const int y { x }; // obviously a runtime const (since initializer is non-const)
+const int z { 5 }; // obviously a compile-time const (since initializer is a constant expression)
+const int w { getValue() }; // not obvious whether this is a runtime or compile-time const
+
+The compiler can help us ensure we get a compile-time constant when we want one, though!
+To do so, we use constexpr instead of const in a variable's declaration.
+
+Constexpr (short for "constant expression") can only be a compile-time constant. If the initialization value of a constexpr variable is not a constant expression, the compiler will error.
+
+Best practice: Any variable that should not be modifiable after initialization and whose initialized is known at compile-time should be declared as constexpr.
+Any variable that should not be modifiable after initialization and whose initializer is not known at compile-time should be declared as const.
+Caveat: In the future, we'll talk about types that aren't currently compatible with constexpr (including std::string, std::vector, and other types that use dynamic memory allocation). For constant objects of these types, use const instead.
+
+Note that the author has mentioned that examples on this site were written prior to the best practice to use constexpr; some of their examples don't follow this best practice, but they'll hopefully be updated.
+
+Normal function calls are evaluated at runtime, with the supplied arguments used to initialize function parameters. This means const function parameters are treated as runtime constants, even when the supplied argument is a compile-time constant.
+Because constexpr objects must be initialized with a compile-time constant (not runtime constant), function parameters cannot be declared as constexpr.
+
+C++ does support functions that can be evaluated at compile-time; this is covered in 5_8.
+C++ also allows a way to pass compile-time constants to a function. We discuss this in 10_8.
+
+So, when are constant expressions actually evaluated?
+The compiler is only required to evaluate constant expressions at compile-time in contexts that require a constant expression (like the initializer of a compile-time constant).
+constexpr int x { 3 + 4 }; // 3 + 4 will always evaluate at compile time
+const int x { 3 + 4 };     // 3 + 4 will always evaluate at compile time
+
+In contexts that don't require a constant expression, the compiler may choose whether to evaluate a constant expression at compile-time or runtime.
+int x{3+4}; //3+4 may evaluate at compile-time or runtime
+
+x is not a constexpr variable in the above, and the initialization value does not need to be known at compile-time. Even though it's not strictly required, most compilers will take the easy optimization and evaluate a constant expression at compile-time because it's performant to do so.
+
+In the following:
+constexpr int x { 3 + 4 }; // 3 + 4 is a constant expression
+std::cout << x << '\n';    // this is a runtime expression
+Since 3 + 4 is a constant expression, the compiler will evaluate it at compile-time, replace it with 7. Because x is a compile-time constant, the compiler will likely optimize x out of the next cout statement, replacing it with:
+std::cout << 7 << '\n';
+
+Amusing thing is that it's not as certain that the compiler would optimize out the addition of 3+4:
+std::cout << 3 + 4 << '\n';
+because the full cout expression is not a constant expression.
+Generally, yes, though! Compilers are usually good at optimizing constant subexpressions, even when it's part of a runtime expression.
+This optimization process is called "constant folding".
+Making our variables constexpr ensures that these variables are eligible for constant folding when used in constant subexpressions.
+
+
+
+
+
