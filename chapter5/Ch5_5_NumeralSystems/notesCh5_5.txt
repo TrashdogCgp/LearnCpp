@@ -49,4 +49,3 @@ Chapter 0_1 goes over std::bitset in more detail.
 
 
 
-
