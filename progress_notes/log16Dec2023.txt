@@ -1,0 +1,11 @@
+Embarrassingly late start to the day, considering that I had nothing on my agenda other than waking up tired and dehydrated from sweating in my sleep.
+Finished ch 5 yesterday, including the quiz.
+When/how to use constexpr is still not fully lodged in my tiny little brain just yet. Not sure if I still need to go through that mammoth of a chapter again, of if I'm just going to need to give it time and hope the tutorials revisit that concept a lot.
+
+I keep expecting the tutorials to start following best practice and throwing const all over the place. I know they will in the object-oriented sections, but I'm wondering where that starts.
+
+Anyway, today starts with operators, chapter 6. Despite my late start, I'm hoping to get through this whole thing. It's a shorter chapter, but... chapter 5 had some really long lessons (constexpr, consteval, std::string), so there's no guaranee that's feasible.
+
+
+
+

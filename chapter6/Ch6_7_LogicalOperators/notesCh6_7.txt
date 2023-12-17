@@ -1,0 +1,131 @@
+6_7
+Logical operators
+
+Going to start with the quiz for this one, hopefully ace it, and then read/note the rather long lecture anyway.
+In THEORY, being a freaking electrical engineer who was head of his class and learned to code over time SHOULD make me able to handle something like this.
+If not, I hang my head in shame and double down on letting go of my ego.
+
+1. Evaluate the following expressions
+a) (true && true) || false
+-> true || false
+-> true
+
+b) (false && true) || true
+-> false || true
+-> true
+
+c) (false && true) || false || true
+Associativity doesn't matter here
+-> false || false || true
+Regardless of the grouping, evaluates to true
+
+(false || false) || true 
+false || true
+true
+
+or
+
+false || (false || true)
+false || true
+true
+
+d) (5>6 || 4>3) && (7>8)
+Note that > and < take precedence over ||
+
+(false || true) && false
+-> true && false
+-> false
+
+e) !(7>6 || 3>4)
+!( true || false)
+!(true)
+false
+
+2. 
+Rewrite this function using ! instead of ==
+//original
+bool isEven(int x)
+{
+    // if x % 2 == 0, 2 divides evenly into our number, which means it must be an even number
+    return (x % 2) == 0;
+}
+
+//modified
+bool isEven(int x)
+{
+    // if x % 2 == 0, 2 divides evenly into our number, which means it must be an even number
+    return !(x % 2);
+}
+
+
+.................cool, shame-crisis averted.
+So now, the notes.
+
+We often need to know whether multiple conditions are true simultaneously.
+Logical operators allow us to test multiple conditions.
+
+Logical NOT: !
+Logical AND: &&
+Logical OR:  ||
+
+If the operand for logical NOT evaluates to true, then logical NOT evaluates to false.
+In other words, logical NOT flips a bool from true to false, and vice versa.
+
+NOT has a very high level of precedence.
+(!x > y) is not the same as !(x > y)
+
+Best practice: If logical NOT is intended to operate on the result of other operators, the other operators and their operands need to be enclosed in parentheses.
+
+The logical OR operator is used to test whether either of two conditions is true.
+You can string together many logical OR statements (note: are these really statements? Looking back at the definition of statement: a type of instruction that causes the program to perform some action. Most but not all statements end in a semicolon... is this one of those exceptions?)
+e.g.
+if (value == 0 || value == 1 || value == 2 || value == 3)
+
+Logical AND is used to test whether both operands are true.
+You can string together many logical AND statements along with OR and NOT.
+e.g.
+if (value > 10 && value < 20 && value != 16)
+    // do something
+
+Short circuit evaluation
+In order for AND to return true, both operands must evaluate to true. If the left operand evaluates to false, logical AND knows it must return false regardless of the right operand's value.
+In this case, the logical AND operator will return false immediately without even evaluating the right operand.
+This is done for optimization, and also done when the left operand for logical OR is true (except that it returns true).
+Short circuit evaluation presents another opportunity to show why operators that cause side effects should not be used in compound expressions.
+e.g.
+if (x == 1 && ++y == 2)
+If x doesn't equal 1, ++y is never evaluated and y will not be incremented.
+Probably not the intent of the program.
+
+Note: Logical AND and OR operators are an exception to the rule that operands may evaluate in any order. The standard explicitly states that the left operand must evaluate first.
+Only the built-in versions of these operators perform short-circuit evaluation. If you overload these operators to make them work with your own types, those overloaded operators will not perform short-circuit evaluation.
+
+Note that logical AND has higher precedence than logical OR.
+AND will be evaluated first.
+
+Best practice: When mixing logical AND and logical OR in a single expression, explitily parenthesize each operation to ensure they evaluate how you intend.
+
+De Morgan's laws:
+!(x && y) is the same as !x || !y
+!(x || y) is the same as !x && !y
+
+Logical XOR doesn't exist in C++, at least not explicitly. operator ^ is a bitwise XOR.
+However, operator!= produces the same result as XOR when given bool operands.
+If the operands are not of type bool, using != for XOR will not work as expected.
+
+Note that the NOT operator (!) implicitly converts its operand to bool.
+
+Rather than symbols, it's permissible to use keywords for and, not, and or operators.
+&& and
+|| or
+! not
+They're interchangeable.
+
+Most C++ developers prefer the symbolic names over the keyword names.
+
+
+
+
+
+
+

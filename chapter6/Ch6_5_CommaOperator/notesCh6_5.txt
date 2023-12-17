@@ -1,0 +1,31 @@
+6_5
+The comma operator
+
+The comma operator allows you to evaluate multiple expressions wherever a single expression is allowed.
+The comma operator evaluates the left operand, then the right operand, and returns the result of the right operand.
+e.g.
+std::cout << (x++, y++) << '\n; increment both x and y, evaluate to y
+
+Note that the comma has the lowest precedence of all the operators, even lower than assignment.
+Because of this, the following two lines do very different things:
+x = (a,b); //evaluate (a,b) to get result of b, then assign b to variable x
+x = a,b; //evaluate z=a, then evaluate value of b and terminate that value with semicolon
+
+In almost every case, partly due to this behavior, a statement written using a comma would be better written as separate statements.
+
+Most programmers don't use the comma operator at all, with the single exception of for loops, where it's fairly commonly used.
+
+Best practice: Avoid using the comma operator, except within for loops
+
+In C++, the comma symbol is often used as a separator, and these uses do not invoke the comma operator.
+e.g.
+void foo(int x, int y); //Separator comma for parameters in function definition
+constexpr z{2}, w{6}; //Separator comma to separate multiple variables defined on same line, don't do it if you can avoid it
+
+There is no need to avoid separator commas, which are, again, different from the comma operator.
+
+
+
+
+
+
