@@ -1,0 +1,113 @@
+6_1
+Operator precedence and associativity
+
+This chapter builds on ch1_9's literals/operators concepts.
+A quick review:
+An operation is a math process involving zero or more input values (operands) that produces a new value (output value).
+The specific operation to be performed is denoted by a construct (typically a symbol or pair of symbos) called an operator.
+
+Evaluation of compound expressions
+Let's consider 2+4*3.
+How should this be grouped, and how does the compiler know order of operations/precedence rules?
+
+To evaluate an expression, the compiler must do two things:
+At compile time, the compiler must parse the expression and determine how operands are grouped with operators via precedence and associativity rules, which we'll discuss soon.
+At compile time or runtime, the operands are evaluated and operations are executed to produce a result.
+
+To assist with parsing a compound expression, all operators are assigned a level of precedence. Operators with a higher precedence level are grouped with operands first.
+
+There's a table on this page with precedence levels for operations, and it has mult/div at level 5 while addition and substraction are level 6.
+Mult/div, then, will be grouped with operands before addition/subtraction.
+4+2*3 is grouped as 4 + (2*3)
+
+Operator associativity
+Consider 7-4-1. Since subtraction has the same precedence level as subtraction (duh), the compiler can't just use precedence to determine its grouping.
+If two operators have the same precedence level adjacent to each other in an expresison, the operator's associativity tells the compiler whether to evaluate left to right or right to left.
+Subtraction has left-to-right associativity. The expression is then grouped as (7-4) - 1
+
+The table is meant as a reference chart for later, with precedence level or associativity ready.
+Precedence level 1 is the highest level, and precedence level 17 is the lowest.
+Higher precedence level means operands grouped first.
+L->R means left to right associativity.
+
+Might have to commit that table to memory?
+It'll be a bit of a slog to do so, though.
+
+C++ doesn't include an exponentiation operator.
+We discuss this more in ch6_3.
+
+Note that the << operator handles both insertion and left shift, and operator >> handles both bitwise right shift and extraction.
+The compiler can determine which operation the operator performs based on the types of operands.
+
+Parenthesization
+Due to the precedence rules, 4+2*3 will be grouped as 4 + (2*3).
+But what if we want (4+2) * 3?
+Well, we can use parentheses to set the grouping of operands as we desire.
+This works because parentheses have one of the highest precedence levels, so they generally evaluate before whatever is inside them.
+
+There are also a ton of operators, and remembering precedence is kind of tough.
+e.g. x && y || z
+Which way does this resolve?
+Well, you can sort of just use parentheses to not make the reader have to look it up. Even though && takes precedence over ||, why not just punctuate it as (x && y) || z to make it easier to read?
+
+Best practice: Use parentheses to make it clear how a non-trivial compound expression should evaluate (even if they're technically unnecessary).
+
+A good rule of thumb: () for everything except addition, subtraction, multiplication, and division in compound expressions.
+Additionally, an exception to that best practice: expressions with a single assignment operator and no comma operator do not need the right operand of the assignment wrapped in parenthesis.
+
+The C++ standard uses the term value computation to mean execution of operators in an expression to produce a value.
+The precedence/association rules determine the order in which value computation happens.
+
+Order of evaluation (of operands)
+The C++ standard mostly uses the term evaluation to refer to the evaluation of operands (not evaluation of operators or expressions).
+For example, with expression a + b, a will be evaluated to produce a value, b will be evaluated to produce some value, and these values can be used as operands to operator+ to compute a value.
+
+Informally, we use the term "evaluates" to mean the evaluation of an entire expression, not just the operands of an expression.
+
+In other words, we say "evaluate" in a way the C++ standard reserves almost exclusively for operands, but we tend to use it in the context of getting a value from an entire expression, not just an operand.
+
+The order of evaluation of operands and function arguments is mostly unspecified.
+Precedence and associativity rules only tell us how operators and operands are grouped, and the order in which value computation will occur. They don't tell us the order in which the subexpressions or operands are evaluated.
+In a*b + c*d, the compiler is free to evaluate operands a, b, c, and d in any order.
+
+This is irrelevant for most expressions.
+But it's possible to make an expression where the order of evaluation does matter.
+e.g.
+std::cout << getValue() + (getValue() * getValue()) << '\n'; // a + (b * c)
+If getValue uses cin, the writer of this statement probably assumes that the calles to getValue() will evaluate left-to-right.
+The compiler may choose a different order, which would result in an unexpected printout.
+
+Thus, ensure that the expressions (or function calls) you write are not dependent on operand or argument evaluation order.
+Note that operators with side effects can also cause unexpected results.
+
+quiz
+
+1. Using operator precedence and associativity rules from the table, add parentheses to each expression to make clear how the compiler will evaluate the expression.
+
+a) x = 3+4+5
+L->R associativity, so
+x = ((3+4) + 5)
+
+b) x = y = z
+Same operator, so precedence doesn't matter.
+R->L associativity, so
+x = (y=z);
+
+c) z += ++y + 5;
+++ takes precedence over +
++ takes precedence over +=
+z += ((++y) + 5);
+
+d) a || b && c || d;
+&& takes precedence over ||, so start by simplifying...
+a || (b&&c) || d;
+associativity... I have to actually look at the table this time to see if || has L->R or R->L
+Table says || operator is L->R, so:
+(a || (b&&c)) || d;
+
+Whew, that wasn't as much scrolling up and down to/from the table as I thought.
+But they could've chosen more esoteric operators and I'd have had a bad time.
+
+
+
+

@@ -1,0 +1,53 @@
+6_4 
+Increment/decrement operators, and side effects
+
+Incrementing and decrementing variables are both so common that they have their own operators.
+Prefix Increment ++x
+Prefix decrement --x
+Postfix Increment x++
+Postfix Decrement x--
+
+Note that there are two versions of each operator, prefix and postfix.
+
+The operators are very straightforward.
+For prefix, the operand is incremented or decramented, and then the expression evaluates to the value of the operand.
+For postfix, there's more of a trick. First, a copy of the operand is made. Then, the operand (not the copy) is incremented or decremented. Finally, the copy is evaluated (not the original!)
+e.g.
+int x{5};
+int y{++x};
+int z{++x};
+std::cout << y << '\n';//Outputs 6
+std::cout << z << '\n';//Also outputs 6; non-incremented copy was provided to initialize z
+
+Note that with the postfix increment operation, the temporary copy is discarded after the line in which the increment occurs.
+Since the postfix takes more steps, it may not be as performant as the prefix version.
+
+In many cases, prefix and postfix operators produce the same behavior.
+Best practice: Favor the prefix versions, as they are more performant and less likely to cause surprises.
+Use the postfix versions if you find a scenario where doing so produces significantly more concise or understandable code than the equivalent code written using prefix versions.
+
+Side effects
+A function/expression is said to have a side effect when it has some observable effect beyond producing a return value.
+Common examples of side effects include changing values of objects, doing input/output, or updating a GUI.
+Most of the time, side effects are useful.
+
+In some cases, side effects can lead to order of evaluation problems.
+e.g.
+int x { 5 };
+int value{ add(x, ++x) }; // undefined behavior: is this 5 + 6, or 6 + 6?
+
+x + ++x; //is also undefined behavior
+
+C++ does not define the order of evaluation for function arguments or the operands of operators.
+Don't use a variable that has a side effect applied to it more than once in a given statement. If you do, the result may be undefined.
+
+In summary, don't use a variable that has a side effect applied to it more than once in a given statement. If you do, the result may be undefined.
+An exception is simple assignment expression statements, e.g.
+x = x + y;
+
+
+
+
+
+
+

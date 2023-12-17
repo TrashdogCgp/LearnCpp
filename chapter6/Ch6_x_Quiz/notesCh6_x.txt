@@ -1,0 +1,43 @@
+Ch6_x
+quiz
+
+1. Evaluate the following
+a) (5>3 && 4<8)
+true
+
+b) (4>6 && true)
+false
+
+c) (3>=3 || false)
+true
+
+d) (true || false) ? 4 : 5
+4
+
+Sorry, no work needed, no work shown.
+
+2. Evaluate the following:
+a) 7/4
+1
+
+b) 14 % 5
+4
+
+3. Why should you never do the following:
+a) int y{foo(++x, x)};
+C++ standard does not define whether the left or right argument of the function is evaluated first, so we get undefined behavior from using the side effect of ++x in the function call. ++x is not guaranteed to evaluated before the value of x is copied as a parameter into the function.
+
+b) double x {0.1 + 0.1 + 0.1 }; return (x == 0.3);
+Because of the imprecision of floating points values, we shouldn't use the == operator to compare floating point values.
+The values might not match exactly, and this becomes more likely with each arithmetic operation.
+
+c) int x{3/0};
+Dummy. Don't divide by zero.
+For integers, undefined behavior, possibly (probably?) a crash.
+For floating point numbers, dividing by 0 is Inf or NaN, both of which are bad mojo.
+
+
+
+
+
+

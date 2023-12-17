@@ -1,0 +1,39 @@
+6_3
+Remainder and Exponentiation
+
+The remainder operator, or modulo/modulus operation, is an operator that returns the remainder after doing an integer division.
+This is useful for testing whether a number is evenly divisible by another number (after division, no remainder). If x % y evaluates to 0, we know x is evenly divisible by y.
+
+Remainders also work with negative operands. 
+-6 % 4 = -2
+6 % -4 = 2
+Note that the remainder takes the sign of the first operand.
+
+Since signs are wonky when the first operand is a negative number, it's best to compare against 0 for modulo operations, since it doesn't have positive/negative number issues.
+
+Best practice: Prefer to compare the result of the remainder operator against 0 if possible.
+
+C++ does not have an exponent operator.
+However, <cmath> has the pow() function
+double x{ std::pow(3.0, 4.0) }; // 3 to the 4th power
+Due to rounding errors in floating point numbers, the results of pow() may not be precise even if you give it integers or whole numbers.
+Best to use your own function to do integer exponentiation.
+The reason exponentiation for int wasn't included in the standard library in the first place is that int exponentiation will often overflow the integral type.
+
+quiz
+1. What does the following expression evaluate to:
+6 + 5 * 4 % 3
+Well, modulo is on the same level of precedence as * and /, and associativity is L->R
+so...
+6 + ((5 * 4) % 3)
+6 + (20 % 3) = 6 + 2
+8
+
+2. Write a program that asks the user to input an integer, and tells the user whether the number is even or odd.
+Write a constexpr function called isEven() that returns true if an integer passed to it is even, and false otehrwise.
+Use the reaminder operator to test whether the integer parameter is even. Make sure isEven() works with both positive and negative numbers.
+
+see ch6_3_2.cpp
+
+
+

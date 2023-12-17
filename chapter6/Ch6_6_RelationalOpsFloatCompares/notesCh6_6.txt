@@ -1,0 +1,81 @@
+6_6
+Relational operators and floating point comparisons
+
+Relational operators let you compare two values.
+There are 6 relational operators.
+> Greater than
+< Less than
+>= Greater than or equals 
+<= Less than or equals
+== Equality
+!= Inequality
+
+We've seen how these work, and they're pretty intuitive.
+Each evaluates to a boolean value (true/false).
+
+When comparing ints, these operators are extremely straightforward to use.
+
+Boolean conditional values
+By default, conditions in an if statement or conditional (ternary) operator (and a few other places) evaluate as boolean values.
+It's redundant to write
+if(bool1 == true)
+because bool1 is already a boolean value;
+if(bool1)
+is equivalent.
+
+Best practice: Don't add unnecessary == or != to conditions. This just makes them harder to read without offering any additional value.
+
+Comparing floating point values using any of the relational operators can be dangerous.
+Thos os because folating point values are not precise, and small rounding errors in the floating point operands may cause them to be slightly smaller or larger than expected.
+This can throw off the relational operators.
+
+Using less-than and greater-than operators with floating point values will typically produce a reliable answer in most cases (when the value of the operands is not similar).
+However, if the operands are almost identical, these operators should be considered unreliable.
+
+If the consequence of getting a wrong answer from a comparison of similar operands is acceptable, then using these operators can be acceptable. This is an application-specific decision.
+
+For floating points, == and != are much more troublesome.
+Even the smallest rounding error will cause two floating point numbers to not be equal.
+Avoid using == and != to compare floating point values, especially if there is any chance those values have been calculated.
+
+It is acceptable to compare a low-precision floating point literal to the same literal value of the same type.
+
+It is also okay to compare a const or constexpr floating point variable that we can guarantee is a literal.
+e.g.
+constexpr double gravity { 9.8 }
+if (gravity == 9.8) // okay if gravity was initialized with a literal
+
+So how do we actually compare them reasonably for equality if we have two floating point operands?
+
+The most common method looks for almost-the-same status.
+Traditionally, the "close enough" value is called epsilon, a small positive number usually chosen at 1e-8 for double variables.
+e.g.
+return std::abs(a - b) <= absEpsilon;
+
+Another approach uses a relative epsilon.
+// Return true if the difference between a and b is within epsilon percent of the larger of a and b
+bool approximatelyEqualRel(double a, double b, double relEpsilon)
+{
+	return (std::abs(a - b) <= (std::max(std::abs(a), std::abs(b)) * relEpsilon));
+}
+
+The math for this breaks down close to zero.
+
+We can also use an absolute and relative epsilon.
+// Return true if the difference between a and b is less than or equal to absEpsilon, or within relEpsilon percent of the larger of a and b
+bool approximatelyEqualAbsRel(double a, double b, double absEpsilon, double relEpsilon)
+{
+    // Check if the numbers are really close -- needed when comparing numbers near zero.
+    if (std::abs(a - b) <= absEpsilon)
+        return true;
+
+    // Otherwise fall back to Knuth's algorithm
+    return approximatelyEqualRel(a, b, relEpsilon);
+}
+
+The tutorial... really goes down a rabbit hole over how to make this approximate equality stuff into a constexpr function.
+Yikes.
+I hate to skip out on this, but I think I'll hold off on taking a stance on this thing, considering the brainiacs who spend their time arguing about this stuff.
+Call me weak. I know I am.
+
+

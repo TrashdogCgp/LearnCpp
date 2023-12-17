@@ -1,0 +1,48 @@
+6_2
+Arithmetic operators
+
+There are actually two arithmetic operators: plus (+) and minus (-).
+These operators work with one operand.
+Unary minus multiplies by negative 1.
+Unary plus returns the value of the operand, which makes this redundant. It doesn't even put negative numbers back to positive, so it's not an absolute value. Blegh. I guess it was added to provide symmetry with unary minus.
+
+There are 5 binary arithmetic operators:
++ (addition)
+- (subtraction)
+* (multiplication)
+/ (division)
+% (remainder/modulo)
+
+The first three work like they do in real life, no caveats.
+The latter two (division and remainder) are a little more complicated.
+
+Division can be thought of as having two different "modes".
+
+If either or both of the operands are floating point values, the division operator performs floating point division.
+Floating point division returns a floating point value, and the fraction is kept.
+As with all floating point arithmetic, rounding errors may occur.
+
+If both operands are integers, the division operator performs integer division instead.
+Integer division drops any fractions and returns an integer value.
+7/4=1 because the fractional portion of the result is dropped. Similarly, -7/4=-1 because the fractional portion is dropped from -1.75.
+
+If we have two integers and want to divide them without losing the fraction, how would we do this?
+Well, we could use static_cast<> to convert.
+Note that if either operand is a floating point number, the result will be floating point division, not integer division.
+
+Integer division with a divisor of 0 will cause undefined behavior, since the results are mathematically undefined.
+
+dividing by floating point 0.0 is implementation-defined, usually yielding NaN or Inf on architectures that support IEEE754 floating point format.
+
+Arithmetic assignment operators:
+= (assignment)
++= (addition assignment)
+-= (subtraction assignment)
+*= (multiplication assignment)
+/= (division assignment)
+%= remainder assignment
+
+So as should be intuitive, these do the same thing, with only a single operator on the latter:
+x = x + 4;
+x += 4;
+
