@@ -1,0 +1,57 @@
+7_3
+Local variables
+
+We've gone over local variables, which are variables that are defined inside a function, including function parameters.
+
+It turns out that C++ doesn't actually have a single attribute that defines a variable as being a local variable.
+Instead, local variables have several different properties that differentiate how these variables behave from other kinds of (non-local) variables.
+
+We've gone over local scope and the concept of scope a bit before.
+An identifier's scope determines where an identifier can be accessed within the source code.
+When an identifier can be accessed, we say it's in scope. When it can't, we say it's out of scope.
+Scope is a compile-time property, adn trying to use an identifier while it's out of scope will result in a compile error.
+
+Local variables have block scope.
+Block scope means they're in scope from their definition to the end of the block where they're defined.
+While function parameters are not defined inside the function body, they can be considered to be part of the scope of the function body block for typical functions.
+
+All variable names within a scope must be unique, otherwise a reference to the name would be ambiguous.
+
+Storage duration determines what rules govern when and how a variable will be created and destroyed.
+In most cases, a variable's storage duration directly determines its lifetime.
+Local variables have automatic storage duration (usually just called duration, not storage duration), which means that they are created at the point of definition and destroyed at the end of the block they're defined in.
+
+Local variables can be defined inside nested blocks. this works identically to local variables in function body blocks.
+
+Identifiers have another property (other than duration and scope) called linkage.
+An identifier's linkage determines whether other declarations of that name refer to the same object or not.
+Local variables have no linkage, which means that each declaration refers to a unique object.
+
+Scope and linkage may seem similar, but there's a distinction.
+Scope defines where a single declaration can be seen and used.
+Linkage defines whether multiple declarations refer to the same object or not.
+
+Variables should be defined in the most limited scope.
+If a variable is only used within a nested block, it should be defined inside that nested block.
+
+By limiting the scope of a variable, you reduce the complexity of the program because the number of active variables is reduced. Further, it makes it easier to see where variables are used (or aren't). A variable defined inside a block can only be used within that block (or nested blocks). This can make the program easier to understand.
+
+Best practice: Define variables in the most limited existing scope.
+Avoid creating new blocks with the sole purpose of limiting the scope of variables.
+
+Quiz
+1. Write a program that asks the user to enter two integers, one named smaller, the other named larger. If the user enters a smaller value for the second integer, use a block and temporary variable to swap the smaller and larger values, then print the smaller and larger values.
+Add comments to your code indicating where each variable dies.
+
+2. What's the difference between a variable's scope, duration, and lifetime?
+By default, what kind of scope and duration do local variables have, and what do those mean?
+
+Second part first:
+Local variables have block scope and automatic duration.
+Block scope means that the variable can be accessed within the block in which it is defined.
+Automatic duration means it is created at its definition point in the block in which it is declared, and is destroyed when the program leaves that block.
+
+Difference between scope, duration, and lifetime:
+Scope refers to where an identifier can be accessed.
+Duration refers to the rules governing when a variable is created and destroyed.
+Lifetime refers to the actual time between a variable's creation and destruction.

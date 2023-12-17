@@ -6,6 +6,11 @@ I keep expecting the tutorials to start following best practice and throwing con
 
 Anyway, today starts with operators, chapter 6. Despite my late start, I'm hoping to get through this whole thing. It's a shorter chapter, but... chapter 5 had some really long lessons (constexpr, consteval, std::string), so there's no guaranee that's feasible.
 
+Been groggy all day, but managed to make myself get through chapter 6 anyway. It was mercifully short and didn't have much confusing material.
+
+Did a workout, came back a little more focused, wished I'd done that sooner.
+Starting chapter 7 tonight. This looks like a much longer chapter that I don't expect to finish until Monday or Tuesday. Bummer.
+Chapter 8 (control flow) looks extremely dry, too, so hopefully I'm wrong, and also hopefully Chapter 7 will give some insight.
 
 
 

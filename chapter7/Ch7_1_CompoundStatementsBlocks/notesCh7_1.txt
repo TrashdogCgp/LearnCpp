@@ -1,0 +1,25 @@
+7_1
+Compound statements (blocks)
+
+A compound statement (also called a block, or block statement) is a group of zero or more statements that is treated by the compiler as if it were a single statement.
+
+Blocks begin with a { and end with a } symbol, with the statements to be executed placed between those symbols.
+Blocks can be used anywhere a single statement is allowed. No semicolon is needed to close a block.
+
+We've seen this already in prior tutorials, because the function body is a block.
+
+Blocks inside of other blocks are considered nested.
+While functions can't be nested in other functions, blocks can be nested in other blocks.
+The enclosing block is typically called the outer block, and the enclosed block is called the inner block or nested block.
+
+One of the most common uses of blocks is in conjunction with if statements.
+By default, an if statement executes a single statement if the condition evaluates to true.
+However, we can replace the single statement with a block to execute multiple statements.
+
+We can also put blocks inside of nested blocks.
+The nesting level (also called nesting depth) is the maximum number of nested blocks you can be inside at any point int he function, including the outer block.
+C++ standard says that C++ compilers should support 256 levels of nesting. But not all of them do! Visual Studio supports less.
+
+Best practice: Keep the nesting level of your functions to 3 or less.
+If your function has a need for more nested levels, consider refactoring your function into sub-functions.
+
