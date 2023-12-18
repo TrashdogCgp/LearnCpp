@@ -1,0 +1,49 @@
+7_4
+Introduction to global variables
+
+Local variables are declared inside a function body, have block scope, and have automatic duration.
+In C++, variables can also be declared outside of a function. Such variables are called global variables.
+
+By convention, global variables are declared at the top of a file, below the includes, in the global namespace.
+Identifiers declared in the global namespace have global namespace scope (more commonly called global scope, sometimes informally called file scope).
+
+Once declared, a global variable can be used anywhere in the file from that point on.
+Global variables can be defined inside a user-defined namespace.
+e.g.
+namespace Foo // Foo is defined in the global scope
+{
+    int g_x {}; // g_x is now inside the Foo namespace, but is still a global variable
+}
+
+int main()
+{
+    std::cout << Foo::g_x << '\n';
+    return 0;
+}
+
+Although the identifier g_x is limited to the scope of namespace Foo, that name is still globally accessible (Foo::g_x is available in any scope due to global scope), and g_x is still a global variable.
+
+Reminder: Variables declared inside a namespace are also global variables.
+
+Global variables have static duration.
+Global variables are created when the program runs, and destroyed when it ends. This is called static duration.
+Variables with static duration are sometimes called static variables.
+
+By convention, some developers prefix non-const global variable identifiers with g or g_ to indicate that they're global. This prefix serves several purposes:
+Avoid naming collisions
+Prevent inadvertent name shadowing (next lecture)
+Helps indicate that the prefixed variables persist beyond the scope of the function, as will any changes we make to them.
+
+Global variables defined in a user-defined namespace often omit the prefix. However, the prefix doesn't hurt, since it helps remind readers that the variable persists.
+
+Unlike local variables, which are uninitialized by default, variables with static duration are zero-initialized by default.
+Non-constant global variables can be optionally initialized.
+
+Just like local variables, global variables can be constant. As with all constants, constant global variables must be initialized.
+
+const int g_x;     // error: constant variables must be initialized
+constexpr int g_w; // error: constexpr variables must be initialized
+
+Word of caution: non-constant global variables should generally be avoided altogether.
+
+
