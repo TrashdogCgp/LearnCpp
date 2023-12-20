@@ -38,6 +38,7 @@ Also, instead of allowing direct access to the global, it's better to encapsulat
 
 Remember that global const variables have internal linkage by default, so there's no need to make a const global also static.
 
+Also, when writing an otherwise standalone function using the global variable, don't use the variable directly in your function body. Pass it in as an argument instead.
 
 
 

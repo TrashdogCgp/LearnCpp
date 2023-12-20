@@ -1,0 +1,12 @@
+Sad to say I worked more than I should have today.
+I'm not learning much of anything from work, so that shouldn't be my default, but when I start feeling useless or unproductive, I tend to double down on making work a priority.
+Anyway, did my workout just before this, and I think I should make more of a habit of doing a workout before I study. Tends to give me better focus, and if I can just hold discipline, I'll probably be able to make that better focus work for me.
+
+If I start saying I'm coding before my workout, I think I should start kicking myself.
+Today is a lecture about the static keyword, a review of scope, using declarations/directives, unnamed namespaces, and maybe the quiz if I stay up late enough.
+
+Enough talking to myself (even though that's precisely what this section is for).
+Time to get to the notes.
+
+
+

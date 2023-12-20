@@ -1,0 +1,78 @@
+7_11
+Scope, duration, and linkage summary
+
+Since the topics are confusing, here's a summary!
+
+Scope-
+Scope determines where the identifier can be accessed within the source code.
+
+Variables with block (local) scope can only be accessed from the point of declaration until the end of the block in which they are declared (including nested blocks).
+This includes:
+Local variables
+Function parameter
+Program-defined type definitions (such as enums and classes) declared inside a block
+
+Variables and functions with global scope can be accessed from the point of declaration until the end of the file.
+Global variables
+Functions
+Program-defined type definitions (such as enums and classes) in a namespace or global scope
+
+Duration-
+A variable's duration determines when it is created and destroyed.
+
+Variables with automatic duration are created at the point of definition, and destroyed when the block they're part of is exited. This includes:
+Local variables
+Function parameters
+
+Variables with static duration are created when the program begins and destroyed when the program ends. This includes:
+Static local variables
+Global variables
+
+Variables with dynamic duration are created and destroyed by programmer request.
+These include dynamically allocated variables.
+
+
+Linkage-
+An identifier's linkage determines whether multiple declarations of an identifier refer to the same entity (object, function, reference, etc) or not.
+
+No linkage means the identifier only refers to itself. This includes:
+Local variables
+Program-defined type definitions (such as enums and classes) declared inside a block
+
+An identifier with internal linkage can be accessed anywhere in the file in which it's declared. This includes:
+Static global variables (initialized or uninitialized)
+Static functions
+Const global variables
+Functions declared inside an unnamed namespace
+Program-defined type definitions (enums/classes) declared in an unnamed namespace
+
+An identifier with external linkage can be accessed anywhere within the file it is declared, or other files via forward declaration. This includes:
+Functions
+Non-const global variables (initialized or uninitialized)
+Extern const global variables
+Inline const global variables
+
+Identifiers with external linkage will generally cause a duplicate definition linker error if the definitions are compiled into more than one cpp file (violates ODR). Inline functions/variables, types, and templates can be exceptions to this rule, but that's for later.
+
+Functions have external linkage by default. They can be made internal via the static keyword.
+
+
+Forward declaration-
+You can use a forward declaration to access a function or variable in another file. The scope of the declared variable is as per usual (global scope for globals, block scope for locals).
+Note that constexpr cannot be forward declared.
+Const and non-const variable forward declarations must be uninitialized.
+
+Storage class specifiers-
+static and extern are called storage class specifiers when used as part of an identifier declaration.
+In this context, they set the storage duration and linkage of the identifier.
+
+C++ supports 4 active storage class specifiers:
+extern- static (or thread local) storage duration and external linkage
+static- static (or thread local) storage duration and internal linkage
+thread_local- Thread storage duration
+mutable- object allowed to be modified even if the containing class is const
+auto (deprecated C++11)
+register (deprecated C++17)
+
+The term "storage class specifier" is typically only used in formal documentation.
+

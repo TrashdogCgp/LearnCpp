@@ -4,5 +4,7 @@ Could've probably taken on most of chapter 7 yesterday and wrapped up this morni
 
 Today, starting off by finishing variable shadowing and going over internal and external linkage.
 
-
+In the evening, got through two lessons on globals.
+Still seriously need to understand constexpr more thoroughly, and got a refresher on how inline is used to indicate that something (variables) can be defined more than once, as long as those definitions are identical.
+More time for this tomorrow; had an obligation early in the evening that prevented me from getting the full evening to study.
 
