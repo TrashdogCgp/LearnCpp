@@ -1,0 +1,28 @@
+7_x
+Chapter 7 Summary and Quiz
+
+1. Fix the program
+Alter the if statement into an if block:
+	if (num < 0)
+    {
+		std::cout << "Negative number entered.  Making positive.\n";
+		num = -num;
+    }
+
+2. Write a file called constants.h that makes the following program run.
+If your compiler is C++ capable, use inline constexpr variables. Otherwise, use normal constexpr variables.
+max_class_size should be 35.
+
+see ch7_x_2_main.cpp and constants.h
+
+3. Write a function int accumulate(int x).
+This function should return the sum of all the values of x that have been passed to this function.
+see ch7_x_3.cpp
+
+3b. What are two shortcomings of the accumulate() function above?
+Well...
+There's no way to reset the accumulated value.
+And the one I didn't get offhand; there's no way to have multiple accumulators running.
+
+Cool. Not gonna lie, I thought this quiz was going to be harder and I was kind of hoping to be chewed out on not having a deeper pedantic understanding.
+

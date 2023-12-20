@@ -1,0 +1,78 @@
+7_10
+Static local variables
+
+Static is sort of a confusing term in C++, in large part because it has different meanings in different contexts.
+
+We've covered that global variables have static duration, and the static keyword gives a global identifier internal linkage (can only be used within the file in which it is defined).
+This lesson covers using static on a local variable.
+
+Local variables have automatic duration by default, which means they're created at the point of definition and destroyed at the end of the block.
+
+Using the static keyword on a local variable changes its duration from automatic duration to static duration. This means the variable is now created at the start of a program, and destroyed at the end of the program (just like a global variable).
+Static variables retain their value even after they go out of scope.
+
+e.g.
+#include <iostream>
+void incrementAndPrint()
+{
+    static int s_value{ 1 }; // static duration via static keyword.  This initializer is only executed once.
+    ++s_value;
+    std::cout << s_value << '\n';
+} // s_value is not destroyed here, but becomes inaccessible because it goes out of scope
+int main()
+{
+    incrementAndPrint();
+    incrementAndPrint();
+    incrementAndPrint();
+    return 0;
+}
+
+Since s_value above has been declared as a static, it is created at the program start. Static local variables that are zero initialized or have a constexpr initializer can be initialized at program start.
+Static local variables that have no initializer or a non-constexpr initializer are zero-initialized at program start.
+The definition is skipped on subsequent calls, so no further reinitialization happens. Because they have static duration, static local variables that are not explicitly initialized will be zero-initialized by default.
+
+Since s_value has the constexpr initializer (1), s_value will be initialized at program start.
+
+s_value goes out of scope at the end of the function, but is not destroyed; it increments each time the function is called.
+Outputs:
+2
+3
+4
+
+It's common to use the "s_" prefix for (static duration) local variables.
+
+One of the most common uses for static duration local variables is for unique ID generators.
+e.g.
+int generateID()
+{
+    static int s_itemID{ 0 };
+    return s_itemID++; // makes copy of s_itemID, increments the real s_itemID, then returns the value in the copy
+}
+
+Static variables offer some of the benefit of global variables by not being destroyed until the end of the program, but with the benefit of limiting their visibility to block scope.
+This makes static variables safer to use and easier to understand even if you change their values regularly.
+
+Best practice: Initialize your static variables. Static local variables are only initialized the first time the code is executed, not on subsequent calls.
+
+Static local constants
+Static local variables can be made const (or constexpr). One good use for const static local variables is when you have a function that needs to use a const value, but creating or initializing the object is expensive (e.g. need to read value from a database).
+For a normal local variable, it'd be created/initialized every time the function is executed. With a const/constexpr static local variable, you can create and initialize the expensive object once and then reuse it when the function is called.
+
+Best practice: Avoid static local variables unless the variable never needs to be reset.
+
+quiz
+1. What effect does using keyword static have on a global variable?
+What effect does it have on a local variable?
+Static causes a global variable to have internal linkage (variable can't be exported to other files).
+Static causes a local variable to have static duration (created at program start, destroyed at program end). Static also causes a local variable to either be initialized by a constexpr initializer at program start, or zero initialized at program start if such an initializer is not provided.
+
+
+
+
+
+
+
+
+
+
+

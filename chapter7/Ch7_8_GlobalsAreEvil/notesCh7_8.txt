@@ -1,0 +1,52 @@
+7_8
+Why non-const global variables are evil
+
+When developers tell you global variables are evil, they're mostly talking about non-const global variables.
+By far the biggest concern is that non-const globals can have their values changed by any function that is called. There's no easy way for the programmer to know this will happen.
+In this case, every function call becomes potentially dangerous.
+Local variables are safer because other functions cannot affect them directly.
+
+One key reason for declaring local variables as close to where they're used as possible in the code is because doing so minimizes the amount of code you need to look through to understand what the variable does. Global veriables are at the opposite end of this.
+
+Global variables make your program less modular and less flexible. A function using nothing but its parameters with no side effects is perfectly modular. Modularity helps with understanding what a program does, and with reusability.
+
+Best practice: Use local variables instead of global variables whenever possible.
+
+Initialization order
+Static variables are initialized before the main function. This proceeds in two phases.
+Static initialization is the first phase. Global variables with constexpr initializers (including literals) are initialized to those values. ALso, global variables without initializers are zero-initialized.
+
+Dynamic initialization is the second phase. This phase is more complex and nuanced, but basically global variables with non-constexpr initializers are initialized.
+
+Within a single file, for each phase, global variables are generally initialized in order of definition.
+Be careful not to have variables depend on the initialization value of other variables that won't be used until later on.
+
+Also, the order of initialization across different files is not defined.
+Given a.cpp and b.cpp, either could have its global variables initialized first. If a.cpp has variables dependent on values in b.cpp, there's a large chance that those variables won't be initialized yet.
+
+Warning: Dynamic initialization of global variables causes a lot of problems in C++.
+Avoid dynamic initialization where possible.
+
+One (rare) example of where to use non-const globals: log files. It makes sense to define a log file as a global, because you're likely to use the log file everywhere in your program.
+std::cout and std::cin are implemented as globals.
+
+Two criteria for a global: There should only ever be one of the thing the variable represents in your program, and its use throughout your program should be ubiquitous.
+
+If using a global, prefix all non-namespaced global variables with g or g_, or better yet, put them in a namespace to avoid naming collisions.
+
+Also, instead of allowing direct access to the global, it's better to encapsulate the variable. Make sure the variable can only be accessed within the file it's declared in, and then provide global accessor functions to work with the variable.
+
+Remember that global const variables have internal linkage by default, so there's no need to make a const global also static.
+
+Also, when writing an otherwise standalone function using the global variable, don't use the variable directly in your function body. Pass it in as an argument instead.
+
+
+
+
+
+
+
+
+
+
+

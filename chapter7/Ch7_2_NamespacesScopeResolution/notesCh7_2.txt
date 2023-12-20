@@ -1,0 +1,137 @@
+7_2
+User-defined namespaces and the scope resolution operator
+
+Naming collisions and namespaces are concepts from previous lessons.
+Naming collision occurs when two identical identifiers are introduced into the same scope, and the compiler can't disambiguate which one to use.
+When this happens, the compiler or linker will produce an error because they can't resolve the ambiguity.
+
+The larger a program gets, the larger the chance of a naming collision occurring.
+Because every name in a scope can colide with every other name in the same scope, we should define identifiers in the smallest scope possible.
+
+If two functions are defined in external files and compiled into the same program, we could introduce two different functions with the same name and different parameters in the same (global) scope.
+This causes a naming collision, and the linker will issue an errorl. Since this happens at the point of redefinition, it doesn't even matter whether the function in question is ever called.
+
+A better answer (better than renaming the conflicting functions) is putting functions into namespaces.
+
+C++ allows us to define our own namespaces via the namespace keyword.
+Namespaces that you create in your own programs are casually called user-defined namespaces (more accurate would be program-defined namespaces, but.....)
+
+Syntax:
+namespace namespaceIdentifier
+{
+    // content of namespace here
+}
+
+Historically, namespace identifiers have not been capitalized. Many style guides still recommend this convention.
+Other style guides prefer capitalized namespaces because:
+It's convention to name program-defined types with a capital letter.
+It helps prevent naming collisions with other system-provided or library-provided lower-case names.
+The C++20 standards document uses this style.
+The C++ Core guidelines doucment uses this style.
+
+So, this tutorial recommends starting namespaces with a capital letter.
+Either style is acceptable.
+
+A namespace must be defined within global scope, or inside another namespace.
+The content of a namespace is conventionally indented one level.
+
+Example:
+namespace Foo // define a namespace named Foo
+{
+    // This doSomething() belongs to namespace Foo
+    int doSomething(int x, int y)
+    {
+        return x + y;
+    }
+}
+
+To use this doSomething() function, we can either use the scope resolution operator, or a using statement.
+
+The best way to tell the compiler to look in a particular namespace for an identifier is the scope resolution operator (::)
+This tells the compiler that the identifier specified by the right-hand operand should be looked for in the scope of the left-hand operand.
+
+The scope resolution operator is great because we can explicitly pick which namespace we want to look in, so there's no potential ambiguity.
+
+Using the scope resolution operator with no prefix
+The scope res operator can also be used in front of an identifier without providing a namespace name.
+In such a case, the identifier is looked for in the global namespace.
+
+Here's an example where this can be useful:
+namespace Foo
+{
+	void print() // this print() lives in the Foo namespace
+	{
+		std::cout << "Hello";
+	}
+
+	void printHelloThere()
+	{
+		print();   // calls print() in Foo namespace
+		::print(); // calls print() in global namespace
+	}
+}
+
+This calls two functions called print() within a function defined in namespace Foo.
+The latter is expected to be defined in the global namespace.
+Note that if Foo::print() were not defined, printHelloThere() would have checked the containing namespace to see if it could match a print() there.
+
+We make use of the scope resolution operator with no namespace to explicitly call the global version of print().
+
+Forward declaration of content in namespaces
+For identifiers inside a namespace, forward declarations also need to be inside the same namespace.
+e.g. header contents:
+
+namespace BasicMath
+{
+    // function add() is part of namespace BasicMath
+    int add(int x, int y);
+}
+
+If that forward declaration for add() wasn't inside namespace BasicMath, then add() would be defined in the global namespace instead, and the compiler would complain that it hadn't seen a declaration for BasicMath::add().
+Meanwhile, if the definition of add() wasn't inside namespace BasicMath, the linker would complain about not being able to find a matching definition for a call to BasicMath::add()
+
+It's legal to declare namespace blocks in multiple locations (across multiple files, or multiple places within the same file).
+All declarations within the namespace are considered part of the namespace.
+
+The standard library makes extensive use of this feature, as each std library header file contains its declarations in a namespace std block contained within that header file; otherwise, the whole std library would have to be defined in a single header file.
+
+Note that this means you could add to the std namespace, but also it causes undefined behavior most of the time because the std namespace has a special rule prohibiting extension from user code.
+
+Warning: Don't add custom functionality to the std namespace.
+
+Namespaces can be nested inside other namespaces.
+e.g. 
+namespace Foo
+{
+    namespace Goo // Goo is a namespace inside the Foo namespace
+    {
+        int add(int x, int y)
+        {
+            return x + y;
+        }
+    }
+}
+
+We'd have to address this function as Foo::Goo::add().
+We can also declare namespaces this way:
+namespace Foo::GOO{//stuff in this block}
+
+Because typing the qualified name of a variable/function in a nested namespace can suck, C++ allows namespace aliases, which can replace the namespace with something shorter.
+e.g.
+namespace fg = Foo::Goo;//fg now refers to Foo::Goo
+
+An advantage of this is that if you ever want to move the functionality of Foo::Goo to another place, you can just update the fg alias to reflect the new destination, rather than update every explicit Foo::Goo.
+
+Note that namespaces in C++ were not originally meant as a way to implement an info hierarchy. They were primarily made to prevent naming collisions.
+As evidence of this, notice that the entire std library lives under a single namespace, with only some recent features using nested namespaces.
+
+In general, avoid deeply nested namespaces.
+
+When to use namespaces:
+Namespaces can be used to separate application-specific code from code that might be reused later. If you write a library you want to distribute to others, always place the code inside a namespace, or there's an elevated chance for naming conflicts.
+An additional advantage is that placing library code in a namespace allows an editor's auto-complete/suggestion featuer to see the contents of the library.
+
+
+
+
+

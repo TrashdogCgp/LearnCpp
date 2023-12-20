@@ -1,0 +1,58 @@
+7_12
+Using declarations and using directives
+
+Back before C++ had support for namespaces, all the std namespace names were in the global namespace.
+This caused naming collisions, of course.
+
+Since everything moved to std, and since any change to a codebase risks breaking the program, there had to be a solution.
+That solution was using-statements.
+
+Qualified and unqualified names
+A name can be qualified or unqualified.
+
+A qualified name includes an associated scope. Most often, names are qualified with a namespace using the scope resolution operator (::)
+(note that a name can also be qualified by a class name using the scope resolution operator, or by a class object using the member selection operators . or ->)
+
+An unqualified name is a name that does not include a scoping qualifier. For example, cout and x are unqualified names, as they do not include an associated scope.
+
+One way to reduce the repetition of typing a scoping qualifier over and over is to use a using-declaration statement.
+This allows us to use an unqualified name (with no scope) as an alias for a qualified name.
+e.g.
+using std::cout;
+cout <<"Sup nerd";
+
+The using-declaration, "using std::cout", tells the compiler that we're going to be using the object cout from the std namespace; cout is assumed to be std::cout, and if there's a naming conflict with some other cout, std::cout will be preferred.
+
+While less explicit than just typing std:: a lot, this is generally considered safe and acceptable (when used inside a function).
+So... a using-declaration is fine.
+
+Using-directives
+Using-directives import all of the identifiers from a namespace into the scope of the using-directive.
+(Note: For technical reasons, using-directives do not actually import names into the current scope. Instead, they import the names into an outer scope, but the names aren't accessible from the outer scope; they're only accessible via unqualified lookup from the scope of the using-directive, or a nested scope.
+This practically means that outside of some weird edge cases with multiple using-directives in nested namespaces, using-directives behave as if the names had been imported into the current scope. To keep things simple, we'll proceed under the simplification that the names are imported into the current scope)
+
+e.g.
+using namespace std;
+
+This tells the compiler to import all of the names from the std namespace into the current scope. When we use an unqualified cout, it will resolve to the imported std::cout.
+
+In modern C++, using-directives are generally not beneficial compared to the risk.
+Because they import all names in a namespace, potentially many you'll never use, the naming collisions are much more likely.
+
+Perhaps more insidious is that an updated library from a using directive may introduce a function with the same name as one you used, but with a better match for a function call. The compiler may then decide to prefer the new function (say, its signature matches better), instead of the one you intended to call.
+When choosing a function from a set of potentially matching functions, it will prefer a function that requires no argument conversions over a function that requires argument conversions.
+
+Also, the lack of explicit scope makes it harder for a reader to tell what functions are part of a library, vice what's part of the program.
+How do you know if a function call is user-defined or from the using directive's library?
+
+Scope of using-declarations and using-directives
+If a using-declaration or using-directive is used within a block, the names are applicable to just that block.
+If used in a global namespace, the names are applicable to the entire rest of the file (they have file scope).
+
+There's no way to un-use a using statement.
+The best you can do is intentionally limit the scope of a using-statement from the output using the block scoping rules.
+
+Best practice: Prefer explicit namespaces over using-statements. Avoid using-directives where possible. Using-declarations are okay to use inside blocks.
+
+Using-declarations are typically considered safe to use inside blocks. Limit their use in global namespaces of a code file, and never use them in the global namespace of a header file.
+
