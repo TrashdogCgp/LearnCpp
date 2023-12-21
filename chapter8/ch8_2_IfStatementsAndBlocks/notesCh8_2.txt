@@ -1,0 +1,34 @@
+8_2
+If statements and blocks
+
+The first category of control flow statements is conditional statements.
+A conditional statement is a statement that specifies whether some associated statement(s) should be executed or not.
+
+C++ supports two basic kinds of conditionals: if statements and switch statements.
+
+If statements can execute compound statements (block), and this tends to be a more reliable way of getting intended results compared to just putting a single statement on the line after the if condition.
+
+Best practice: Consider putting single statements associated with an if or else in blocks (particularly while learning). More experienced devs sometimes disregard this in favor of tighter vertical spacing.
+
+A middle-ground approach is to put single-lines on the same line as the if or else.
+e.g.
+if (age >= minDrinkingAge) purchaseBeer();
+
+When the programmer does not declare a block in the statement portion of an if statement or else statement, the compiler will implicitly declare one.
+This, the following are equivalent:
+if(condition)
+    true_statement();
+and
+if(condition) {true_statement()};
+
+
+
+
+
+
+
+
+
+
+
+

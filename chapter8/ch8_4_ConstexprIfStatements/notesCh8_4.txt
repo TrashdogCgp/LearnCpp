@@ -1,0 +1,25 @@
+8_4
+Constexpr if statements
+
+Normally, the conditional of an if-statement is evaluated at runtime.
+However, if you have a constexpr in a condition, it's possible from C++17 onward to use the constexpr if statement, evaluating at compile-time.
+
+The constexpr if statement requires the conditional to be a constant expression, and the conditional part of it will be evaluated at compile-time.
+
+If the constexpr conditional evaluates to true, the entire if-else will be replaced by the true-statement. Vice versa for false.
+
+To do this, we add the constexpr keyword after the if:
+
+	constexpr double gravity{ 9.8 };
+
+	if constexpr (gravity == 9.8) // now using constexpr if
+		std::cout << "Gravity is normal.\n";
+	else
+		std::cout << "We are not on Earth.\n";
+
+Best practice: Favor constexpr if statements over non-constexpr if statements when the conditional is a constant expression.
+
+For optimization purposes, modern compilers will generally treat non-constexpr if statements that have constexpr conditionals as if they were constexpr-if statements.
+However, they're not required to do so.
+A compiler that encounters a non-constexpr if-statement with a constexpr conditional may issue a warning advising you to use an if constexpr instead. This will ensure compile-time evaluation even if optimizations are disabled.
+

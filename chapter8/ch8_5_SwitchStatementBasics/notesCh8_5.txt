@@ -1,0 +1,51 @@
+8_5
+Switch statement basics
+
+While it's possible to chain many if-else statements together, this sucks.
+Switch statements can test for equality against a set of different values more easily.
+
+The idea behind a switch statement is that an expression evaluates, and if the value is equal to the value after any of the case labels, the statements after the matching case label are executed.
+Otherwise, if a default label exists, the statements after the default label execute instead.
+
+Best practice: Prefer switch statements over if-else chains where there is a choice.
+
+The restriction with switch statements is that the condition must evaluate to an integral type or an enumerated type.
+Expressions that evaluate to floating point types, strings, and most other non-integral types may not be used here.
+
+So, why does the switch type only allow for integral/enum types?
+Then answer is that switch statements are highly optimized; historically, jump tables are the most common way they're implemented, and jump tables only work with integral values.
+A jump table works similarly to an array. An integral value is used as the array index to jump directly to a result.
+
+The first kind of label is the case labe, declared using the case keyword and followed by a constant expression.
+The constant expression must match the type of the condition or be convertible to that type.
+
+Example using switch/case:
+
+void printDigitName(int x)
+{
+    switch (x) // x evaluates to 3
+    {
+        case 1:
+            std::cout << "One";
+            break;
+        case 2:
+            std::cout << "Two";
+            break;
+        case 3:
+            std::cout << "Three"; // execution starts here
+            break; // jump to the end of the switch block
+        default:
+            std::cout << "Unknown";
+            break;
+    }
+}
+
+Best practice: Place the default case last in the switch block
+
+If there's no default and no cases match, then execution continues after the end of the switch block.
+
+Best practice: Each set of statements under a label should end in a break statement or return statement. This includes the statements underneath the last label in the switch.
+What happens if you don't end a set of statements under a label with break/return?
+Stay tuned!
+
+

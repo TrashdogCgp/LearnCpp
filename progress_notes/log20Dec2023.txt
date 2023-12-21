@@ -1,0 +1,4 @@
+Less progress today than usual, not as much time to spend on things.
+Went over if statements and switch/case stuff.
+Not much new, except for the term fallthrough for switch statements.
+Will try to get more done tomorrow, sorry to future me for not making more time this evening.
