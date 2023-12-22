@@ -1,0 +1,4 @@
+Late, laaaaaaate start to studying today.
+Even worse than yesterday, partly due to an unspecified other commitment.
+Today will be goto statements, intro to loops, and do while statements.
+I'll at least get through that much before I sleep.

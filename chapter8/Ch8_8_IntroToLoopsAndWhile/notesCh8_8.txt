@@ -1,0 +1,62 @@
+8_8
+Introduction to loops and while statements
+
+Loops allow repeated execution until some condition is met.
+
+A while loop is the simplest of the three C++ loop types.
+while(condition)
+    statement;
+
+When a while-statement is executed, the expression condition is evaluated.
+If the condition evaluates to true, the associated statement executes.
+Unlike an if-statement, once the statement has finished executing, control returns to the top of the while-statement and the process repeats as long as the condition continues to evaluate to true.
+
+If the condition initially evaluates to false, the associated statement will not execute at all.
+
+An infinite loop will execute forever. This happens if the expression in a while loop always evaluates to true.
+
+Intentional infinite loops
+The only way to exit an infinite loop is a return statement, a break statement, an exit statement, a goto statement, an exception being thrown, or the user killing the program.
+Intentional infinite loops are common in web server applications that run continuously and service web requests.
+Best practice: Favor while(true) for intentional infinite loops
+
+A loop variable is used to control how many times a loop executes.
+Most of these have type int, but sometimes you might see a char.
+i, j, and k are common names because they're the first three shortest names for integral variables in the Fortran language. This has persisted as convention.
+
+The most common type of loop variable is called a counter, which is a loop variable that counts how many times a loop has executed.
+
+Integral loop values should almost always be signed; unsigned integers can lead to unexpected issues.
+
+Each time a loop executes, it is called an iteration.
+
+It's also possible to nest loops inside of other loops.
+
+Quiz
+1. In the above program, why is variable inner declared inside the while block instead of immediately following the declaration of outer?
+(see lecture for said program, not actually that big of a deal or I'd copy it)
+
+inner has to reset each time the outer loop runs. If it were declared where outer is declared, it would not be reassigned its starting value when the outer loop completes an iteration.
+
+
+2. Write a program that prints out a-z along with their ascii codes. Use a loop variable of type char.
+
+3. Invert the nested loops example so it prints the following:
+
+5 4 3 2 1
+4 3 2 1
+3 2 1
+2 1
+1
+see Ch8_8_3.cpp
+
+4. Now make the numbers print like this:
+
+        1
+      2 1
+    3 2 1
+  4 3 2 1
+5 4 3 2 1
+see Ch8_8_4.cpp
+
+
