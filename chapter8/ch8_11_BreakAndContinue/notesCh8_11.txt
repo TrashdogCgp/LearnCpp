@@ -1,0 +1,33 @@
+ch8_11
+Break and continues
+
+We already used break in switch/case, but it can be used with other types of control flow statements as well.
+The break statement causes a while loop, do-while loop, or switch statement to end, with execution continuing with the next statement after the loop or switch being broken out of.
+
+In the context of a switch statement, a break is typically used at the end of each case to signify the case is finised (prevent fallthrough).
+
+In the context of a loop, a break statement can be used to end the loop early.
+Execution continues with the next statement after the end of the loop.
+
+Break is also a common way to get out of an intentional infinite loop.
+
+Break vs return
+A break statement terminates the switch or loop, and execution continues at the first statement beyond the switch or loop.
+A return statement terminates the entire function that the loop is within, and execution continues at the point where the function was called.
+
+The continue statement provides a convenient way to end the current iteration of a loop without terminating the entire loop.
+A continue statement works by causing the current point of execution to jump tot he bottom of the current loop.
+In the case of a for-loop, the end-statement of the for-loop still executes after a continue (since this happens after the end of the loop body).
+Be careful when using continue with while or do-while loops. These loops typically change the value of variables used in the condition inside of the loop body. If the continue statement causes these lines to be skipped, then the loop can become infinite.
+
+Many books caution readers not to use break/continue in loops, because it makes logic hard to follow and causes execution flow to jump around.
+Used judiciously, break/continue can improve loop readability by keeping the number of nested blocks down and reducing the need for complicated looping logic.
+The continue statement is most effectively used at the top of a for-loop to skip loop iterations when some condition is met. This can help with avoiding a nested block.
+
+Best practice: Use break and continue when they simplify your loop logic.
+
+A similar debate exists around return statements. An early return is a return statement that is not the last statement in a function. Many programmers believe early returns should be avoided.
+Using early returns allows your function to exit as soon as it's done, which reduces having to read through unnecessary logic and minimizes the need for conditional nested blocks, which makes your code more readable.
+The tutorial's stance is that early returns are more helpful than harmful.
+
+Best practice: Use early returns when they simplify your function's logic.

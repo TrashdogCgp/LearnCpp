@@ -1,0 +1,11 @@
+Hate to admit it, but I'm not feeling especially with it today.
+Going to get some really good sleep tonight and hope to be totally on the ball tomorrow.
+Covered for loops today so far, doing break and continue, probably also at least doing halts.
+If I still have the stamina for it, I'll do intro to testing your code.
+Would really like to be done with chapter 8 tomorrow. Chapter 10 sounds like a much better way to spend the weekend.
+
+However, FINALLY got around to adding wordwrap on by default in settings.json.
+The embarrassingly simple secret here is that defaults won't let me edit, but user settings will let me add stuff that overrides those defaults.
+Not gonna lie, that was a little frustrating.
+
+
