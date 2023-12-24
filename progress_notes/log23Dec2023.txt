@@ -1,0 +1,6 @@
+Turned out that the remainder of chapter 8 is longer than I expected.
+Got through cin and handling invalid input, gave some details on the extraction operator, but honestly didn't give very useful details aside from ways to clear "fail mode" and ignore excessive input. Go figure.
+Funny because I don't plan on using std::cin much at all, but funnier things have certainly happened.
+
+
+
