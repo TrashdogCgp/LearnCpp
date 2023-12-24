@@ -1,0 +1,80 @@
+8_16
+Detecting and handling errors
+
+We covered many types of common C++ semantic errors in the previous section. If an error is the result of misused language features or logic errors, the error can simply be corrected.
+
+But most errors don't occur due to inadvertently misusing language features. Rather, most errors occur due to faulty assumptions and/or a lack of proper error detection/handling.
+
+For example, in a function designed to look up a grade for a student, you might have assumed:
+    The student being looked up will exist.
+    All student names will be unique.
+    The class uses letter grading (instead of pass/fail).
+
+If these assumptions aren't true, the program will likely malfunction or crash when these cases arise (usually way later, after the function is written).
+
+There are three key places where assumption errors typically occur.
+    When a function returns, the programmer may have assumed the called function was successful when it was not.
+    When the program receives input, the programmer may have assumed the input was in the correct format and semantically valid when it is not.
+    When the program has been called, the programmer may have assumed the arguments would be semantically valid when they were not.
+
+Many new programmers only test the cases where there are no errors, but you should plan for the "sad path", where things can and will go wrong. Think about defensive programming.
+
+Handling errors in functions
+Functions may fail for many reasons. Maybe an invalid argument, or something fails within the body of the function.
+When this happens, you have options. There is no best way to handle an error.
+4 strategies:
+    Handle the error within the function
+    Pass the error back to the caller to deal with
+    Halt the program
+    Throw an exception
+
+Handling error within function
+If possible the best strategy is to recover from the error in the same function where the error occurred, so that the error can be contained and corrected without impacting code outside the function.
+Two options for that: retry until successful, or cancel the operation being executed.
+If the failure is due to something outside the program's control, the program can retry until it succeeds, like if it needs internet connection.
+Alternatively, if the user enters invalid input, program can ask user to try again and loop until the user succeeds with valid input.
+For cancelling the operation, we can just ignore the request to operate as the function was called to. The primary challenge with this is that the caller or user may not have a way to identify that something went wrong.
+If the calling function is expecting the called function to produce a return value or some side effect, ignoring the error may not be an option.
+
+Passing errors back to the caller
+In many cases, the error can't be reasonably handled in the function that detects the error.
+e.g. what if a division calc has 0 in the denominator? Can't just ask for a new value in this case.
+In such cases, pass back an error to the caller and hope the caller can deal with it.
+How to do that?
+If the function had a void return type, it can be changed to a bool to indicate success or failure.
+If the function returns a normal value, things get more complicated. In some cases, the full range of return values won't be used, so an invalid return value (in the context of the function) can indicate an error.
+If the function does need a full range of return values, then using the return value to indicate an error isn't so viable; caller can't tell the difference between valid and invalid values in this case.
+
+Fatal errors
+If an error is so bad that the program can't continue to operate properly, this is called a fatal error (also called non-recoverable error).
+In such cases, the best thing to do is terminate the program.
+If your code is in main(), or a function directly from main, a nonzero status code is the best way to handle these, along with terminating the program, obviously.
+This may not be quite so viable deep in a nested subfunction, so in such a case, a halt statement (like std::exit()) can be used.
+
+Exceptions
+Because returning an error from a function back to the caller is complicated, C++ offers exceptions to pass errors back to the caller.
+The basic idea is that when an error occurs, an exception is "thrown". If the current function does not catch the error, the caller of the function has a chance to catch the error.
+If its caller doesn't catch the error, the error progressively moves up the call stack until it's either caught and handled (then program continues execution normally) or until main() fails to handle the error (terminates program with an exception error).
+
+std::cerr and std::cout both print text to the console.
+However, modern OS's provide a way to redirect output streams to files so that output can be captured for review or auto-processing later.
+We'll consider two types of applications.
+Interactive applications are those the user will interact with after running. Most standalone applications fall into this category (games, music apps).
+Non-interactive applications do not require user interaction. The output of these may be input for another application.
+
+Within non-interactive apps, there are two types
+Tools are non-interactive applications typically launched for an immediate result, which then terminate after producing the result. An example is unix's grep, which searches text for lines that match a pattern.
+Services are non-interactive applications that typically run silently in the background for a function.
+
+Rules of thumb for std::cout and std::cerr
+
+Use std::cout for all conventional, user-facing text
+Use std::cout for normal user-facing error messages. Use std::cerr or a logfile for status and diagnostic info that may be helpful for diagnosing issues, but isn't interesting or helpful to normal users. This includes technical warnings and errors, status updates, percentage completion of long tasks.
+For a non-interactive program, use std::cerr for error outputs. This allows errors to display/parse separately from normal output.
+For any application that is transactional in nature, use a logfile to produce a transaction log of events that can be reviewed later.
+
+
+
+
+
+

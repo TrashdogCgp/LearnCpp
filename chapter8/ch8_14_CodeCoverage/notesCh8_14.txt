@@ -1,3 +1,61 @@
 8_14
 Code coverage
 
+The term code coverage is used to describe how much of the source code of a program is executed while testing. There are many different metrics used for code coverage.
+
+Statement coverage refers to the percent of statements in your code that have been exercised by testing routines.
+Functions may thus require two calls to test statements, as conditionals can't reach all statements in the same function call.
+While aiming for 100% statement coverage is good, it's often not enough to ensure correctness.
+
+Branch coverage refers to the percentage of branches that have been executed, each possible branch counted separately.
+You can have 100% statement coverage and only 50% branch coverage if you don't exercise all the conditionals.
+
+Best practice: Aim for 100% branch coverage of your code.
+
+Loop coverage (informally called the 0,1,2 test) says that if you have a loop in your code, you should ensure it works properly when it iterates 0 times, 1 time, and 2 times.
+If it works for the 2 iteration case, it should work correctly for iterations greater than 2.
+These three tests should then satisfy all possibilities, since a loop can't execute a negative number of times.
+
+Best practice: Use the 0, 1, 2 test to ensure your loops work correctly with a different number of iterations.
+
+Testing different categories of input
+When writing functions that accept parameters, or when accepting user input, consider what happens with different catgegories of input.
+e.g. for integers, make sure you consider how your function handles negative values, zero, and positive values.
+Also check for overflow if that's relevant.
+For floating point numbers, make sure you've considered how your function handles values with precision issues (slightly larger or smaller than expected).
+For strings, make sure your function handles an empty string, an alphanumeric string, and strings that have or are entirely whitespace.
+If the function takes a pointer, don't forget to test nullptr as well.
+
+Best practice: Test different categories of input values to make sure your unit handles them properly.
+
+Quiz
+1. What is branch coverage?
+Branch coverage is the percentage of branches covered by test execution, with affirmative and negative cases counting separately.
+
+2. How many tests would the function need to minimally validate that it works?
+bool isLowerVowel(char c, bool yIsVowel)
+{
+    switch (c)
+    {
+    case 'a':
+    case 'e':
+    case 'i':
+    case 'o':
+    case 'u':
+        return true;
+    case 'y':
+        return yIsVowel;
+    default:
+        return false;
+    }
+}
+
+Answer: 4 tests:
+One test for a/e/i/o/u (use a, I guess)
+One test for y, true input
+One test for y, false input
+One test for a non-matching character (default)
+
+
+
+
