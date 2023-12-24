@@ -1,0 +1,97 @@
+8_20
+Generating random numbers using Mersenne Twister
+
+mt19937 and mt19937_64 are the supported random library types.
+
+Using it is straightforward:
+#include <iostream>
+#include <random> // for std::mt19937
+
+    int main()
+    {
+        std::mt19937 mt{}; // Instantiate a 32-bit Mersenne Twister
+
+        // Print a bunch of random numbers
+        for (int count{ 1 }; count <= 40; ++count)
+        {
+            std::cout << mt() << '\t'; // generate a random number
+
+            // If we've printed 5 numbers, start a new row
+            if (count % 5 == 0)
+                std::cout << '\n';
+        }
+
+        return 0;
+    }
+
+mt() is a concise syntax for calling mt.operator(), which has been defined to return the next random result in the sequence.
+The advantage of using operator() instead of a named function is that we don't need to remember the function's name, and the concise syntax is more abbreviated.
+
+PRNGs can only generate numbers that use their full range. We need a way to convert a number output from the PRNG into a value in the smaller range we want, if we want a range-limited random number.
+We could write a function to do this, but doing so in a non-biased way is non-trivial.
+
+Random number distribution (courtesy of the random library)
+A random number distribution converts the output of a PRNG into some other distribution of numbers.
+
+The random library has many random number distributions, most of which you won't use unless you're doing some kind of statistical analysis. But one random number distribution is extremely useful: A uniform distribution is a random number distribution that produces outputs between two numbers X and Y (inclusive) with equal probability.
+A uniform distribution can take a PRNG generated number as its input to produce a value within a range.
+
+Recall that state of a PRNG is initialized from the seed value. Given the same seed value, the PRNG will always generate the same sequence.
+To make our entire sequence randomized differently each time the program is run, we need a non-fixed seed number.
+Two methods are commonly used to do this:
+Use the system's clock
+Use the system's random device
+
+One thing that's different every time you run your program is the time.
+If we use current time as our seed value, then our program will produce a different set of random numbers each time it runs.
+Use std::time() function.
+C++ has a chrono library containing various clocks that can generate a seed value.
+#include <chrono> 
+
+The downside to using time is that if the program is run several times in quick succession, the seeds for each run won't be that different, which can impact the quality of the random results from a statistical standpoint.
+For normal progams, this doesn't matter, but for programs that require high quality, independent results, this method of seeding may be insufficient.
+
+std::chrono::high_resolution_clock is a popular choice instead of std::chrono::steady_clock. std::chrono::high_resolution_clock is the clock that uses the most granular unit of time, but it may use the system clock for the current time, which can be changed or rolled back by users. std::chrono::steady_clock may have a less granular tick time, but is the only clock with a guarantee that users cannot adjust it.
+
+std::random_device is an implementation-defined PRNG. Normally, we avoid implementation-defined capabiltiies because they have no guarantees about quality or portability, but this is an exception case.
+We can seed our Mersenne Twister with random_device.
+e.g.
+std::mt19937 mt{ std::random_device{}() };
+
+One problem with std::random_device is that it isn't required to be non-determinstic. It could, on some systems, produce the same sequence every time the program runs, which is exactly what we're trying to avoid.
+
+Best practice: Use std::random_device to seed your PRNG (unless it's not implemented properly for your target compiler/architecture)
+Note that std::random_device is better used to seed other PRNGs rather than as a PRNG itself.
+
+Many PRNGs can be reseeded after the initial seeding. This essentially re-initializes rng state, causing it to generate results starting from the new seed state.
+Reseeding should generally be avoided, as it can reduce randomness.
+
+Best practice: Only seed a given pseudo-random number generator once, and do not reseed it.
+
+The initial state of a Mersenne Twister is 624 bytes in size.
+Our seed is usually a 32-bit integer.
+We're initializing 624 bytes with a 4-byte value, which is significantly underseeding the PRNG.
+The random library tries to fill in the remaining bytes with random-ish data, but it can't work magic.
+How to fix this? Well, no easy way as of C++20.
+std::seed_seq (seed sequence) is a thing to help with getting our seed data closer to our PRNG state in width.
+Ideally, we want our seed data to be as many bits as the state of our PRNG.
+So we can use std::random_device to give std::seed_seq more data to work with.
+If we initialize std::seed_seq with 8 numbers from std::random_device instead of 1, then the remaining numbers generated by std::seed_seq should be that much better.
+e.g.
+    std::random_device rd{};
+	std::seed_seq ss{ rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd() }; // get 8 integers of random numbers from std::random_device for our seed
+	std::mt19937 mt{ ss }; // initialize our Mersenne Twister with the std::seed_seq
+
+Warming up a PRNG
+When a PRNG is given a poor quality seed, or underseeded, the initial results of the PRNG may not be great. For this reason, some PRNGs benefit from being "warmed up", where the first N results generated are discarded.
+This allows internal state of the PRNG to be mixed up such that the subsequent results should be of higher quality. Typically a few hundred to a few thousand initial results are discarded; the longer the period, the more the initial results should be discarded.
+Note that Visual Studio's rand() has or had a bug where the first generated result wouldn't be very random, so older programs use rand() and discard a single value as a way to avoid this issue.
+The seed_seq initialization for std::mt19937 performs a warm up, so we don't need to explicitly warm them up.
+
+Random numbers across multiple functions or files
+We want a single PRNG object that we can share and access anywhere, across all functions and files.
+The best option here is to create a global random number generator object (inside a namespace), where this is one of those rare exceptions where we don't need to avoid non-const global variables.
+
+This lesson provides a simple, header-only solution that can be included in any code file that needs access to a randomized, self-seeded std::mt19937.
+Note that their mt variable and supporting functions are inline, so we don't violate the ODR. We can have duplicate definitions without violating the ODR as long as those definitions are identical.
+

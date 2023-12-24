@@ -1,0 +1,63 @@
+8_19
+Introduction to random number generation
+
+Generating random numbers can be useful for statistical modeling, games, cryptography, and stuff.
+Computers can't exactly make random numbers; everything is as predictable as possible.
+But they can simulate randomness via an algorithm.
+
+An algorithm is a finite sequence of instructions that can be followed to solve some problem or produce some useful result.
+By nature, algorithms are reusable, and can reapplied to future uses.
+They're usually implemented as reusable functions.
+
+An algorithm is considered stateful if it retains some information across calls.
+Conversely, a stateless algorithm doesn't store any info (and it must be given all the info it needs to work with whenever it is called).
+When applied to algorithms, the term state refers to current values held in stateful variables (those retained across calls).
+
+An algorithm is considered deterministic if a given input will always produce the same output sequence.
+
+Pseudo-random number generators (PRNGs)
+To simulate randomness, programs typically use a pseudo-random number generator.
+A pseudo-random number generator (PRNG) is an algorithm that generates a sequence of numbers whose properties simulate a sequence of random numbers.
+
+When a PRNG is instantiated, an initial value (or set of values) called a random seed (seed for short) can be provided to initialize the state of the PRNG.
+When the PRNG has been initialized with a seed, we say it has been seeded.
+
+Most PRNGs that produce quality results use at least 16 bytes of state, if not significantly more. However, the size of the seed value can be smaller than the size of the PRNG. When this happens, we say the PRNG has been underseeded.
+Ideally, every bit in the state is initialized from a seed of equal size, and every bit in the seed has been independently determined somehow.
+If a PRNG is underseeded, some number of bits in the state will need to be initialized from the same bits in the seeed.
+If a PRNG is significantly underseeded (size of the seed is much smaller than size of the state), the quality of random results can be impacted.
+
+What makes a good PRNG?
+Distribution uniformity, lack of bias.
+
+All PRNGs are periodic, meaning that they repeat after some sequence of numbers.
+The length of the sequence before a PRNG repeats is called the period.
+Since PRNGs are deterministic, the state of a PRNG will produce a loop.
+
+A good PRNG should have a long period for all seed numbers. Designing an algorithm that meets this property can be very difficult; many PRNGs have long periods only for some seeds.
+
+Most PRNGs have a state size of less than 4096 bytes, so total memory usage typically isn't a concern. However, the larger the internal state, the more likely the PRNG is to be underseeded, and the slower the initial seeding will be (more state to initialize).
+
+To generate the next number in sequence, a PRNG has to mix up its internal state by applying various math operations. The time taken can vary by PRNG and also by architecture. This doesn't matter if you only generate random numbers periodically, but it can have a huge impact if you need lots of randomness.
+
+The <random> header of the std library gives access to C++ randomization capabilities.
+there are 6 PRNG families available:
+minstd_rand and minstd_rand0
+mt19937
+ranlux24
+knith_b
+default_random_engine
+rand()
+
+But there's zero reason to use knuth_b, default_random_engine, or rand().
+As of C++20, the Mersenne Twister algorithm is the only PRNG that ships with C+ that has both decent quality and performance.
+
+For most applications, Mersenne Twister is fine.
+However, by modern PRNG standards, it's a bit outdated. The biggest issue is that its results can be predicted after seeing 624 generated numbers, making it non-suitable for an application that requires non-predictability.
+For a real high-quality random result, or the fastest results with non-predictability as a priority (e.g. cryptography), you'll need a 3rd party library.
+
+Popular choices as of the time of writing:
+
+The Xoshiro family and Wyrand for non-cryptographic PRNGs.
+The Chacha family for cryptographic (non-predictable) PRNGs.
+
