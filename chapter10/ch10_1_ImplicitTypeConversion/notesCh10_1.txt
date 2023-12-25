@@ -1,0 +1,56 @@
+10_1
+Implicit type conversion
+
+Objects are stored as a sequence of bits, and the data type of the object tells the compiler how to interpret those bits into meaningful values. Different data types may represent the same number differently.
+e.g. 
+int 3
+0000 0000 0000 0000 0000 0000 0000 0011
+float 3.0
+0100 0000 0100 0000 0000 0000 0000 0000
+
+So what about
+float f{3.0};
+Compiler can't just copy the bits representing the int value 3 into memory allocated for float variable f. It has to convert that to 3.0, which can then be stored in the memory allocated for f.
+The process of producing a new value of some type from a value of a different type is called a conversion.
+
+Conversions do not change the value or type being converted. Instead, a new value with the desired type is created as a result of the conversion.
+
+Type conversion can be invoked either implicitly (as needed by the compiler) or explicitly (requested by programmer).
+
+Implicit type conversion (also called automatic type conversion, also called coercion) is performed automatically by the compiler when one data type is required, but a different data type is supplied.
+The vast majority of type conversions in C++ are implicit type conversions.
+e.g.
+double d{3};//int value 3 implicitly converted to type double
+d = 6; //int value implicitly converted to type double
+
+When a type conversion is invoked (implicitly or explicitly), the compiler will determine whether it can convert the value from the current type to the desired type. If a valid conversion can be found, then the compiler will produce a new value of the desired type. Note that type conversions don't change the value or type of the value or object being converted.
+
+If the compiler can't find an acceptable conversion, then the compilation will fail with a compile error.
+Type conversions can fail for a number of resons. For example, the compiler might not know how to convert a value between the original type and the desired type.
+In other cases, statements may disallow certain types of conversions.
+e.g.
+int x { 3.5 }; // brace-initialization disallows conversions that result in data loss
+
+There are also cases where the compiler may not be able to figure out which of several conversions is the unambiguous best one to use.
+So how does the compiler actually determine if it can convert from one type to another?
+
+The C++ standard defines how different fundamental types (and sometimes compound types) can be converted to other types. These conversion rules are called the standard conversions.
+The standard conversions can be broadly divided into 4 categories, each covering different types of conversions.
+
+Numeric promotions
+Numeric conversions
+Arithmetic conversions
+Other conversions (including various pointer/reference conversions)
+
+When a type conversion is needed, the compiler will see if there are standard conversions for converting the value to the desired type. The compiler may apply zero, one, or more than one standard conversion in the conversion process.
+
+As an aside, how do you have a type conversion with zero conversions? Some architectures have int and long both have the same size and range. The same sequence then represents values of both types, and no actual covnersion is needed to convert a value between those types.
+
+The full set of rules for type conversions is long and complicated.
+For the most part, type conversion "just works". 
+
+
+
+
+
+

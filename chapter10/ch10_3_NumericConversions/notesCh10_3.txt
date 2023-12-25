@@ -1,0 +1,91 @@
+10_3
+Numeric conversions
+
+Besides numeric promotions, there are numeric conversions.
+These cover additional type conversions between fundamental types.
+
+There are five basic types of numeric conversions
+*Converting an integral type to any other integral type, excluding promotions
+*Converting a floating point type to any other floating point type, excluding promotions
+*Converting a floating point type to any integral type
+*Converting an integral type to any floating point type
+*Converting an integral type or a floating point type to a bool
+
+Because brace initialization strictly disallows some types of numeric conversions, we use copy initialization in this lesson (because it has no such limitations).
+
+Unlike numeric promotion (which is always value-preserving and thus safe), some numeric conversions are not value-preserving in certain cases. Such conversions are said to be unsafe, even though it's more accurat to call them potentially unsafe.
+
+Numeric conversions fall into one of three safety categories:
+1. Value-preserving conversions are safe numeric conversions where the destination type can precisely represent all the values in the source type.
+Int to long and short to double are safe, as the source value can always be converted into an equivalent value of the destination type.
+Compilers will not typically issue warnings for implicit value-preserving conversions.
+A value converted via value-preserving conversion can always be converted back to the source type, resulting in a value that is equivalent to the original value.
+
+2. Representative conversions are potentially unsafe numeric conversions where the result may be outside the range of the source type.
+Signed/unsigned conversions fall into this category, like when you convert a signed int to an unsigned int.
+e.g.
+    int main()
+    {
+        int n1 { 5 };
+        unsigned int u1 { n1 }; // okay: will be converted to unsigned int 5 (value preserved)
+
+        int n2 { -5 };
+        unsigned int u2 { n2 }; // bad: will result in large integer outside range of signed int
+
+        return 0;
+    }
+
+Since value changes aren't typically desired, the program here will exhibit unexpected behavior.
+
+Note that while reinterpretive conversions are potentially unsafe, most compilers leave implicit signed/unsigned conversion warnings disabled by default.
+This is because modern C++ makes signed/unsigned conversions hard to avoid, and most conversions practically don't result in a value change.
+
+Values converted using reinterpretive conversion can be converted back to the source type, resulting in a value equivalent to the original value, even if the initial conversion produced a value out of range of the source type.
+e.g.
+    #include <iostream>
+
+    int main()
+    {
+        int u = static_cast<int>(static_cast<unsigned int>(-5)); // convert '-5' to unsigned and back
+        std::cout << u << '\n'; // prints -5
+
+        return 0;
+    }
+
+Prior to C++20, converting an unsigned out-of-range value is technically undefined behavior (due to allowance that signed integers could use a different binary representation than unsigned integers). In practice, this was a non-issue.
+C++20 now requires that signed integers use 2's compliment, so converting unsigned out-of-range values is not well-defined as a reinterpretive conversion.
+While such conversions are well defined, signed arithmetic overflow (occurs when an arithmetic operation produces a value out of range that can be stored) is still undefined behavior.
+
+3. Lossy conversions are potentially unsafe numeric conversions where some data may be lost during the conversion.
+For example, double to int is a conversion that may result in data loss.
+Conversion from double to float may result in data loss.
+Converting a value that has lost data back to the source type will result in a value that is different from the original value.
+
+Compilers will generally issue a warning (or in some cases, an error) when an implicit lossy conversion would be performed at runtime.
+Note that some architectures dictate whether or not a conversion is safe; if int and double are 8 bytes, int to double is even a lossy conversion.
+
+The specific rules for numeric conversions are complicated.
+The important stuff to remember is:
+
+In all cases, converting a value into a type whose range doesn't support that value can lead to results that are probably unexpected.
+
+Converting from a larger integral or floating point type to a smaller type from the same family will generally work as long as the value fits in the range of the smaller type.
+
+In the case of floating point values, some rounding may occur due to a loss of precision in the smaller type; a float can't hold as much precision as a double.
+
+Converting from an integer to a floating point number generally works as long as the value fits within the range of the floating point type.
+
+Converting from a floating point to an integer works if the value fits the range, but any fractional values are lost.
+
+While numeric conversion rules might seem scary, the compiler generally produces warnings for anything dangerous besides some signed/unsigned conversions.
+
+
+
+
+
+
+
+
+
+
+
