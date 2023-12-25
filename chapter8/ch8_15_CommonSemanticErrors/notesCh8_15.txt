@@ -1,0 +1,50 @@
+8_15
+Common semantic errors in C++
+
+We've discussed that syntax errors occur when your code is not valid according to the C++ language standard.
+The compiler will notify you of such errors, so they're not so hard to catch, usually not too hard to fix.
+
+Semantic errors occur when you write code that doesn't do what you intended. The compiler will generally not catch these errors.
+
+Semantic errors can cause most of the same symptoms as undefined behavior, e.g. working correctly, intermittently, or not at all.
+They're inevitable, though. You'll probably notice some of them just by using the program.
+But knowing what type of semantic errors are most common can help, so here's a set of those.
+
+
+Conditional logic errors
+One of the most common semantic errors is a conditional logic error.
+These occur when the programmer incorrectly codes the logic of a conditional statement or loop condition.
+
+Infinite loops
+Covered these in ch8_8, program will never terminate
+
+Off-by-one errors
+Occurs when a loop executes one too many or one too few times.
+Commonly a result of mixing up < and <= use cases.
+
+Incorrect operator precedence
+    if (!x > y) // oops: operator precedence issue
+        std::cout << x << " is not greater than " << y << '\n';
+
+In this example, logical not has higher precedence than >, so the conditional doesn't evaluate the more likely intended !(x > y)
+This can also happen when mixing logical OR and logical AND in the same expression (AND takes precedence over OR). Use explicit parenthesization to avoid these errors.
+
+Precision issues with floating point types
+Recall that floats and doubles have limited precision.
+== and != should not be used with these data types.
+The more arithmetic you do with a floating point number, the more it will accumulate small rounding errors.
+
+Integer division
+5/3=1
+We can use static_cast to convert integral operands to floating point numbers if we want the remainder portion of the division operation to be maintained.
+
+Accidental null statements
+Ending an if statement with a semicolon (say, before the following block) will produce a null statement, so the conditional portion will always execute (no longer gated by if condition).
+
+Not using a compound statement when one is required
+
+   if (c=='y')
+        std::cout << "Okay, here we go...\n";
+        blowUpWorld(); // oops, will always execute.  Should be inside compound statement.
+A dangling else also falls into this category (nest if statements, else attaches to inner if statement, likely not intentional, avoid this by using blocks)
+

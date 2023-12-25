@@ -1,0 +1,43 @@
+8_13
+Introduction to testing your code
+
+Pretend you've written a program.
+Likely, it's one that'll run many times, and it uses loops and conditional logic and accepts user input.
+Maybe there's scope creep, where you add new capabilities that were not originally planned for.
+
+It's a good idea to validate that the program works as expected under a variety of conditions. This requires proactive testing.
+Software testing, also called software validation, is the process of determining whether or not the software works as expected.
+
+Test your programs in small pieces.
+Test and prove small components, then integrate and test the whole product to make sure everything looks good.
+Not taking this approach leads to a lot of wasted time trying to identify exactly where problems are, and what to do about them.
+If a problem is found, there might also be ripple effects in multiple other places.
+Testing a small part of your code in isolation to ensure that the "unit" of code is correct is called unit testing.
+Each unit test is designed to ensure that a particular behavior of the unit is correct.
+
+Informal testing
+One way to test code is to do informal testing as you write the program.
+After writing a unit of code, you can write some code to test the unit that was just added, then erase the test once the test passes.
+
+Preserving your tests
+While temporary tests are quick and easy, it doesn't account for trying to test that same code again later.
+It makes more sense to preserve your tests so they can be run again in the future.
+You can make test functions, then, and just not call them unless you're testing your code.
+
+Automating test functions
+The test functions they provided as examples rely on manually verifying results when you run the tests. This requires remembering the expected answer in bad enough cases.
+We can write a test function with both the tests and the expected answers, and comparing them.
+A better method still is to use assert, which will cause the program to abort with an error message if any test fails. We don't have to create and handle test case numbers that way.
+
+Unit testing frameworks
+Because writing functions to exercise other functions is common and useful, there are whole unit testing frameworks to simplify the process of writing, maintaining, and executing unit tests.
+
+Integration testing
+When units have been tested in isolation, they can be integrated into the program and retested to make sure they were integrated properly.
+This is called an integration test. Integration testing tends to be more complicated.
+
+Quiz
+1. When should you start testing code?
+Start testing code once you have a completed function with behavior that can be tested.
+
+

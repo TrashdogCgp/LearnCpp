@@ -1,0 +1,82 @@
+8_18
+Assert and static_assert
+
+In a function that takes parameters, the caller may be able to pass in arguments that are syntactically valid, but semantically meaningless.
+
+We've talked about halting the program, or skipping offending statements.
+Both of those options are problematic.
+If a program skips statements due to an error, then it is essentially failing silently. Especially while we are writing and debugging programs, silent vailures are bad, because they obscure real problems. Even error messages might get buried/lost.
+If a program terminates via std::exit, we lose our call stack and debugging info to isolate a problem.
+std::abort is better for such options, as the developer will be given the option to start debugging at the point where the program aborted.
+
+Preconditions, invariants, and postconditions
+In programming, a precondition is any condition that must always be true prior to execution of a component of code.
+An invariant is a condition that must be true while some component is executing. A postcondition is something that must be true after the execution of some component of code.
+
+Assertions
+Using a conditional statement to detect invalid parameters, along with printing an error message, is such a common method of detecting problems that C++ provides a shortcut method for doing this.
+An assertion is an expression that will be true unless there is a bug in the program.
+If the expression evaluates to true, the assertion statement does nothing. If the conditional expression evaluates to false, an error message is displayed and the program is terminated (via std::abort).
+This error message typically contains the expression that failed as text, along with the name of the code file and line number of the assertion.
+This makes it easy to tell where the problem was, and what it was.
+
+When an assertion evaluates to false, your program is immediately stopped. This gives you an opportunity to use debugging tools to examine your program state and why the assertion failed. Working backwards, you can fix and find the issue.
+Without an assertion to detect an error and fail, such an error would likely cause your program to malfunction later. In such cases, it can be very difficult to determine where things are going wrong, or what the root cause of the issue actually is.
+
+In C++, runtime assertions are implemented via the assert preprocessor macro, which lives in the <cassert> header.
+e.g.
+
+#include <cassert> // for assert()
+assert(gravity > 0.0); // The object won't reach the ground unless there is positive gravity.
+
+In the case that the assert is triggered, it prints a message like:
+dropsimulator: src/main.cpp:6: double calculateTimeUntilObjectHitsGround(double, double): Assertion 'gravity > 0.0' failed.
+
+However, the actual message varies depending on which compiler you use.
+Although asserts are most often used to validate function parameters, they can be used anywhere you would like to validate that something is true.
+
+Although general advice leans toward avoiding preprocessor macros, asserts are preprocessor macros that are generally considered acceptable to use. Use them all over the place.
+
+Make your assert statements more descriptive.
+assert(found && "Car could not be found in database");
+This works to add an error message because a string literal always evaluates to bool true.
+When the assert triggers on this statement, the string literal will be included in the assert message.
+
+Assert vs error handling
+Assertions and error handling are similar enough that their purposes can be confused.
+The goal of an assertin is to catch programming errors by documenting something that should never happen.
+On the other hand, error handling is designed to gracefully handle cases that could happen (however rarely) in release configurations. These may or may not be recoverable, but one should always assume a user of the program may encounter them.
+
+Best practice: Use assertions to document cases that should be logically impossible.
+
+Assertions are also sometimes used to document cases that were not implemented because they were not needed at the time the programmer wrote the code.
+That way, if a future user of the code does encounter a situation where this case is needed, the code will fail with a useful error message, and the programmer can determine how to implement that case.
+
+NDEBUG
+assert macro comes with a small performance cost that is incurred each time the assert condition is checked. Asserts should (ideally) never be encountered in production code (should already be thoroughly tested by that point). Consequently, many devs prefer that asserts are only active in debug builds. C++ comes with a way to turn off asserts in production code.
+
+If the macro NDEBUG is defined, the assert macro gets disabled
+Some IDEs set NDEBUG by default as part of the project settings for release configurations.
+
+If you need NDEBUG defined and use an IDE or build system that doesn't automatically define NDEBUG in release configuration, you will need to add it in the project or compilation settings manually.
+
+Asserts have some pitfalls and limitations. First, the assert itself can be improperly written.
+If this happens, the assert will report an error where none exists, or fail to report a bug that does exist.
+
+Your asserts also should have no side effects; programs should run the same with or without the assert. Otherwise, debug and release might not line up and your testing might be invalidated.
+Also note that the abort() function terminates the program immediately without cleanup. Because of this, asserts should only be used in cases where corruption isn't likely to occur if the program terminates unexpectedly.
+
+static_assert
+C++ also has static_assert, which is an assertion checked at compile-time rather than at runtime. A failing static_assert causes a compile error.
+Unlike assert, from the <cassert> header, static_assert is a keyword, so no header needs to be included to use it.
+form:
+static_assert(condition, diagnostic_message)
+
+Because static_assert is evaluated by the compiler, the condition must be a constant expression.
+static_assert can be placed anywhere in the code file (even in the global namespace)
+static_assert is not compiled out in release builds.
+
+
+
+
+

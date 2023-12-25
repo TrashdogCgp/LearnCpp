@@ -1,0 +1,46 @@
+8_3
+Common if statement problems
+
+Nested if statements and dangling else problem:
+The else in this case will actually run off of the inner if statement:
+
+    if (x >= 0) // outer if statement
+        // it is bad coding style to nest if statements this way
+        if (x <= 20) // inner if statement
+            std::cout << x << " is between 0 and 20\n";
+
+    // which if statement does this else belong to?
+    else
+        std::cout << x << " is negative\n";
+
+To avoid such ambiguities when nesting if statements, it is a good idea to explicitly enclose the inner if statement within a block.
+e.g.
+    if (x >= 0)
+    {
+        if (x <= 20)
+            std::cout << x << " is between 0 and 20\n";
+        else // attached to inner if statement
+            std::cout << x << " is greater than 20\n";
+    }
+    else // attached to outer if statement
+        std::cout << x << " is negative\n";
+Ambiguity avoided.
+
+Nested if statements can often be flattened by logical operators or by restructuring the logic.
+
+A null statement is an expression statement that consists of just a semicolon.
+Null statements do nothing. They are typically used when the language requires a statement to exist, but the programmer doesn't need one.
+For readability, null statements are typically placed on their own lines.
+
+if (x > 10)
+    ; // this is a null statement
+Null statements are rarely intentionally used with if statements. However, they can unintentionally cause problems for new or careless programmers.
+
+if (nuclearCodesActivated());
+    blowUpTheWorld(); // executes due to null statement at end of if statement
+
+Inside your conditional, you should be using operator == for testing equality, not operator = (assignment).
+if(x=0) // condition assigns value to x, then evaluates to x, which is 0, boolean false.
+
+
+

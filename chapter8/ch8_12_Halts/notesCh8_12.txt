@@ -1,0 +1,54 @@
+8_12
+Halts (exiting your program early)
+
+A halt is a flow control statement that terminates the program. In C++, halts are implemented as functions (rather than keywords), so our halt statements will be function calls.
+
+Let's recap what happens when a program exits normally.
+When main() returns (end of function, or via return statement), a number of different things happen. Since we're leaving the function, all local variables and function parameters are destroyed (as usual).
+Next, a special function called std::exit() is called, with the return value from main() passed in as an argument.
+So what is std::exit()?
+
+std::exit() is a function that causes the program to terminate normally.
+Normal termination means the program exited in an expected way. Note that "normal" doesn't imply anything about whether or not the program was successful (status code is intended for that).
+std::exit() performs cleanup functions. First, objects with static storage duration are destroyed. Then, some other misc file cleanup is done if files were used. Finally, control is returned to the OS, with the argument passed to std::exit() used as the status code.
+
+Although std::exit() is called implicitly when main() ends, std::exit() can also be explicitly called to halt the program before it would normally terminate.
+You need to include the cstdlib header for this.
+
+std::exit() can be called from any function to terminate the program at that point.
+Also, std::exit() does not clean up any local variables (in the current function, or functions up the call stack).
+Because of this, it's better to avoid calling std::exit()
+
+Since std::exit() terminates the program immediately, you may want to manually do some cleanup before terminating. In this context, cleanup means things like closing database/network connections, deallocating any memory you have allocated, writing info to a log file, etc.
+
+Most modern OSes will generally clean up any memory that the application does not properly clean up itself. So... why bother doing cleanup on exit?
+There are at least two reasons.
+1. Good habit. You'll need to avoid memory leaks while the application is running. Cleaning up in some cases and not others is inconsistent and error-prone. Not cleaning up memory properly can also impact the way certain tools like memory profilers behave; they might not be able to distinguish memory you inadvertently aren't cleaning up from memory taht you intentionally aren't cleaning up because you don't have to.
+2. There are other kinds of cleanup that may be necessary for your program to behave predictably. If you wrote data to a file, then unexpectedly exit, that data may not have been flushed to the file yet, and is lost when the program exits. Closing the file before shutting down helps ensure that cached data will be written first.
+
+To assist with cleanup, std::atexit() allows you to specify a function that will automatically be called on program termination via std::exit(). This prevents you from having to explicitly call a cleanup routine before calling std::exit().
+
+std::atexit() is called implicitly when std::exit() is called, and std::exit() is called implicitly when main() terminates. So functions registered by std::atexit() will be invoked if the program exits that way.
+Also, the function being registered must take no parameters and have no return value.
+You can register multiple functions with atexit() if you want; they will be called in reverse order of registration (last function registered gets called first).
+
+Note that in multi-threaded programs, std::exit() can cause your program to crash.
+std::quick_exit() and std::at_quick_exit() are similar to std::exit() and std::atexit(), but they work for threading and don't clean up static objects, plus they may or may not do other types of cleanup.
+
+std::abort and std::terminate
+std::abort() causes your program to terminate abnormally.
+Abnormal termination means the program had an unusual runtime error and the program couldn't continue to run.
+std::abort() does not do any cleanup.
+It can be called implicitly, as we'll see with assert and static_assert.
+
+std::terminate() is typically used in conjunction with exceptions.
+Although it can be called explicitly, it's more often called implicitly when an exception isn't handled (and in a few other exception-related cases).
+By default, std::terminate() calls std::abort()
+
+When should you use a halt?
+Almost never.
+
+Best practice: Only use a halt if there is no safe way to return normally from the main function. If you haven't disabled exceptions, prefer using exceptions for handling errors safely.
+
+Note that there are other ways for programs to unexpectedly shut down.
+A well-designed program should be able to handle being shut down at any point with minimal repercussions.

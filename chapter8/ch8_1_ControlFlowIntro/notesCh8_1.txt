@@ -1,0 +1,23 @@
+8_1
+Control flow introduction
+
+When a program runs, the CPU begins execution at the top of main(), executes some number of statements (in sequential order by default), and then the program terminates at the end of main().
+
+Straight-line programs take the same path every time they are run.
+This isn't often what we desire; for example, we want invalid user input to result in some kind of mitigation. This can't happen in a straight line program.
+
+C++ provides control flow statements (also called flow control statements), which are statements that allow the programmer to change the normal path of execution through the program.
+We've done if statements already, of course.
+When a control flow statement causes point of execution to change to a non-sequential statement, this is called branching.
+
+Categories:
+Conditional statements (if, switch)
+Jumps (goto, break, continue)
+Function calls (function calls and return)
+Loops (while, do-while, for, ranged-for)
+Halts (std::exit(), std::abort())
+Exceptions (try, throw, catch)
+
+We'll cover all of these categories throughout this chapter, besides exceptions, which are their own chapter (chapter 27).
+
+

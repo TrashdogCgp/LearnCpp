@@ -1,0 +1,37 @@
+8_7
+Goto statements
+
+Goto is an unconditional jump.
+An unconditional jump causes execution to jump to another spot in the code.
+The term unconditional means the jump always happens, whereas a conditional statement only happens based on the result of an expression.
+
+In C++, unconditional jumps are implemented via goto statements, and the spot to jump is identified via a statement label.
+e.g.
+TryAgain: //statement label
+//some stuff happens
+goto TryAgain;
+
+Statement labels have function scope.
+There's a third kind of scope besides local (block) and file (global) scope.
+Function scope means that a label is visible throughout the function even before its point of declaration.
+The goto statement and its corresponding statement label must appear in the same function.
+
+Goto statements can jump forward or backward.
+
+Note that statement labels must be associated with a statement (hence their name; they label a statement).
+We can use a null statement if we just need a location to label.
+
+Also note that since statement labels have function scope, we can jump ahead in code to the statement label, even if we haven't reached that point in the code yet.
+
+Primary limitations to jumping: You can jump only in a single function, and if you jump forward, you can't jump over any initialization of a variable still in scope at the location being jumped to.
+If you jump backwards over variable initialization, the variable will be re-initialized when the initialization is executed.
+
+Goto is notorious for creating spaghetti code.
+Spaghetti code has a pathe of execution that's tangled and twisted.
+Almost every use for a goto can be better implemented with if statements and loops.
+One notable exception is when you need to exit a nested loop, but not the entire function, but in just about all other cases, goto should be avoided.
+
+
+
+
+

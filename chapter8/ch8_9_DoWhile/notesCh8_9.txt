@@ -1,0 +1,15 @@
+ch8_9
+Do while statements
+
+A do while statement is a looping construct that works like a while loop, except the statement always executes at least once.
+After the statement has been executed, the do-while loop checks the condition; if it's true, the path of execution jumps back to the top of the do-while loop and executes it again.
+
+This can help avoid magic numbers and additional variables.
+Worth discussing is that variables that evaluate the condition must be declared outside of the do block.
+
+In practice, do-while loops aren't common. Having the condition at the bottom of the loop obscures the loop condition, which can lead to errors. Many developers recommend avoiding do-while loops altogether as a result.
+Best practice: Favor while loops over do-while when given an equal choice.
+
+
+
+

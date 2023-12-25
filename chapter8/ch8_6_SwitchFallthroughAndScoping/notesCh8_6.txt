@@ -1,0 +1,113 @@
+8_6
+Switch fallthrough and scoping
+
+Failthrough-
+When a switch expression matches a case label or optional default label, execution begins at the first statement following the matching label.
+Execution continues sequentially until one of the following termination conditions happen:
+1. The end of the switch block is reached
+2. Another control flow statement (typically break or return) causes the switch block or function to exit
+3. Something else interrupts the program (OS shuts program down, for example)
+
+Note that another case label is not one of these terminating criteria.
+Without a break/return, execution will overflow into the next cases.
+This is called fallthrough.
+
+This usually isn't desired, so many compilers will flag fallthrough as a warning.
+
+[[fallthrough]] attribute: C++ added this feature.
+Attributes are a modern C++ feature that allows programmers to provide the compiler with additional data about the code.
+Attributes are not statements; they can be placed almost anywhere where they're contextually relevant.
+The [[fallthrough]] attribute modifies a null statement to indicate that fallthrough is intentional.
+e.g.
+    switch (2)
+    {
+    case 1:
+        std::cout << 1 << '\n';
+        break;
+    case 2:
+        std::cout << 2 << '\n'; // Execution begins here
+        [[fallthrough]]; // intentional fallthrough -- note the semicolon to indicate the null statement
+    case 3:
+        std::cout << 3 << '\n'; // This is also executed
+        break;
+    }
+
+Best practice: Use the [[fallthrough]] attribute along with a null statement to indicate intentional fallthrough
+
+Sequential case labels:
+You can place multiple case labels in sequence
+e.g.
+
+    switch (c)
+    {
+        case 'a': // if c is 'a'
+        case 'e': // or if c is 'e'
+        case 'i': // or if c is 'i'
+        case 'o': // or if c is 'o'
+        case 'u': // or if c is 'u'
+        case 'A': // or if c is 'A'
+        case 'E': // or if c is 'E'
+        case 'I': // or if c is 'I'
+        case 'O': // or if c is 'O'
+        case 'U': // or if c is 'U'
+            return true;
+        default:
+            return false;
+    }
+
+Switch case scoping
+With switch statements, the statements after labels are all scoped to the switch block.
+This contrasts with if statements, where only the first statement after the if-condition does not require an explicit block.
+
+You can define or declare, but not initialize, variables inside the switch, both before and after case labels.
+
+switch (1)
+{
+    int a; // okay: definition is allowed before the case labels
+    int b{ 5 }; // illegal: initialization is not allowed before the case labels
+
+    case 1:
+        int y; // okay but bad practice: definition is allowed within a case
+        y = 4; // okay: assignment is allowed
+        break;
+
+    case 2:
+        int z{ 4 }; // illegal: initialization is not allowed if subsequent cases exist
+        y = 5; // okay: y was declared above, so we can use it here too
+        break;
+
+    case 3:
+        break;
+}
+
+All statements inside the switch are considered to be part of the same scope. Thus, variable y is defined in case 1 but can be used in case 2 even though the case in which the variable is defined is never executed.
+Initialization of variables is not allowed in any case that is not the last case (because the initializer could be jumped over, which would leave the variable uninitialized).
+Initialization is also disallowed before the first case, as those statements will never be executed and there's no way for the switch to reach them.
+
+If a case needs a new variable initialized/defined, the best practice is to do so inside an explicit block underneath the case statement:
+switch (1)
+{
+    case 1:
+    { // note addition of explicit block here
+        int x{ 4 }; // okay, variables can be initialized inside a block inside a case
+        std::cout << x;
+        break;
+    }
+    default:
+        std::cout << "default case\n";
+        break;
+}
+
+Quiz
+Write a function called calculate() that takes two integers and a char representing a math operation. Use a switch statement to perform the appropriate math operation on the integers and return the result.
+If an invalid operator is passed into the function, print an error message.
+For division, do integer division and don't worry about divide by zero.
+
+
+
+
+
+
+
+
+

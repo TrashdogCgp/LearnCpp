@@ -1,0 +1,5 @@
+Because chapter 8 pertains to a bunch of language features that don't actually have all that much depth, I'm not going into as much detail as usual.
+There are tons of chapters left, and I'd rather spend my time on them than trying to type out the behavior of while and do while loops.
+As much as I prefer thoroughness and pedantic understanding of what's going on and why, I think this is the first chapter where I just don't feel it's worth straining my hands.
+I'll note what seems noteworthy, but there are just too many lectures in this chapter and I feel confident in saying I know most of what's coming.
+Apologies if this disappoints anyone, in case anyone is paying attention.
