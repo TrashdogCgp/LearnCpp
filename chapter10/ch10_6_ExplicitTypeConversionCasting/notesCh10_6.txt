@@ -78,7 +78,7 @@ Quiz
 Off the top of my head, a few differences.
 Explicit type conversion won't generate compiler warnings.
 Explicit type conversion is spelled out, and the programmer says verbatim that they want the data converted to a specified type.
-Implicit type conversion follows a set of rules for numeric conversion and can generate compiler warnings if the conversion is narrowing and not a specific constexpr situation (no loss detected from constexpr).
+Implicit type conversion happens without the programmer requesting it when a provided type doesn't match an expected type, and follows a set of rules for numeric conversion and can generate compiler warnings if the conversion is narrowing and not a specific constexpr situation (no loss detected from constexpr).
 
 
 

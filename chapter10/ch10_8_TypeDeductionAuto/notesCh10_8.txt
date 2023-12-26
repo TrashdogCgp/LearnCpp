@@ -1,11 +1,11 @@
 10_8
-Type deduction fo objects using the auto keyword
+Type deduction of objects using the auto keyword
 
 In cases where we want a variable and its initializer to have the same type, we're kind of redundantly providing the same information twice.
 Think about how the literal here is already a double:
     double d{ 5.0 };
 
-Type deduction (also called type inference) is a feature that allows the compiler to deduce the type of an object from the object's initializer. To use type deduction, the auto keyword is used in place of the variable's type.
+Type deduction (also c  alled type inference) is a feature that allows the compiler to deduce the type of an object from the object's initializer. To use type deduction, the auto keyword is used in place of the variable's type.
 
     auto d{ 5.0 }; // 5.0 is a double literal, so d will be type double
     auto i{ 1 + 2 }; // 1 + 2 evaluates to an int, so i will be type int
@@ -21,6 +21,7 @@ Although using type deduction for fundamental data types doesn't help too much, 
 Note that the type deduction rules for pointers and references are a bit more complex. Those are covered in chapter 12.
 
 Type deduction drops const/constexpr qualifiers
+(qualifiers: volatile and const. That's it. Why is constexpr referred to as a qualifier here? Misspoken, or is constexpr somehow actually a subset of const qualifier?)
 In most cases, type deduction drops the const or constexpr qualifier from deduced types.
     const int x { 5 }; // x has type const int
     auto y { x };      // y will be type int (const is dropped)
@@ -51,7 +52,7 @@ If we wanted a double above, we could've explicitly called it type double and it
 
 Also, if the type of an initializer changes, the type of the variable using type deduction will also change, perhaps unexpectedly.
 
-Overall, the modern consensus is that type deduction is generally safe to use for objects. Doign so can help make your code more readable by de-emphasizing type info so the logic of code stands out better.
+Overall, the modern consensus is that type deduction is generally safe to use for objects. Doing so can help make your code more readable by de-emphasizing type info so the logic of code stands out better.
 
 Best practice: Use type deduction for variables, unless you need to commit to a specific type.
 

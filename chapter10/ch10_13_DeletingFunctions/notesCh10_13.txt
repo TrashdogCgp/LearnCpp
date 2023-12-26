@@ -1,0 +1,30 @@
+10_13
+Deleting functions
+
+It's possible to write functions that don't behave as desired when called with values of certain types.
+For example, a function accepting an int parameter may be given an argument of type char.
+This will be promoted to an int, but will no longer be treated like a char despite having the same value, for example, if printed out.
+
+If we have a function that we explicitly want to be not callable, we can define a function as deleted by using = delete specifier.
+If a compiler matches a function call to a deleted function, compilation will be halted with a compile error.
+e.g.
+    void printInt(int x)
+    {
+        std::cout << x << '\n';
+    }
+    void printInt(char) = delete; // calls to this function will halt compilation
+    void printInt(bool) = delete; // calls to this function will halt compilation
+
+note: =delete
+means "I forbid this", as opposed to "this doesn't exist".
+Deleted functions still participate in function overload resolution. If a deleted function is selected, then a compilation error results.
+Other functions can be similarly deleted, like member functions. And you can delete function template specializations.
+
+Deleting all non-matching overloads
+Deleting a bunch of functions is fine, but it can be tedious/verbose.
+When we want a function to only be called with exact matches for the function parameters, we can use a function template.
+e.g.
+    // This function template will take precedence for arguments of other types
+    // Since this function template is deleted, calls to it will halt compilation
+    template <typename T>
+    void printInt(T x) = delete;

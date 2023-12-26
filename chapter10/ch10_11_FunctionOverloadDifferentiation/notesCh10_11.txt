@@ -1,0 +1,73 @@
+10_11
+Function overload differentiation
+
+In 10_10, we introduced function overloading, which allows us to create multiple functions with the same name, so long as each identically named function has different parameter types (or the functions can otherwise be differentiated).
+
+Now, a closer look on how overloaded functions are differentiated.
+Overloaded functions that are not properly differentiated will cause compile errors.
+
+Number of parameters and type of parameters are how functions are differentiated.
+Types of parameters will exclude typedefs, aliases, and const qualifiers on value parameters.
+However, types of parameters does include ellipses.
+
+A function's return type does not differentiate it from overloads.
+
+For member functions, additional function-level qualifiers are also considered (const/volatile and ref qualifiers).
+As an example, a const member function can be differentiated from an otherwise identical non-const member function (even if they share the same set of parameters).
+
+Overloading based on number of parameters
+An overloaded function is differentiated so long as each overloaded function has a different number of parameters.
+For example:
+    int add(int x, int y);
+is distinct from
+    int add(int x, int y, int z);
+
+The compiler can easily tell that a function call with two integer parameters should go to add(int,int) and a function call with three integer parameters should go to the latter function.
+
+A function can also be differentiated so long as each overloaded function's list of parameter types is distinct.
+For example, the following are differentiated:
+    int add(int x, int y); // integer version
+    double add(double x, double y); // floating point version
+    double add(int x, double y); // mixed version
+    double add(double x, int y); // mixed version
+
+Because type aliases (and/or typedefs) are not distinct types, overloaded functions using type alises are not distinct from overloads using the aliased type.
+For example, all of the following overloads are not differentiated, and will result in a compile error:
+    typedef int Height; // typedef
+    using Age = int; // type alias
+
+    void print(int value);
+    void print(Age value); // not differentiated from print(int)
+    void print(Height value); // not differentiated from print(int)
+All of these aliases are just treated as int
+
+The const qualifier is also not considered for parameters passed by value.
+e.g.
+    void print(int);
+    void print(const int); // not differentiated from print(int)
+
+Ellipsis parameters are considered to be unique, so:
+    void foo(int x, int y);
+    void foo(int x, ...); // differentiated from foo(int, int)
+Thus a call to foo(4, 5) will match to foo(int, int), not foo(int, ...)
+
+A function's return type is not considered when differentiating overloaded functions.
+    int getRandomValue();
+    double getRandomValue();
+These are not differentiated.
+
+This non-differentiation is an intentional choice; it ensures that the behavior of a function call can be determined independently from the rest of the expression, making it easier to understand complex expressions.
+We can always determine which version of a function will be called based solely on the arguments of the call.
+If return values were used for differentation, we wouldn't have an easy syntactic way of telling which overload was being called; we'd have to understand the return value's use, which takes much more analysis.
+
+Type signature
+A function's type signature (generally called signature) is defined as the parts of the function header that are used for differentiation of the function.
+In C++, this includes function name, number of parameters, parameter type, and function-level qualifiers.
+It doesn't include return type.
+
+Name mangling
+When the compiler compiles a function, it does name mangling.
+This means the compiled name of the function is altered based on various criteria, such as number and type of parameters, so the linker has unique names to work with.
+e.g. int fcn() might compile to __fucn_v while int fcn(int) might compile to __fcn_i
+
+There's no standardization on how names should be mangled, but the point is that two overloaded functions can share a name in source code, but will have a distinct name in compile code.

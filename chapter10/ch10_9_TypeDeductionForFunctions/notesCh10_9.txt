@@ -1,8 +1,54 @@
 10_9
 Type deduction for functions
 
+When a function is compiled, the compiler will determine that the returned expression evaluates to an given type, then ensure that type of the return value matches the declared return type of the function.
+Since the compiler already has to deduce the return type from the return statement, in C++14, the auto keyword was extended to do function return type deduction.
+This uses the auto keyword in place of the function's return type.
 
+When using an auto return type, all return statements within the function must return values of the same type, otherwise an error will occur.
+For example, this would error out:
+    auto someFcn(bool b)
+    {
+        if (b)
+            return 5; // return type int
+        else
+            return 6.7; // return type double
+    }
 
+A major downside of functions that use an auto return type is that these functions must be fully defined before they can be used (forward declarations aren't sufficient)
+So normal functions that return auto can typically only be called from within the file in which they're defined.
+
+Unlike type deduction for objects, there isn't much consensus on best practices for function type deduction. With functions, there isn't usually context to help indicate what type the function returns. A good IDE should help, but without that, the user would have to dig into the function body to determine what type the function returned.
+Plus,  he inability for such functions to be forward declared limits their usefulness in multi-file programs.
+
+Best practice: Favor explicit return types over function return type deduction for normal functions.
+
+Trailing return type syntax
+The auto keyword can be used to declare functions using trailing return syntax, where the return type is specified after the rest of the function prototype.
+e.g.
+    auto add(int x, int y) -> int
+    {
+    return (x + y);
+    }
+
+In this case, auto doesn't do type deduction; it's just part of the syntax to use a trailing return type.
+Why do this?
+Well, it makes function names line up nicely.
+    auto add(int x, int y) -> int;
+    auto divide(double x, double y) -> double;
+    auto printSomething() -> void;
+    auto generateSubstring(const std::string &s, int start, int len) -> std::string;
+
+Trailing return syntax is also required for some advanced features of C++, such as lambdas.
+For now, we'll continue using traditional function return syntax except in situations that require the trailing return syntax.
+
+Type deduction doesn't work for parameters, e.g. 
+    void addAndPrint(auto x, auto y){std::cout<<"dummy function\n";}
+
+This function wouldn't compile prior to C++20.
+In C++20, the auto keyword was extended so that this will compile and function just fine, but auto isn't actually using type deduction in this case. It's actually triggering function templates, which cover such cases in older versions of C++ anyway.
+
+Function templates are introduced in 10_15
 
 
 
