@@ -1,0 +1,133 @@
+10_7
+Typedefs and type aliases
+
+in C++, the using keyword creates an alias for an existing data type.
+To create such an alias, we use the using keyword followed by a name for the type alias, followed by an equals sign and an existing data type.
+e.g. 
+    using Distance = double; // define Distance as an alias for type double
+
+Once defined, a type alias can be used anywhere a type is needed.
+For example, we can create a variable with the type alias name as the type.
+When the compiler encounters a type alias name, it will substitute in the aliased type.
+
+Note that type aliases can also be templated. This is covered in chapter 13.
+
+Naming type aliases
+Historically, there hasn't been much consistency in how type aliases have been named.
+There are three major convetions for naming them, and you'll see them all over.
+
+*Type aliases that end in a _t suffix, t short for type. This is used often by the standard library for global scope names like size_t and nullptr_t.
+This convention was inherited from C, and used to be the most popular. It's fallen out of favor in modern C++.
+Posix reserves the _t suffix for globally typed names, so using this convention may cause type naming conflicts on Posix systems.
+
+*Type aliases that end in a _type suffix
+This convention is used by some standard library types like std::string to name nested type aliases, e.g. std::string::size_type
+But many such nested type aliases don't use a suffix at all, so this usage isn't really consistent. Even within string, there's std::string::iterator.
+
+*Type aliases that use no suffix
+In modern C++, the convention is to name type aliases (along with any other type) that you define yourself starting with a capital letter, and using no suffix.
+The capital letter helps distinguish variables and functions from types.
+When using this naming convention, it's common to see this usage:
+    void printDistance(Distance distance); //Distance is the defined type
+
+Best practice: Name your aliases starting with a capital letter and do not use a suffix (unless you have a specific reason to do otherwise).
+
+Type aliases are not distinct types
+An alias doesn't actually define a new, distinct type. It just introduces a new identifier for an existing type. A type alias is completely interchangeable with the aliased type.
+This allows us to do things that are syntactically valud, but semantically meaningless.
+Because the compiler does not prevent semantic errors for type aliases, we say that aliases are not type safe.
+In spite of that, they are still useful.
+
+Warning: Care must be taken to not mix up values of aliases that are intended to be semantically distinct.
+As an aside, some languages support strong typedef.
+Strong typedef actually creates a new type that has all the original properties, but the compiler will throw an error if you try to mix values of the aliased type and the strong typedef.
+As of C++20, there's no strong typsdef, though enum classes are similar. But there are some 3rd party C++ libraries that implement strong typedef-like behavior.
+
+Because scope is a property of an identifier, type alias identifiers follow the same scoping rules as variable identifiers. A type alias defined in a block has block scope and is usable only within that block, whereas a type alias defined in the global namespace has global scope and is usable to the end of the file.
+
+A typedef can be defined in a header file and #included into any code files that need to use the definition.
+Type aliases included this way will be imported into the global namespace and thus have global scope.
+
+A typedef is an older way of creating an alias for a type.
+To create a typedef alias, we use the typedef keyword.
+e.g.
+    typedef long Miles;
+    using Miles = long;
+
+Typedefs are still in C++ for backwards compatibility reasons, but they have been largely replaced by type aliases in modern C++.
+Why?
+Well, they have some syntactical issues. It's easy to forget the order (e.g. typedef Distance double; or is it typedef double Distance; //actually this latter one is correct, but still)
+
+Also, the syntax for typedefs can get really ugly with complex types.
+Compare the following
+typedef int (*FncType)(double, char); //FcnType hard to find
+using FcnType = int(*)(double, char); //FcnType easier to find
+
+Note that in the typedef version, the name of the new type is buried in the middle of the definition statement. In the alias, it's easier to tell that FcnType is being defined thanks to the equals sign.
+
+Also, typedef suggests that a new type is being defined, but that's not true.
+A typedef is just an alias.
+
+Best practice: Prefer aliases over typedefs.
+Note: The C++ standard uses the term "typedef names" both for typedef and type alias names.
+
+So why use aliases?
+One of the primary reasons is to hide platform-specific details.
+To make sure an aliased type resolves to a type of the correct size, type aliases are typically used in conjunction with preprocessor directives:
+    #ifdef INT_2_BYTES
+    using int8_t = char;
+    using int16_t = int;
+    using int32_t = long;
+    #else
+    using int8_t = char;
+    using int16_t = short;
+    using int32_t = int;
+    #endif
+On machines where integers are only 2 bytes, INT_2_BYTES can be defined (as a compiler/preprocessor setting) and the program will be compiled with the top set of type aliases.
+
+Fixed-width integer types (like std::int12_t) and the size_t type are actually just type aliases to various fundamental types.
+This is also why when you print an 8-bit fixed-width integer using std::cout, you're likely to get a character value.
+Because std::int8_t is typically a typedef for signed char, an int8_t will likely be defined as a signed char. And std::cout prints char types as their ASCII values rather than integer values.
+
+Type aliases simplify reading of complex types.
+Advanced C++ types can be complicated and lengthy to manully enter on your keyboard.
+This, for example, takes some staring at:
+    std::vector<std::pair<std::string, int>> pairlist;
+
+And having to type that everywhere is a giant pain.
+Much easier to use an alias:
+    using VectPairSI = std::vector<std::pair<std::string, int>>; // make VectPairSI an alias for this crazy type
+This is probably the best use for type aliases in our code.
+
+Type aliases can also document the meaning of a value.
+With variables, we have the identifier to help communicate the purpose of the variable. But consider return values. Data types describe what type of value a function returns, but we frequently want to know the meaning of a return value.
+e.g. 
+    using TestScore = int;
+    TestScore gradeTest();
+
+It probably wouldn't be worth it to create a type alias just for this one return type for a single function (just use a comment for that), but if you have multiple functions passing or returning such a type with similar meaning, then maybe make a type alias.
+
+Easier code maintenance
+Type aliases also allow you to change the underlying type of an object without having to update a ton of hard-coded types.
+Like if you use a short to hold something, but decide you want to use an int for everything in that context instead, you can just update the type alias to
+    using IdType = int;
+This seems nice, but keep in mind that when a type changes, the behavior of the program might change; this is even more true when you change the type family of the type alias, like floating point to int, or signed value to unsigned value.
+
+A downside is that aliases introduce yet another identifier into your code that needs to be understood. It can enhance readability, but can also harm it by just adding more.
+In some cases, obscuring type info can also be harmful to understanding how the type should be expected to work. Like if you alias smart pointers, for example.
+Type aliases should be used primarily in cases where there is a clear benefit to code readability or code maintenance.
+
+Best practice: Use type aliases judiciously, when they provide a clear benefit to code readability or code maintenance.
+
+Quiz
+1. Given the following:
+    int printData();
+
+Convert the int return type to a type alias named PrintError.
+Include both the type alias statement and the updated function prototype.
+
+........no need for a separate cpp file for this one.
+
+    using PrintError = int;
+    PrintError printData();
+

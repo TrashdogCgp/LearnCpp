@@ -1,0 +1,19 @@
+10_9
+Type deduction for functions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,74 @@
+10_8
+Type deduction fo objects using the auto keyword
+
+In cases where we want a variable and its initializer to have the same type, we're kind of redundantly providing the same information twice.
+Think about how the literal here is already a double:
+    double d{ 5.0 };
+
+Type deduction (also called type inference) is a feature that allows the compiler to deduce the type of an object from the object's initializer. To use type deduction, the auto keyword is used in place of the variable's type.
+
+    auto d{ 5.0 }; // 5.0 is a double literal, so d will be type double
+    auto i{ 1 + 2 }; // 1 + 2 evaluates to an int, so i will be type int
+    auto x { i }; // i is an int, so x will be type int too
+
+Auto can also be used for type deduction when a function call is our initializer:
+    auto sum { add(5, 6) }; // add() returns an int, so sum's type will be deduced to int
+
+Type deduction will not work for objects that have no initializer or an empty initializer.
+
+Although using type deduction for fundamental data types doesn't help too much, auto can save a lot of typing and typos in more complex cases.
+
+Note that the type deduction rules for pointers and references are a bit more complex. Those are covered in chapter 12.
+
+Type deduction drops const/constexpr qualifiers
+In most cases, type deduction drops the const or constexpr qualifier from deduced types.
+    const int x { 5 }; // x has type const int
+    auto y { x };      // y will be type int (const is dropped)
+
+If you want a deduced type to be const or constexpr, you have to supply the const or constexpr yourself.
+    const int x { 5 };  // x has type const int (compile-time const)
+    auto y { x };       // y will be type int (const is dropped)
+    constexpr auto z { x }; // z will be type constexpr int (constexpr is reapplied)
+
+For historical reasons, string literals in C++ have a strange type.
+Therefore, the following probably won't work as expected:
+    auto s{"Hello birb"};
+This will be of type const char*, not std::string.
+The s suffix for string literals (requires using namespace std::literals;) can make a std::string deduced from a string literal using auto.
+
+Type deduction benefits and downsides
+It's convenient! But there are upsides and downsides.
+First, if multiple variables are defined on sequential lines, they'll line up for better readability.
+Second, type deduction only works on variables with initializers, so it'll catch and help avoid unintentionally uninitialized variables.
+Third, you're guaranteed that there won't be unintended performance-impacting conversions.
+
+As for the downsides...
+Type deduction obscures an object's type info in the code.
+A good IDE should be able to show the deduced type anyway, but it's still easier to make type-based mistakes when using type deduction.
+e.g.
+    auto y { 5 }; // oops, we wanted a double here but we accidentally provided an int literal
+If we wanted a double above, we could've explicitly called it type double and it would've been converted (type conversion) to a double. But it'll be an int here, because it's type-deduced.
+
+Also, if the type of an initializer changes, the type of the variable using type deduction will also change, perhaps unexpectedly.
+
+Overall, the modern consensus is that type deduction is generally safe to use for objects. Doign so can help make your code more readable by de-emphasizing type info so the logic of code stands out better.
+
+Best practice: Use type deduction for variables, unless you need to commit to a specific type.
+
+Page author's note: we'll continue to use explicit types instead of type deduction when showing the type info is helpful to understanding a concept or example.
+
+Trashdog's note: Unless a bunch of very smart coders tell me not to, I'll prefer to not use type deduction a lot of the time because I legitimately think seeing types can make code easier to read and harder to screw up. We'll see if I change my opinion or get told to git gud skrub, but I've thought about this a lot in C# as well and think auto should be used more sparingly than the school of thought that says to use it wherever possible.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,7 @@
+Started the day by getting into chapter 10 on type conversions.
+So far, gone over type promotion (safe), type conversion (mostly safe), and narrowing conversions.
+
+The term "type safe" comes up in 10.7, but the meaning of the term isn't fully explained in this tutorial. I'm hoping it'll come up again before too long. Otherwise, I'll have to look up the topic in more detail outside of the context of this tutorial site.
+
+
+

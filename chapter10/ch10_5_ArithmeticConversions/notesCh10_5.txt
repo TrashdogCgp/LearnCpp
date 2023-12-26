@@ -1,0 +1,63 @@
+10_5
+Arithmetic conversions
+
+int x{2 + 3};
+Here, there are two operands for the + operator, both of type int.
+Since they're both of the same type, that type will perform the calculation and return the result.
+But what happens if the operands of a binary operator are of different types?
+
+When we define variables, we choose the type.
+In other cases, like when using the insertion operator << for std::cout, the type that a calculation evaluates to will change the behavior of the output.
+
+In C++, certain operators require operands of the same type.
+If operands are of different type, one of both of the operands will be implictly converted to matching types.
+The rules are called "usual arithmetic conversions".
+
+The following operators require their operands to be of the same type:
+
+The binary arithmetic operators: +, -, *, /, %
+The binary relational operators: <, >, <=, >=, ==, !=
+The binary bitwise arithmetic operators: &, ^, |
+The conditional operator ?: (excluding the condition, which is expected to be of type bool)
+
+Usual arithmetic conversion rules:
+The compiler has a prioritized list of types that looks something like this:
+long double (highest)
+double
+float
+unsigned long long
+long long
+unsigned long
+long
+unsigned int
+int (lowest)
+
+There are only two rules for this priority list.
+*If the type of at least one of the operands is on the priority list, the operand with lower priority is converted to that of the higher priority.
+*Otherwise (neither is on the list) both operands are numerically promoted.
+
+e.g.
+    int i{ 2 };
+    double d{ 3.5 };
+    std::cout << typeid(i + d).name() << ' ' << i + d << '\n'; // show us the type of i + d; it's double
+
+Note that the output of typeid.name() is left up to the compiler, so it might not just print "double" all nice and friendly like that.
+
+Another example: adding two shorts. Neither operand (short) is on the priority list.
+    short a{ 4 };
+    short b{ 5 };
+    std::cout << typeid(a + b).name() << ' ' << a + b << '\n'; // show us the type of a + b
+The operands undergo integral promotion to type int.
+The result of adding the two is thus an int.
+
+Signed and unsigned issues
+The prioritization hierarchy can cause issues when mixing signed and unsigned values.
+e.g.
+    std::cout << typeid(5u-10).name() << ' ' << 5u - 10 << '\n'; // 5u means treat 5 as an unsigned 
+This will print out underflow because the signed int will be converted to an unsigned int, due to unsigned int having higher priority.
+
+Also:
+    std::cout << (-3 < 5u); //outputs false
+Here, -3 is converted to uint to compare to unsigned 5, and this conversion results in a huge number.
+
+This is a good reason to avoid uints where possible. When you mix uints and signed ints in arithmetic, you're at risk for unexpected results. The compiler probably won't issue a warning over this, either.
