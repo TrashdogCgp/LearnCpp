@@ -1,0 +1,201 @@
+10_16
+Function template instantiation
+
+Function templates are not actually functions.
+The code isn't compiled or executed directly.
+Instead, function templates have one job--generating functions that are then compiled and executed.
+
+When we make a call to the templated function (syntax for a function called max: max<actual_type>(arg1,arg2);), we specify the type that will be used in place of template T.
+
+example:
+    template <typename T>
+    T max(T x, T y)
+    {
+        return (x < y) ? y : x;
+    }
+    //somewhere in main
+    std::cout << max<int>(1,3) <<'\n';
+
+The compiler will determine that a function definition for max<int>(int, int) does not already exist.
+The compiler will then use the max<T> function template to create one.
+
+The process of creating functions (with specific types) from function templates (with template types) is called function template instantiation (also just called instantiation for short).
+When function template instantiation happens due to a function call, it's called implicit instantiation.
+An instantiated function is often called an instance (function instance) or a template function.
+Function instances are normal functions in all regards.
+
+The process for instantiating a function is simple.
+The compiler clones the function template and replaces template type T with the actual type we specified (int).
+When we call max<int(1,2), the function that gets instantiated looks something like this:
+    template<> // ignore this for now
+    int max<int>(int x, int y) // the generated function max<int>(int, int)
+    {
+        return (x < y) ? y : x;
+    }
+
+After all the instantiations are done, this is what what the compiler actuall compiles:
+        #include <iostream>
+
+        // a declaration for our function template (we don't need the definition any more)
+        template <typename T>
+        T max(T x, T y);
+
+        template<>
+        int max<int>(int x, int y) // the generated function max<int>(int, int)
+        {
+            return (x < y) ? y : x;
+        }
+
+        int main()
+        {
+            std::cout << max<int>(1, 2) << '\n'; // instantiates and calls function max<int>(int, int)
+
+            return 0;
+        }
+
+A function template is only instantiated the first time a function call is made in a translation unit. Further calls to the function are routed to the already instantiated function.
+
+Conversely, if no function call is made to a function template, the function template won't be instantiated in that translation unit.
+
+Template argument deduction
+In most cases, the actual types we want to use for instantiation will match the type of our function parameters.
+In cases where the type of arguments match the actual type we want, we don't need to specify the actual type.
+We can instead use template argument deduction to have the compiler deduce the actual type that should be used from the argument types in the function call.
+e.g. instead of the prior max<int>(1,2) syntax, we can have a function call like this:
+    max(1,2);
+    or
+    max<>(1,2)
+
+In these cases, the compiler will see that we haven't provided an actual type. It will attempt to deduce an actual type from the function arguments and generate a max() function where all tempalte params match the provided arguments' types.
+In this example, the compiler will deduce that using max<T> with actual type int allows it to instantiate function max<int>(int, int), where the type of both template parameters (int) matches the type of the provided arguments (int).
+
+The difference between the two cases has to do with how the compiler resolves the functino call from a set of overloaded functions.
+In the bottom case (empty angled brackets), the compiler will only consider max<int> template function overloads when determining which overloaded function to call.
+In the top case (no angled brackets), the compiler will consider both max<int> template function overloads and max non-template function overloads.
+In other words, if we had a max(int,int) function defined without template types, then the compiler will consider both max<int>(int,int) and max(int, int).
+
+Note that the non-angled-bracket syntax just looks like a normal function call.
+In most cases, this normal function call syntax will be used to call functions instantiated from a function template.
+Why?
+    Syntax is more concise
+    It's rare that we'll have both a matching non-template function and a function template
+    If we have a matching non-template function and a matching function template, we will usually prefer the non-template function to be called anyway
+
+The last point (prefer non-template function) may not be obvious, but since a function template is generic and a non-template function only handles specific types, the implementation for the non-template type is likely more optimized or specialized for those specific types than the function template version would be.
+
+Best practice: Favor the normal function call syntax when making calls to a function instantiated from a function template (unless you need the function template version to be preferred over a matching non-template function)
+
+Function templates with non-template parameters
+It's possible to create function templates that have both template parameters and non-template parameters.
+The type template parameters can be matched to any type, and the non-template parameters work like normal function parameters.
+e.g.
+    template <typename T>
+    int someFcn (T, double)
+    {
+        return 5;
+    }
+
+This function template has a templated first parameter, but the second parameter is fixed with type double.
+Note that the return type can also be any type. In this case, our function will always return an int value.
+
+Instantiated functions may not always compile.
+For example:
+template <typename T>
+T addOne(T x)
+{
+    return x + 1;
+}
+//from main, let T be a string literal
+std::string generalKenobiPhrase {"Hello there!"}
+addOne(generalKenobiPhrase); //std::string + int is nonvalid operands
+
+The obvious solution, then, is to not call addOne() with an argument of type std::string.
+
+
+Instantiated functions may not always make sense semantically.
+The compiler will successfully compile an instantiated function template as long as it makes sense syntactically.
+However, the compiler doesn't check that functions make semantic sense.
+If we use the same addOne() template from above like so:
+std::cout << addOne("Hello there!");
+
+We end up getting a printout of:
+ello there!
+
+This is because of pointer arithmetic, but while the result can be explained, it's semantically invalid for the function template because we called addOne() on a c-string literal.
+
+It is the programmer's responsibility to make sure they're calling function templates with arguments that make sense.
+We could actually disallow certain arguments by using what's called function template specialization.
+This allows us to overload a function template for a specific set of template arguments.
+    e.g.
+    // Use function template specialization to tell the compiler that addOne(const char*) should emit a compilation error
+    template <>
+    const char* addOne(const char* x) = delete;
+
+Using function templates in multiple files
+Pretend we have the following two files:
+    main.cpp:
+        #include <iostream>
+
+        template <typename T>
+        T addOne(T x); // function template forward declaration
+
+        int main()
+        {
+            std::cout << addOne(1) << '\n';
+            std::cout << addOne(2.3) << '\n';
+
+            return 0;
+        }
+    add.cpp:
+        template <typename T>
+        T addOne(T x) // function template definition
+        {
+            return x + 1;
+        }
+
+Since addOne is a template, we get a linker error in this case.
+We call addOne<int> and addOne<double> in main.cpp, but since the compiler can't see the function template's definition, it can't instantiate those functions inside main.cpp.
+It does see the forward declaration for addOne, and will assume those functions exist somewhere else and will be linker in later.
+However, since there are no uses of addOne<int> or addOne<double> in add.cpp, the compiler won't instantiate these functions.
+The end result is that the linker can't connect the calls to addOne<int> and addOne<double> in main.cpp to the actual functions, because the functions were never instantiated.
+
+The most conventional way to address this issue is putting template code in a header file instead of a cpp file.
+This way, any files that need access to the template can #include the relevant header, and the template definition will be copied by the preprocessor into the source file; the compiler can then instantiate functions that are needed.
+This doesn't violate the ODR because types, templates, inline functions, and inline variables can have identical definitions in different files.
+So, no problem if the template definition is copied into multiple files, as long as the definitions are identical.
+
+What about the instantiated functions themselves, though?
+Wouldn't they violate the ODR?
+Well, functions implicitly instantiated from templates are implicitly inline.
+Inline functions can be defined in multiple files as long as those definitions are identical.
+
+Reinforcing:
+Template definitions are exempt from the part of the ODR that requires only one definition per program, so it isn't a problem to have the same template definition included into multiple source files.
+Functions implicitly instantiated from function templates are implicitly inline, so they can be defined in multiple files as long as the definitions are identical.
+The templates themselves are not inline, as the concept of inline only applies to variables and functions.
+
+Example of a function template being placed in a header file for inclusion in multiple source files:
+    #ifndef MAX_H
+    #define MAX_H
+    template <typename T>
+    T max(T x, T y)
+    {
+        return (x < y) ? y : x;
+    }
+    #endif
+
+Best practice: Templates that are needed in multiple files should be defined in a header file, and then included where needed. This allows the compiler to see the full template definition and instantiate the template when needed.
+
+Because template types can be replaced with any actual type, template types are sometimes called generic types.
+Because templates can be written agnostically of specific types, programming with templates is sometimes called generic programming.
+C++ typically has a strong focus on types and type checking, but generic programmin focuses on the logic of algorithms and the design of data structures without having to worry so much about type info.
+
+Conclusion block to the section:
+Once you're used to writing function templates, you'll find they don't really take longer to write than actual typed functions.
+Function templates have a few drawbacks.
+    First, the compiler will create a function for each function call with a unique set of argument types. They can thus expand into a lot of code, which can lead to code bloat and slow compile times.
+    The bigger downside of function templates is that they tend to produce crazy-looking error messages that are much harder to decipher than regular functions. These are straightforward to resolve once you understand what they're trying to tell you.
+
+These drawbacks are minor compared with the power and safety templates bring to programming, so use templates as desired. A good rule of thumb is to create normal functions at first, then convert them to templates when you need an overload for different parameter types.
+
+Best practice: Use function templates to write generic code that can work with a wide variety of types whenver you have the need.
