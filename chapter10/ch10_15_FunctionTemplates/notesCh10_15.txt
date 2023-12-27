@@ -1,0 +1,56 @@
+10_15
+Function templates
+
+Having to create overloaded function for each set of parameters is a maintenance headache, a recipe for errors, and a clear violation of DRY.
+You also have to think of every type a user might provide as an argument for a function. Normal functions just aren't up to that task, but there are templates for this kind of predicament.
+
+The template system was designed to simplify the process of creating functions (or classes) that can work with different data types.
+
+Instead of manually creating a bunch of mostly-identical functions or classes (one per set of types), we can create a single template. Just like a normal definition, a template describes what a function or class looks like. Unlike a normal definition, where all types must be specified, we can use one or more placeholder types.
+A placeholder type represents some type that is not known at the time the template is written.
+
+Once a template is defined, the compiler can use the template to generate overloaded functions (or classes) as needed, each using different actual types.
+
+The end result is the same-- we end up with mostly-identical functions or classes, but we only have to create and maintain a single template.
+The compiler can use a single template to generat a family of related functions or classes, each using a different set of types.
+
+Because the actual types aren't determined until the template is used in a program (not when the template is written), the author of the template doesn't have to anticipate which type will be used. This means the template code can even be used with types that don't exist when the template is written.
+This becomes handy with the C++ standard library.
+
+Function templates
+A function template is a function-like definition that is used to generate one or more overloaded functions, each with a different set of actual types. This allows us to create functions that work with many different types.
+
+When we create our function template, we use placeholder types (also called type template parameters, or informally template types) for any parameter types, return types, or types used in the function body that we want to be specified later.
+
+C++ supports 3 kinds of template parameters:
+    1. Type template parameters (where the template parameter represents a type)
+    2. Non-ype tempalte parameters (where the template parameter represents a constexpr value)
+    3. Template template parameters (where the template parameter represents a template)
+Of these, type template parameters are by far the most common. Non-type template parameters are covered with the chapter on arrays.
+
+Function templates are best taught by example, so.....
+example:
+    template <typename T>
+    T max(T x, T y)
+    { return (x < y) ? y : x; }
+
+To create a function template, we do two things.
+First, we replace our specific types with type template parameters.
+Second, we tell the compiler that this is a function template, and T is a type template parameter that is a placeholder for any type. 
+Template parameter declaration is how tell the compiler that T is a type template placeholder.
+
+In our template parameter declaration, we start with the keyword template, which tells the compiler we're creating a template.
+We specify all of the template parameters that our template will use inside angled brackets.
+For each type parameter, we use the keyword typename or class, followed by the name of the type template parameter (e.g. T)
+In this context, there's no difference between typename and class keywords.
+
+For function templates with multiple types, see ch10_17.
+
+Much like we often use a single letter for variable names in trivial situations, it's common to use a single capital letter when the meaning of a type is obvious or trival. Usually, we start with T.
+
+If a type template parameter has a non-obvious usage or meaning, then a more descriptive name is warranted. There are two common conventions for such names:
+    Start with a capital letter (e.g. Allocator). The standard library uses this naming convention.
+    Prefix with T, then start with a capital letter, e.g. TAllocator. This makes it easier to see that the type is a type template parameter.
+
+Best practice: Use a single capital letter starting with T (e.g. T, U, V) to name type template parameters that are used in trivial or obvious ways.
+If the type template parameter has a non-obvious usage or meaning, then a more descriptive name is warranted (Allocator or TAllocator).

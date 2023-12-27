@@ -1,0 +1,79 @@
+10_17
+Function templates with multiple template types
+
+This won't compile:
+    template <typename T>
+    T max(T x, T y)
+    {  return (x < y) ? y : x;  }
+
+    max(2, 3.5) ;
+
+This is because our function call passes arguments of two different types, one int and one double.
+Because we're making a function call without using angled brackets to specify an actual type, the compiler will first look to see if there is a non-template match for max(int, double). It won't find one.
+Next, the compiler will see if it can find a function template match (using template argument deduction). This will fail because T can only represent a single type. There's no type for T that would allow the compiler to instantiate function template max<T>(T, T) into a function with two different parameter types.
+In other words, because both parameters in the function template are of type T, they must resolve to the same actual type.
+
+Since no non-template match was found, and no template match was found, the function gives us a compile error.
+
+So why didn't the compiler generate max<double>(double, double) and then use numeric conversion to type convert the int argument to double?
+The answer is that type conversion is done only when resolving function overloads, not when performing template argument deduction.
+This lack of type conversion is actually intentional for at least two reasons.
+One, it keeps things simple. We find an exact match between function call arguments and template type parameters, or we don't.
+Second, it allows us to create function templates for cases where we want to ensure 2 or more params have the same type.
+
+We can solve this in a few ways.
+
+Use static_cast to convert the arguments to matching types
+The first solution is to make the caller convert the arguments into matching types.
+Converting the int to a double via static_cast will satisfy the function call.
+
+
+Provide an explicit type template argument
+If we had written a non-template max(double, double) funciton, we would be able to call max(int, double) and the implicit type conversion rules convert our int argument to a double.
+e.g.
+    // we've explicitly specified type double, so the compiler won't use template argument deduction
+    std::cout << max<double>(2, 3.5) << '\n';
+Since we explicitly state that T should be replaced with double, the compiler won't use template argument deduction. Instead, it will instantiate the function max<double>(double,double).
+Then it will type convert any mismatched arguments. The int parameter converts to a double.
+This is more readable than static_cast, but we can also just come up with another way that doesn't make us think about the types when calling max().
+
+Function templates with multiple template type parameters
+The root of our problem is that we only have type T.
+We can just add U!
+template <typename T, typename U> // We're using two template type parameters named T and U
+T max(T x, U y) // x can resolve to type T, and y can resolve to type U
+{    return (x < y) ? y : x; // uh oh, we have a narrowing conversion problem here}
+
+Since we have a narrowing conversion in the return statement, it's probably actually better to use the auto return type and let the compiler deduce what the return type should be from the return statement.
+Note that whether (int, double) or (double, int) is provided for T and U, either T or U is an int and returning type T or type U might try to return an int from a double (return statement will be of type double because double takes precedence over int). This will produce a warning due to a narrowing conversion when we convert the evaluate expression (a double) to the return type (an int)
+
+Revised:
+    template <typename T, typename U>
+    auto max(T x, U y)
+    {
+        return (x < y) ? y : x;
+    }
+
+Reinforcing: Each template type parameter will resolve its type independently.
+This means a template with two type parameters T and U could have T and U resolve to distinct types, or they could resolve to the same type.
+
+Abbreviated function templates
+C++ introduces a new use of the auto keyword; when the auto keyword is used as a parameter type in a normal function, the compiler will automatically convert the function into a function template with each parameter becoming an independent type parameter.
+This is called an abbreviated function template.
+For example, the following is shorthand for the next following:
+    auto max(auto x, auto y)
+    {
+        return (x < y) ? y : x;
+    }
+
+    template <typename T, typename U>
+    auto max(T x, U y)
+    {
+        return (x < y) ? y : x;
+    }
+
+In cases where you want each template type parameter to be an independent type, this form is preferred as the removal of the template parameter declaration line makes your code easier to read.
+
+There isn't a concise way when you want to force more than one auto parameter to be the same type.
+
+Best practice: Feel free to use abbreviated function templates with a single auto parameter, or where each auto parameter should be an independent type (and your language standard is set to C++20 or newer)

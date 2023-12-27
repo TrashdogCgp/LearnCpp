@@ -1,0 +1,57 @@
+10_4
+Narrowing conversions, list initialization, and constexpr initializers
+
+A narrowing conversion is a potentially unsafe numeric conversion where the destination type may not be able to hold all the values of the source type.
+
+The following conversions are defined to be narrowing:
+*Floating point to integral type
+*Floating point to a narrower or lesser ranked floating point type, unless the value being converted is constexpr and in range of the destination type (even if the destination type doesn't have precision for all the significant digits of the number)
+*From integral to floating point type, unless the value being converted is constexpr and whose value can be stored exactly in the destination type
+*From an integral type to another integral type that can't represent all values of the original type, unless the value being converted is constexpr and whose values can be stored exactly in the destination type. This covers both wider to narrower integral conversions, and integral sign conversions (signed to unsigned, or vice-versa).
+
+In most cases, implicit narrowing conversions will result in compiler warnings, with the exception of signed/unsigned conversions (which may or may not produce warnings, depending on how yor compiler is configured).
+Narrowing conversions should be avoided as much as possible because they're potentially unsafe, and thus a source of potential errors.
+
+Best practice: Avoid narrowing conversions whenever possible. They can be unsafe and are a source of errors.
+
+Narrowing conversions are not always avoidable, especially for function calls, where the function parameter and argument may have mismatched types and require a narrowing conversion.
+In these cases, it's a good idea to convert an implicit narrowing conversion into an explicit narrowing conversion using static_cast.
+Doing so helps document that the conversion is intentional, and will suppress compiler warnings/errors that would result.
+
+Best practice: If you need to perform a narrowing conversion, use static_cast to convert it into an explicit conversion.
+
+Brace initialization disallows narrowing conversions.
+e.g.
+    int i{3.3};//won't compile
+
+However, static_cast can do this just fine:
+    int i{static_case<int>(3.5)};
+
+Some constexpr conversions aren't considered narrowing.
+When the source value of narrowing conversions isn't known until runtime, the result of the conversion also can't be determined until runtime. In such cases, whether the narrowing conversion preserves the value or not also can't be determined until runtime.
+
+Notice that most of the narrowing conversion definitions have an exception clause to the tune of "unless the value being converted is constexpr"?
+For converting signed into unsigned integers, results may or may not be value-preserving, but it depends on the value of the signed int.
+When the source value of a narrowing conversion is constexpr, the specific value to be converted must be known to the compiler. In these cases, the compiler can perform the conversion itself and check whether the value is preserved. If it's not, the compiler can halt with an error. If the value is preserved, the conversion is not considered narrowing and the compiler can replace the entire conversion with the converted result, since it's safe to do so.
+e.g.
+    constexpr int n1{ 5 };   // note: constexpr
+    unsigned int u1 { n1 };  // okay: conversion is not narrowing due to exclusion clause
+    constexpr int n2 { -5 }; // note: constexpr
+    unsigned int u2 { n2 };  // compile error: conversion is narrowing due to value change
+
+Note that conversions from a floating point type to an integral type don't have a constexpr exclusion clause.
+These are always considered to be a narrowing conversion, even when the value to be converted is constexpr and fits in the range of the destination type.
+
+The constexpr exception clauses are useful when list initializing non-int/non-double objects, because we can use an int or double literal to initialize (or use a constexpr object).
+This lets us avoid suffixes and cluttering code with static_cast.
+
+Worth noting is that initializing a narrower or lesser ranked floating point type with a constexpr value is allowed as long as the value is in range of the destination.
+This holds true even if the destination type doesn't have precision to precisely store the value.
+Floating types are ranked in this order, greater to lesser:
+long double
+double
+float
+
+float f { 1.23456789 }; // not a narrowing conversion, even though precision lost!
+Compilers may still issue warnings in these cases, if you use the -Wconversion compile flag.
+

@@ -1,0 +1,156 @@
+10_12
+Function overload resolution and ambiguous matches
+
+Having a set of differentiated overloaded functions is only half of the picture of function overloads.
+We still have to go over how the compiler ensures that a matching function declaration can be found.
+
+Without overloads, a function has a unique name and there's only one function that can match a function call.
+That function either matches, or can be made to match after type conversions. Or, it doesn't match and the compiler blows up.
+With overloaded functions, there can be many functions that have potential to match a function call. Since you can only call one of them, though, the compiler has to determine a best match.
+Overload resolution is the process of matching function calls to specific overloaded functions.
+
+In simple cases where types of arguments match the parameters exactly, this is usually straightforward.
+
+But what about when the arguments don't exactly match the parameter types in any of the overloaded functions?
+e.g.
+    void print(int x)
+    {std::cout << x << '\n';}
+
+    void print(double d)
+    {std::cout << d << '\n';}
+
+    print('a');
+    print(5L);
+
+Just because there isn't an exact match doesn't mean there isn't a match at all. Char and long can both convert to int or double.
+So which one actually happens here?
+
+Resolving overloaded function calls
+When a function call is made to an overloaded function, the compiler steps through a sequence of rules to determine which (if any) is the best match.
+At each step, the compiler applies a bunch of different type conversions to the argument(s) in the function call. It checks if any of the overloaded functions are now a match, and after all the different conversions have been applied and checked for matches, the result is one of three possible outcomes:
+    1. No matching functions were found. The compiler moves to the next step in the sequence.
+    2. A single matching function was found, considered to be the best match. The matching process is complete, and subsequent steps aren't executed.
+    3. More than one matching function was found. The compiler will issue an ambiguous match compile error, which is a future topic.
+If the compiler reaches the entire sequence without finding a match, it will generate a compile error that no matching overloaded function could be found for the function call.
+
+Argument matching sequence
+    1. The compiler tries to find an exact match. This happens in two phases. First, the compiler will see if there is an overloaded function where the type of the arguments in the function call exactly matches the parameters in the overloaded functions.
+    If it immediately finds an exact match, the compiler settles on that.
+    Otherwise, the compiler will apply a number of trivial conversions to the arguments in the function call.
+    Trivial conversions are a set of specific conversion rules that will modify types without modifying values for purposes of finding a match. For example, a non-const type can be trivially converted to a const type, and non-reference types can be trivially converted to a reference type.
+    Matches made via trivial conversions are also considered exact matches.
+
+    2. If no exact match is found, the compiler tries to find a match by applying numeric promotion to the arguments.
+    Certain narrow integral and float types can be automatically promoted to wider types like int or double.
+    If a match is found after numeric promotion, then the function call is resolved.
+
+    3. If no match is found via numeric promotion, the compiler tries to apply numeric conversions.
+    For example, it might try converting a char argument to a double and seeking a matching function signature.
+    Note that matches made by numeric promotion take precedence over matches made by applying numeric conversions.
+
+    4. If no match is found via numeric conversion, the compiler tries to match via user-defined conversions. Certain types, like classes, can define conversions to other types that can be implicitly invoked.
+        e.g.
+        class X // this defines a new type called X
+        {
+        public:
+            operator int() { return 0; } // Here's a user-defined conversion from X to int
+        };
+        void print(int)
+        {}
+        void print(double)
+        {}
+        int main()
+        {
+            X x; // Here, we're creating an object of type X (named x)
+            print(x); // x is converted to type int using the user-defined conversion from X to int
+            return 0;
+        }
+    In this example, the compiler will get all the way through attempting numerical conversion for a match, which won't work.
+    The compiler looks for user-defined conversion from X to int, and the compiler will convert X to int to match the signature of print(int)
+    After applying user-defined conversion, the compiler may apply additional implicit promotions or conversions to find a match. If our user-defined conversion had been to type char instead of int, the compiler would've used te user-defined conversion to char, and then promoted that char to an int to match.
+    Note that the constructor of a class also acts as a user-defined conversion from other types to that class type. This can be used during this step to find matching functions.
+
+    5. If no match is found via user-defined conversion, the compiler will look for a matching function using ellipsis.
+    
+    6. If no matches have been found by this point, the compiler issues a compiler error about not being able to find a matching function.
+
+
+Ambiguous matches
+With non-overloaded functions, each function call with either resolve to a function, or no match will be found and the compiler will error.
+
+With overloaded functions, there's a third possibility: ambiguous match.
+An ambiguous match occurs when the compiler finds two or more functions that can be made to match in the same step. In this case, the compiler will stop matching and issue a compile error.
+Since every overloaded function must be differentiated in order to compile, you might wonder how this could happen.
+    example:
+    void print(int)
+    {    }
+    void print(double)
+    {    }
+    int main()
+    {
+        print(5L); // 5L is type long
+        return 0;
+    }
+
+    Since 5L is a long, the compiler will look for an exact match, and not find one.
+    It'll try numeric promotion, but long can't be promoted.
+    The compiler will try numeric conversion. Long can numerically convert to int or double, but since it finds two potential matches, the function call is considered ambiguous.
+
+If the compiler finds multiple matches in a given step, an ambiguous function call will result. No match from a given step is considered to be better than any other match from the same step.
+Another example case:
+    void print(unsigned int)
+    {   }
+    void print(float)
+    {   }
+    print(0); // int can be numerically converted to unsigned int or to float
+    print(3.14159); // double can be numerically converted to unsigned int or to float
+
+    int 0 can be numerically converted to either unsigned int or float, so either overload matches equally well.
+    double to float and double to unsigned int are also both numeric conversions, so the result is ambiguous here too.
+
+Resolving ambiguous matches
+Because ambiguous matches are a compile-time error, an ambiguous match needsd to be disambiguated before your program will compile.
+There are a few ways to resolve ambiguous matches:
+    1. New overloaded function that takes the exact type of parameters you provide as arguments.
+    2. Explicitly cast the ambiguous arguments to match the type of the function you want to call, e.g. in the above example,
+    print(static_cast<unsigned int>(x));
+    3. If your argument is a literal, use the literal suffix to ensure your literal is interpreted as the correct type.
+
+Matching for functions with multiple arguments
+If there are multiple arguments, the compiler applies the matching rules to each argument in turn.
+The function chosen is the one for which each argument matches at least as well as the other functions, with at least one argument matching better than all the other functions.
+Rephrased, the chosen function must provide a better match than all other candidate functions for at least one parameter, and no worse for all the other parameters.
+In such a case, it is the unambiguous best choice. Otherwise, the call is considered ambiguous, or a non-match.
+
+(copied verbatim from website in case the example helps on revisit:)
+#include <iostream>
+
+void print(char, int)
+{
+	std::cout << 'a' << '\n';
+}
+
+void print(char, double)
+{
+	std::cout << 'b' << '\n';
+}
+
+void print(char, float)
+{
+	std::cout << 'c' << '\n';
+}
+
+int main()
+{
+	print('x', 'a');
+
+	return 0;
+}
+In the above program, all functions match the first argument exactly. However, the top function matches the second parameter via promotion, whereas the other functions require a conversion. Therefore, print(char, int) is unambiguously the best match.
+
+
+
+
+
+
+

@@ -1,0 +1,43 @@
+10_10
+Introduction to function overloading
+
+Imagine having to write the following:
+    int addInteger(int x, int y)
+    {
+        return x + y;
+    }
+
+    double addDouble(double x, double y)
+    {
+        return x + y;
+    }
+This will get out of hand quickly.
+Function overloading allows us to create multiple functions with the samae name, as long as each identically named function has different parameter types (or the functions can be otherwise differentiated). Each function sharing a name in the same scope is called an overloaded function (overload for short).
+
+So what could've happened above was:
+    int add(int x, int y) // integer version
+    {
+        return x + y;
+    }
+
+    double add(double x, double y) // floating point version
+    {
+        return x + y;
+    }
+
+Key insight: Functions can be overloaded as long as the overloaded functions can be differentiated by the compiler. If an overloaded function can't be differentiated, a compile error will result.
+
+Operators can be overloaded in a similar manner. That's in chapter 21_1.
+
+Additionally, when a function call is made to a function that has been overloaded, the compiler will try to match the function call to the appropriate overload based on arguments in the function call.
+This is called overload resolution.
+
+For example, if we call add(1,2) and add(1.2,2.3), the former will try to match a signature of add(int,int) while the latter will try to match add(double,double).
+
+In order for a program using overloaded functions to compile, two things have to be true.
+    1. Each overloaded function has to be differentiated from the others (see function overload differentiation)
+    2. Each call to an overloaded function has to resolve to an overloaded function (see ambiguous matches)
+
+If an overloaded function is not differentiated, or if a function call to an overloaded function can't be resolved to an overloaded function, then a compile error results.
+
+Best practice: Use function overloading to make your program simpler.

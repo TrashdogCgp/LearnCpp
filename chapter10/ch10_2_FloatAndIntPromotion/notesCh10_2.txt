@@ -1,0 +1,65 @@
+10_2
+Floating-point and integral promotion
+
+We noted in chapter 4 that C++ has minimum size guarantees for each of the fundamental types.
+However, the actual size of these types can vary based on the computer and architecture.
+This variability was allowed so that int and double could be set to the size that maximizes performance on a given architecture. For example, a 32-bit computer will typically be able to process 32 bits of data at a time, so int of 32 bits would be the "natural" size of the data.
+
+So what happens with a 32 bit CPU modifying an 8-bit value (char, for example)?
+Some 32-bit processors can manipulate 8-bit or 16-bit values directly, but doing so is often slower than manipulating 32-bit values.
+Some other 32-bit CPUs can only operate on 32-bit values, and have to use additional tricks to manipulate narrower values.
+
+Numeric promotion
+Because C++ is designed to be portable and performant across a wide range of architectures, the language designers didn't want to assume a given CPU would be able to efficiently manipulate values narrower than the natural data size of that CPU.
+To address this challenge, C++ defines a category of type conversions called numeric promotions.
+
+A numeric promotion is the type conversion of certain narrower types (like char) to certain wider numeric types (typically int or double) that can be processed efficiently and are less likely to have a result that overflows.
+
+All numeric promotions are value-preserving.
+Value-preserving means that the converted value will always be equal to the source value, while having a different type.
+Since all values of the source type can be precisely represented in the destination type, value-preserving conversions are said to be "safe conversions".
+
+The compiler will not issue a warning for promotions, and will use promotions freely.
+
+Numeric promotion reduces redundancy
+An example is a function that prints something of type int; if type conversions didn't exist, we'd have to write a different print function for short. 
+Promotion comes to the rescue here because we can write functions that have int and/or double parameters, and the same code can be called with arguments of types that can be numerically promoted to match the types of the function parameters.
+
+Numeric promotion categories
+The numeric promotion rules are divided into two subcategories: Integral promotions and floating point promotions.
+Only the conversions listed in these categories are considered to be numeric promotions.
+
+Floating point promotions
+With floating point promotion, a value of float can be converted to a value of type double.
+A function that takes a double can be called using either a float or a double.
+
+Integral promotions are more complicated
+Integral promotion rules say the following conversions can be made:
+Signed char or signed short can convert to int
+Unsigned char, char8_t, and unsigned short can be converted to int if int can hold the entire range of the type, or to unsigned int otherwise.
+If char is signed by default, it follows the signed char conversion rules above. If it is unsigned by default, it follows the unsigned char conversion rules above.
+Bool can be converted to an int, with false becoming 0 and true becoming 1.
+
+Assuming 8 bit bytes and an int of 4 bytes or larger (both of which are typical these days), the above means that bool, char, signed char, unsigned char, signed short, and unsigned short all promote to int.
+
+Note that on architectures with 2 byte ints, it is possible for some unsigned integral types to be promoted to unsigned int rather than int.
+Also note that some narrower unsigned types (unsigned char, for example) may be promoted to larger signed types (such as int). While integral promotion is value-preserving, it doesn't necessarily preserve the signedness of the type.
+
+Not all widening conversions are numeric promotions.
+Some widening type conversions are instead considered numeric conversions. zThis is because such conversions don't assist in the goal of converting smaller types to larger types that can be processed more efficiently.
+In certain cases, the compiler will favor numeric promotion over numeric conversion. This makes a difference when we cover function overload resolution.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

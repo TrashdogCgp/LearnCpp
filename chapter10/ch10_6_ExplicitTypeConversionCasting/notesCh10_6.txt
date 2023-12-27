@@ -1,0 +1,93 @@
+10_6
+Explicit type conversion (casting) and static_cast
+
+We've talked about implicitly converting one data type to another via implicit type conversion.
+When you want to numerically promote a value from one data type to another, implicit type conversion is fine.
+
+Integer division of 10/4 yields 2; even when assigned to a double, the result of the division undergoes numeric conversion to double value of 2.0, not the intended 2.5
+Replacing one or both integer literals with a double literal will cause floating point division to happen instead.
+
+How do we get the compiler to use floating point division instead of integer division if we have two int variables?
+We need to convert one or both variables to a floating point types, so that floating point division is used instead.
+
+C++ has type casting operators (more commonly called casts) that can be used by the programmer to request that the compiler perform a type conversion.
+Since casts are explicit requests by the programmer, this form of type conversion is often called explicit type conversion (as opposed to automatic type conversion by the compiler, which we call implicit type conversion)
+
+C++ supports 5 different types of casts:
+C-style casts
+Static casts
+Const casts
+Dynamic casts
+Reinterpret casts
+
+The latter four are referred to as named casts. 
+This section will cover c-style casts and static casts.
+
+Const casts and reinterpret casts should generally be avoided because they're harmful if used incorrectly, and only useful in rare cases.
+Warning: Avoid const casts and reinterpret casts unless you have a good reason to use them.
+
+In standard C programming, casts are done via the () operator, with the name of the type to convert the value placed in the parentheses. You may still see these used in code converted from C, or just by C programmers.
+
+e.g.
+    double d{(double)5 / 2};
+
+C++ also allows c-style casts with a more function-call style of syntax
+e.g.
+    double d{double(5) / 2};
+
+This is identical to the prior example, but with the benefit of parenthesizing the value being converted (easier to tell what's being converted).
+
+While a c-style cast looks like a single cast, it can actually do a variety of conversions depending on context.
+This can include a static cast, a const cast, or a reinterpret cast.
+Remember that we're supposed to avoid the latter two.
+C-style casts, then, are at risk for being inadvertently misused and not producing expected behavior. This is avoidable by just using C++ casts instead.
+
+Also, because c-style casts are just a type name, parentheses, and a variable/value, they're harder to identify and search for.
+
+Best practice: Avoid using c-style casts
+
+More info on how c-style casts actually work:
+https://anteru.net/blog/2007/c-background-static-reinterpret-and-c-style-casts/
+
+C++ has 5 different casts
+*static_cast Least harmful, can downcast pointers
+*const_cast Removes the const modifier. If used incorrectly, this can blow up because the target might be really const and you get invalid access errors
+*dynamic_cast Safe down/cross-casting between classes, requires RTTI, something that is not often enabled at all
+*reinterpret_cast Casts anything that has the same size. Not really a cast anymore, but just a way to tell the compiler to throw away type info and treat data differently
+*C-style casting The worst, tries to do the following casts in this order:
+const_cast, static_cast, static_cast followed by const_cast, reinterpret_cast, reinterpret_cast followed by const_cast
+
+The rule of thumb should be to never use reinterpret_cast or c-style casting. If you need to cast pointers, cast them via void* and only if absolutely necessary, use reinterpret cast. That means, if you really have to reinterpret the data.
+Hard casts are really evil, says this site.
+More on this will likely come later......
+
+C++ introduces a casting operator called static_cast to convert a value of one type to a value of another type.
+static_cast takes an expression as an input and returns the evaluated value converted to the type specified in the angled brackets.
+static_cast is best used to convert between fundamental data types.
+
+static_cast is also intentionally less powerful than c-style casts, so you can't accidentally remove const or other things you didn't intend.
+
+Best practice: Favor static_cast when you need to convert a value from one type to another type.
+
+Compilers will often issue warnings when a potentially unsafe (narrowing) implicit type conversion is performed.
+To get around this, we can use a static cast to explicitly convert our integer to a char.
+When we do this, the compiler knows the conversion is intentional and that we accept responsibility for the consequences.
+
+Quiz
+1. What is the difference between implicit and explicit type conversion?
+Off the top of my head, a few differences.
+Explicit type conversion won't generate compiler warnings.
+Explicit type conversion is spelled out, and the programmer says verbatim that they want the data converted to a specified type.
+Implicit type conversion happens without the programmer requesting it when a provided type doesn't match an expected type, and follows a set of rules for numeric conversion and can generate compiler warnings if the conversion is narrowing and not a specific constexpr situation (no loss detected from constexpr).
+
+
+
+
+
+
+
+
+
+
+
+

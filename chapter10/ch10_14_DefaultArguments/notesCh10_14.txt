@@ -1,0 +1,63 @@
+10_14
+Default arguments
+
+A default argument is a default value provided for a function parameter.
+For example:
+    void print(int x, int y=10) // 10 is the default argument
+    {
+        std::cout << "x: " << x << '\n';
+        std::cout << "y: " << y << '\n';
+    }
+
+When making a function call, the caller can optionally provide an argument for any function parameter that has a default argument. If the caller provides an argument, the value of the argument in the function call is used. Otherwise, the value of the default argument is used.
+
+Default arguments are good when a function needs a reasonable default value with the option for the caller to override if desired.
+
+These are sometimes called optional parameters, although this term also refers to several other types of parameters (passed by address or using std::optional), so it's better to refer to these as default arguments rather than optional parameters.
+
+A function can have multiple parameters wthhdefault arguments.
+
+However, C++ does not support a syntax like print(,,3) to skip two default arguments and provide the third parameter with an argument in a function with multiple defaults.
+If a parameter is given a default argument, all subsequent parameters (to the right) must also be given default arguments.
+e.g. can't do this
+    void print(int x=10, int y); // not allowed
+
+If one or more parameter has a default argument, the leftmost parameter should be the one most likely to be explicitly set by the user.
+
+Default arguments cannot be redeclared.
+Once declared, a default argument cannot be redeclared in the same file.
+If you forward declare a function and have a function definition, the default argument can be declared in the forward declaration or the function definition, but not both.
+
+Best practice: If a function has a forward definition and a definition, declare the default argument in the forward declaration and not in the function definition. The forward declaration is more likely to be seen by other files.
+
+Functions with default arguments may be overloaded.
+Note that parameters with default values will differentiate a function overload.
+This can lead to ambiguous function calls; a default argument may make it ambiguous when a function tries to resolve from the default argument's value.
+Example:
+    void print(int x);
+    void print(int x, int y = 10);
+    void print(int x, double y = 20.5);
+    print(1, 2); // will resolve to print(int, int)
+    print(1, 2.5); // will resolve to print(int, double)
+    print(1); // ambiguous function call
+
+Default arguments allow are frequently used in C++, so expect it.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
