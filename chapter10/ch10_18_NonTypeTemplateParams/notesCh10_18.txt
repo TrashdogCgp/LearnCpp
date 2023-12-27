@@ -1,0 +1,80 @@
+10_18
+Non-type template parameters
+
+We went over function templates that use type template parameters. A type template parameter serves as a placeholder for an actual type that is passed in as a template argument.
+
+Type template parameters are the most common type of template parameter used, but there's another kind of template parameter worth knowing about: the non-type template parameter.
+
+A non-type template parameter is a template parameter with a fixed type that serves as a placeholder for a constexpr value passed in as a template argument.
+
+A non-type template parameter can be any of the following types:
+    An integral type
+    An enumeration type
+    std::nullptr_t
+    A floating point type (since C++20)
+    A pointer or reference to an object
+    A pointer or reference to a function
+    A pointer or reference to a member function
+    A literal class type (since C++20)
+
+Defining our own non-type template parameters
+Below is a simple example of a function that uses an int non-type template parameter:
+    #include <iostream>
+
+    template <int N> // declare a non-type template parameter of type int named N
+    void print()
+    { std::cout << N << '\n'; // use value of N here }
+
+    int main()
+    {
+        print<5>(); // 5 is our non-type template argument
+        return 0;
+    }
+This prints 5.
+
+Much like T is usually used as the name for the first type template parameter, N is commonly used as the conventional non-type template parameter.
+
+Best practice: Use N as the name of an int non-type template parameter.
+
+Why use these?
+As of C++20, function parameters cannot be constexpr. This is true for normal functions, constexpr functions, and even consteval functions, which might be surprising.
+
+If we want to static_assert that a function isn't receiving a certain kind of value, we need a constant expression, and function parameters can't be constexpr.
+If we change the function parameter to a non-type template parameter instead, though, we can static_assert just fine.
+This allows us to catch errors at compile time rather than runtime.
+
+Non-type template parameters are primarily used when we need to pass constexpr values to functions (or class types) so they can be used in contexts that require a constant expression.
+
+Having to use a non-type template parameter to get around the restriction that function parameters can't be constexpr isn't great. There are proposals to help with this situation, so expect an alternative solution to this in a future C++ language standard.
+
+Implicit conversions for non-type template arguments
+Certain non-type template arguments can be implicitly converted in order to match a non-type template parameter of a different type.
+For example:
+    template <int N>
+    void print(){}
+    print<'c'>();//'c' converted to type int, prints 99
+
+'c' is converted to an int here to match the non-type template parameter of the print() function template, which prints the value as an int (99).
+
+In this context, only certain types of constexpr conversions are allowed.
+The most common allowed types of conversions include:
+    Integral promotions (eg char to int)
+    Integral conversions (eg char to long or int to char)
+    User-defined conversions (eg some program-defined class to int)
+    Lvalue to rvalue conversions (eg some variable x to the value of x)
+
+Note that this is less permissive than the implicit conversions allowed for list initialization. For example, you can list initialize a variable of type double using constexpr int.
+A constexpr int non-type template argument will not convert to a double non-type template parameter.
+
+There's a full list of allowed conversions under "converted constant expression", which I guess is a section on the site?
+
+Unlike with normal functions, the algorithm for matching function template calls to function template definitions is not sophisticated, and certain matches are not prioritized over others based on the type of conversion required (or lack thereof).
+If a function template is overloaded for different kinds of non-type template parameters, it can easily result in an ambiguous match.
+
+Type deduction for non-type template parameters using auto
+As of C++17, non-type template parameters may use auto to have the compiler deduce the non-type template parameter from the template argument.
+e.g.
+    template <auto N> // deduce non-type template parameter from template argument
+    void print() {}
+    print<5>();   // N deduced as int `5`
+    print<'c'>(); // N deduced as char `c`
