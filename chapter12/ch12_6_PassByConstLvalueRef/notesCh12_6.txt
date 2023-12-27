@@ -1,0 +1,106 @@
+12_6
+Pass by const lvalue reference
+
+Unlike a reference to non-const, which can only bind to modifiable lvalues, a reference to const can bind to modifiable lvalues, non-modifiable lvalues, and rvalues.
+If we make a reference parameter const, it can bind to any type of argument.
+
+Passing by const reference offers the same primary benefit of passing by reference (avoid copying arguments) while also guaranteeing that the function will not change the value being referenced.
+This is a big motivation for being able to bind const lvalue references to rvalues; without this ability, there would be no way to pass literals or other rvalues to functions that use pass by reference.
+
+Best practice: Favor passing by const reference over passing by non-const reference unless you have a specific reason to do otherwise (e.g. function needs to change the value of the argument)
+
+Mixing pass by value and pass by reference
+
+We can pass multiple parameters in and individually determine which parameter is passed by value or passed by reference.
+e.g.
+    void foo(int a, int& b, const std::string& c)
+    {
+    }
+
+Because class types can be expensive to copy, class types are usually passed by const reference instead of passed by value to avoid making an expensive copy of the argument.
+
+Best practice:
+As a rule of thumb, pass fundamental types by value, and class/struct types by const reference.
+Pass std::string_view and enumerated types by value.
+Pass std::string, std::array, and std::vector by const reference.
+
+The cost of pass by value vs pass by reference
+Not all class types need to be passed by reference. Why not pass everything by reference?
+Well, there are two key points concerning passing by value vs passing by reference:
+
+    First, the cost of copying an object is generally proportional to two things.
+        1. Size of the object; a wider object takes more time to copy.
+        2. Any additional setup costs, like some class types doing additional setup when they are instantiated, like opening a file or database, or allocating a certain amount of dynamic memory to hold an object of a variable size. These setup costs must be paid each time an object is copied.
+    On the other hand, binding a reference to an object is always fast, about the same speed as copying a fundamental type.
+
+    Second, accessing an object by reference is slightly more expensive than accessing an object through a normal variable identifier. With a variable identifier, the program goes to the memory address for the variable and directly accesses the value.
+    With a reference, the program must first access the reference to determine the object being referenced, then go to that memory address. This is an extra step.
+    The compiler can also optimize code for pass by value more highly than for pass by reference; code generated to access objects passed by reference is typically slower than the pass by value equivalent.
+
+So why not pass everything by reference?
+For objects that are cheap to copy, the cost of copying is similar to the cost of binding. For this case, we favor pass by value so the code generated will be faster.
+For objects that are expensive to copy, the cost of the copy exceeds the benefits of pass by value optimization, so we favor pass by (const) reference to avoid making a copy.
+
+Best practice:
+Prefer pass by value for objects that are cheap to copy, and pass by const reference for objects that are expensive to copy.
+If in doubt about whether an object is cheap or expensive to copy, favor pass by const reference.
+
+There's no real great definition for "cheap to copy". A rule of thumb is that an object is cheap to copy if it uses 2 or fewer "words" of memory, where a word is approximated by the size of a memory address, and has no setup costs.
+
+Note the following program, because its use of a preprocessor function-like macro allows us to provide either an object or a type name as a parameter. Normal functions don't allow this.
+    #include <iostream>
+    // Function-like macro that evaluates to true if the type (or object) is equal to or smaller than
+    // the size of two memory addresses
+    #define isSmall(T) (sizeof(T) <= 2 * sizeof(void*))
+    struct S
+    {
+        double a;
+        double b;
+        double c;
+    };
+    int main()
+    {
+        std::cout << std::boolalpha; // print true or false rather than 1 or 0
+        std::cout << isSmall(int) << '\n'; // true
+        std::cout << isSmall(double) << '\n'; // true
+        std::cout << isSmall(S) << '\n'; // false
+        return 0;
+    }
+
+It's hard to know whether a class type has setup costs or not. It's better to assume that most standard library classes have setup costs, unless you know that they don't.
+
+For function parameters, prefer std::string_view over const std::string& in most cases.
+std::string_view is the better choice because it can handle a wider range of argument types efficiently.
+
+There are a few cases where const std::string& may be more appropriate.
+Prior to C++14, std::string_view isn't available.
+If your function needs to call some other function that takes a c-string or std::string parameter, then const std::string& may be a better choice; std::string_view is not guaranteed to be null-terminated (c-style string functions expect null termination), and does not efficiently convert back to a std::string.
+
+Best practice: Prefer passing strings using std::string_view (by value) instead of const std::string&, unless your function calls other functions that require c-style strings or std::string parameters.
+
+Why std::string_view parameters are more efficient than const std::string&
+In C++, a string argument will typically be a std::string, a std::string_view, or a c-style string or string literal.
+Reminders:
+    If the type of an argument doesn't match the corresponding parameter, the compiler will try to implicitly convert the argument to match the parameter
+    Converting a value creates a temporary object of the converted type
+    Creating or copying std::string_view is inexpensive, since string_view doesn't make a copy of the string it's viewing
+    Creating or copying std::string can be expensive, since each std::string object makes a copy of the string.
+
+Table copy/pasted from lecture:
+Argument type               std::string_view parameter      const std::string& parameter
+std::string	                Inexpensive conversion	        Inexpensive reference binding
+std::string_view	        Inexpensive copy	            Requires expensive explicit conversion to std::string
+C-style string / literal	Inexpensive conversion	        Expensive conversion
+
+With a std::string_view value parameter:
+    If we pass in a std::string argument, the compiler will convert the std::string to a std::string view, which is inexpensive, so this is fine.
+    If we pass in a std::string_view argument, the compiler will copy the argument into the parameter, which is inexpensive, so this is fine.
+    If we pass in a c-string or string literal, the compiler will convert these to std::string_view, which is inexpensive, so this is fine.
+
+With a const std::string& parameter, there's a difference in two cases:
+    If we pass in a string_view, the compiler will compile error because it won't implicitly convert std::string_view to std::string. We can use static_cast to make a std::string, but that's an expensive conversion that copies the string being viewed.
+    If we pass in a c-style string or string literal, the compiler will implicitly convert this to a std::string, which is expensive. This also isn't great.
+
+So a const std::string& parameter only handles a std::string argument efficiently, because the parameter will reference bind to the argument in that case.
+
+Another minor point in favor of string_view here is that the std::string reference also requires an additional step to get to the reference object before accessing it.

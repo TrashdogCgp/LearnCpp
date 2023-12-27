@@ -1,0 +1,81 @@
+12_4
+Lvalue references to const
+
+We discussed how the following is illegal because it would allow modification of x, which is a constant variable:
+    const int x { 5 }; // x is a non-modifiable (const) lvalue
+    int& ref { x }; // error: ref can not bind to non-modifiable lvalue
+
+So what do we do if we want to create a reference to a const variable?
+A normal lvalue refence won't do.
+
+By using the const keyword when declaring an lvalue reference, we tell an lvalue reference to treat the object it is referencing as const.
+Such a reference is called an lvalue reference to a const value.
+Since that's wordy, try reference to const.
+Expect "const reference" to also be interpreted as such.
+
+Lvalue references to const can bind to non-modifiable lvalues.
+
+Because lvalue references to const treat the object as const, they can be used to access, but not to modify, the value being referenced.
+
+Lvalue references to const can also bind to modifiable lvalues.
+In such a case, the object being referenced is treated as const when accessed through the reference.
+This can remain the case even though the underlying object is non-const.
+
+Best practice: Favor lvalue references to const over lvalue references to non-const unless you need to modify the object being referenced.
+
+Initializing an lvalue reference to const with an rvalue.
+
+Perhaps surprisingly, lvalue references to const can bind to rvalues.
+When this happens, a temporary object is created and initialized with the rvalue, and the reference to const is bound to that temporary object.
+
+A temporary object (also called anonymous object) is an object that is created for temporary use (and then destroyed) within a single expression.
+A temporary object has no scope at all (scope is a property of an identifier, and temporary objects have no identifier). Thus, a temporary object can only be used directly where it was created, since there's no way to refer to it after that point.
+
+However, a const ref bound to a temporary object extends the lifetime of the temporary object.
+Temporary objects are normally destroyed at the end of the expression in which they're created, but since that would make a reference to an rvalue into a dangling reference, that's kind of a silly way for C++ to work.
+C++ has a special rule that when a const lvalue reference is directly bound to a temporary object, the lifetime of the temporary object is extended to match the lifetime of the reference.
+e.g.
+    const int& ref { 5 }; // The temporary object holding value 5 has its lifetime extended to match ref
+    std::cout << ref << '\n'; // Therefore, we can safely use it here
+
+The temporary object here remains in scope until ref goes out of scope at the end of the block in which it is defined.
+
+Reinforce:
+Lvalue references can only bind to modifiable lvalues
+Lvalue references to const can bind to modifiable lvalues, non-modifiable lvalues, and rvalues, which makes them a much more flexible type of reference.
+
+Lifetime extension only works when a const reference is directly bound to a temporary. Temporaries returned from a function, even if returned by const reference, are not eligible for lifetime extension.
+
+Constexpr lvalue references
+When applied to a reference, constexpr allows the reference to be used in a constant expression.
+Constexpr references have a particular limitation; they can only be bound to objects with static duration (globals or static locals).
+This is because the compiler knows where static objects will be instantiated in memory, and it can treat that address as a compile-time constant.
+
+A constexpr reference cannot bind to a non-static local variable. This is because local variable addresses are not known until the function they're defined in is called.
+e.g.
+
+    int g_x { 5 };
+    int main()
+    {
+        [[maybe_unused]] constexpr int& ref1 { g_x }; // ok, can bind to global
+
+        static int s_x { 6 };
+        [[maybe_unused]] constexpr int& ref2 { s_x }; // ok, can bind to static local
+
+        int x { 6 };
+        [[maybe_unused]] constexpr int& ref3 { x }; // compile error: can't bind to non-static object
+
+        return 0;
+    }
+
+When defining a constexpr reference to a const variable, we need to apply both constexpr (which applies to the reference) and const (which applies to the type being referenced).
+
+    int main()
+    {
+        static const int s_x { 6 }; // a const int
+        [[maybe_unused]] constexpr const int& ref2 { s_x }; // needs both constexpr and const
+
+        return 0;
+    }
+Given these limitations, constexpr references typically don't see much use.
+

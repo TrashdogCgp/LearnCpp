@@ -1,0 +1,87 @@
+12_2
+Value categories (lvalues and rvalues)
+
+Before getting into lvalue references, we'll talk about what an lvalue is.
+An expression is a combination of literals, variables, operators, and function calls that can be executed to produce a singular value.
+
+Besides producing values and side effects, expressions can do one more thing: They can evaluate to objects or functions.
+
+Properties of an expression
+All C++ expressions have two properties: a type and a value category.
+
+The type of an expression is equivalent to the type of the value, object, or function that results from the evaluated expression.
+
+Note that the type of an expression must be determinable at compile time (otherwise type checking and type deduction wouldn't work).
+The value of an expression, though, may be determined at compile time (if the expression is constexpr) or runtime (if the expression is not constexpr).
+
+Value category for an expression (or subexpression) indicates whether an expression resolves to a value, function, or object of some kind.
+Prior to C++11, there were only two possible value categories: lvalue and rvalue.
+
+In C++11, three additional categories were added to support move semantics:
+glvalue, prvalue, and xvalue
+
+For simplicity, we'll stick to lvalue and rvalue for now, and cover the other three in a future chapter.
+
+An lvalue is an expression that evaluates to an identifiable object or function.
+The term "identity" is used by the C++ standard, but is not well defined.
+An entity (such as an object or function) that has an identity can be differentated from other similar entities (typically by comparing the address of the entity).
+Entities with identities can be accessed via:
+reference, pointer, or identifier.
+Entities with identities typically have a lifetime longer than a single expression or statement.
+
+    int x { 5 };
+    int y { x }; // x is an lvalue expression
+
+On the second line, x is an lvalue expression because it evaluates to the variable x, which has an identifier.
+
+Since the introduction of constants into the language, lvalues come in two subtypes.
+A modifiable lvalue is an lvalue whose value can be modified.
+A non-modifiable lvalue is an lvalue whose value can't be modified (because the vlalue is const or constexpr).
+
+An rvalue is an expression that is not an lvalue.
+Rvalue expressions evaluate to a valu, whereas lvalues evaluate to an identifiable object or function.
+
+Commonly seen rvalues include literals (except for c-string literals, which are lvalues) and the return value of functions and operators that return by value.
+Rvalues aren't idenfifiable, meaning they have to be used immediately, and they only exist within the scope of the expression in which they are used.
+
+Reinforce:
+Lvalue expressions evaluate to an identifiable object.
+Rvalue expressions evaluate to a value.
+
+As for why x=5 is valid and 5=x is not: an assignment operation requires the left operand of the assignment to be a modifiable lvalue expression. The right operand for assigment has to be an rvalue expression.
+A full list of lvalue and rvalue expressions can be found here:
+https://en.cppreference.com/w/cpp/language/value_category
+In C++11, rvalues are broken into prvalues and xvalues, so the rvalues discussed here are the sum of both of those categories.
+
+If you're not sure whether an expression is an lvalue or an rvalue, try taking its address using the & operator. If it compiles, the expression must be an lvalue.
+e.g.
+    int x{5};
+    &x; //compiles because x is an lvalue expression
+    &5; //doesn't compile because 5 is an rvalue expression
+
+A c-style string literal is an lvalue because c-style strings decay to a pointer. They're actually just c-style arrays.
+The dcay process only works if the array is an lvalue and thus has an address to store in the pointer.
+C++ inherited this for backward compatibility.
+We cover c-style array decay in chapter 17
+
+Lvalue to rvalue conversion
+If x is an lvalue expression, then why is the following valid?
+    int x{5};
+    int y{x};
+
+As it turns out, lvalue expressions will implicitly convert to rvalue expressions in contexts where an rvalue is expected, but an lvalue is provided.
+Since the initializer above expected an rvalue expression, the lvalue expression undergoes an lvalue-to-rvalue conversion. This evaluates to value 5, which is used to initialize y.
+
+The assignment operator also expects the right operand to be an rvalue expression, but code like this works:
+    int x{1};
+    int y{2};
+    y=x;
+This is because x undergoes lvalue-to-rvalue conversion, which evaluates to the value of x, which is just 2. This is assigned to y.
+
+Here, x+1 would be an rvalue expression evaluating to the sum of 1 and whatever value x has.
+But on the left side of an assignment operator, x would be an lvalue expression entirely.
+e.g.
+    x = x + 1;
+x here is used in two different contexts; one evaluates to an rvalue expression, which the other (left side of the assignment operator) is an lvalue expression that evaluates to variable x.
+
+So... now we've covered groundwork material for lvalue references.
