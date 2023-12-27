@@ -1,0 +1,262 @@
+10_x
+quiz/review
+
+Because the chapter is so freaking long and covered so much ground, I'm going to do a somewhat unusual thing and actually type out notes and questions for myself rather than just reading the quick recap and moving on to tackle the quiz.
+
+Implicit type conversion (aka automatic type conversion, aka coercion) is performed when one data type is expected, but a different type is supplied. If the compiler can figure out how to convert between the two types, it will. Otherwise, it will fail with a compile error.
+
+Standard conversions- Numeric promotions, numeric conversions, and arithmetic conversion.
+These are defined between fundamental types, along with a few conversions for more advanced types.
+
+Numeric promotion- Conversion of certain smaller numeric types to larger numeric types (typically int or double) so the CPU can operate on data that matches the processor's natural size.
+Numeric promotions are value-preserving; there's no loss of value or precision. Numeric promotions include both integral and floating-point conversions.
+Not all widening conversions are promotions.
+Also, while numeric promotion is value-preserving, it does not necessarily preserve the signedness of the type. 
+unsigned char, char8_t, and unsigned short can convert to int if int can hold the entire range of the type, or convert to unsigned int otherwise.
+So... is int to long not considered a numeric promotion? I think it doesn't count iirc.
+
+Numeric conversions
+A numeric conversion is a type conversion between fundamental types that isn't a numeric promotion.
+A narrowing conversion is a numeric conversion that may result in lost value or precision.
+In C++, certain binary operators require that their operands be of the same type. If operands of different types are provided, one or both of the operands will be converted via a set of rules.
+Usual arithmetic conversions are the set of rules for implicitly converting operands.
+
+Explicit type conversion performs casting.
+A cast represents a request by the programmer to convert types explicitly.
+C-style casts, static casts, const casts, dynamic casts, and reinterpret casts are available.
+Avoid c-style casts, const casts, and reinterpret casts.
+static_cast is used to convert a value from one type to another, and is the most used cast in C++.
+
+Typedef and type aliases allow creation of an alias for a data type. This doesn't create a new type; these act identically to the aliased type.
+They don't provide type safety, so care must be taken to ensure the alias is not assumed to be different than its aliased type.
+
+The auto keyword has a number of uses. It can be used for type deduction (also called type inference), which deduces a variable's type from its initializer.
+Type deduction drops out consts and references.
+Auto can also be used as a function return type.
+Auto is used as part of the trailing return syntax.
+
+Function overloading allows us to create multiple functions with the same name, as long as each identically named function has a different set of parameter types. Return types are not considered for differentiation between overloaded functions.
+
+Overload resolution is the compiler's attempt to match the a function call to its appropriate overload based on the arguments in the function call. The compiler attempts this when an exact match isn't found, and favors numeric promotions over numeric conversions.
+
+An ambiguous match occurs when the compiler can't determine between two or more functions that can match a function call to an overloaded function.
+
+A default argument is a dfaut value provided for a function parameter. Parameters with default arguments must always be the rightmost parameters, and they are not used to differentiate functions when resolving overloaded functions.
+
+Function templates allow us to create a function-like definition that serves as a pattern for creating related functions. In a function template, we use type template parameters as placeholders for any types we want to be specified later.
+A template parameter declaration is the syntax that declares template types and tells the compiler we're defining a template. 
+
+Creating functions with specific types from function templates (which have template types) is called function template instantiation.
+When this happens due to a function call, it's called implicit instantiation.
+An instantiated function is called a function instance, sometimes also called a template function.
+
+Template argument deduction allows the compiler to deduce the actual type that should be used to instantiate a function from the arguments of the function call. Template argument deduction does not do type conversion.
+
+Template types are sometimes called generic types, and this approach is called generic programming.
+
+In C++20, using auto for parameters in a normal function makes the function into a function template. This method is called an abbreviated function template.
+
+A non-type template parameter is a template parameter with a fixed type that serves as a placeholder for a constexpr value passed in as a template argument.
+
+
+1. What type of conversion happens in each of the following cases?
+No conversion, numeric promotion, numeric conversion, or won't compile due to narrowing conversion.
+
+    int a { 5 }; // 1a
+    int b { 'a' }; // 1b
+    int c { 5.4 }; // 1c
+    int d { true }; // 1d
+    int e { static_cast<int>(5.4) }; // 1e
+
+    double f { 5.0f }; // 1f
+    double g { 5 }; // 1g
+
+    // Extra credit section
+    long h { 5 }; // 1h
+
+    float i { f }; // 1i (uses previously defined variable f)
+    float j { 5.0 }; // 1j
+
+a. No conversion needed
+b. Numeric promotion from char to int
+c. Won't compile due to narrowing conversion
+d. Numeric promotion from bool to int
+e. Does this count as numeric conversion from double to int? Or are we referring to the initializer?
+static_cast does numeric conversion, but the result of static_cast is just an int, so no conversion takes place in the initializer.
+Answer: Numeric conversion from double to int.
+f. Numeric promotion from float to double
+g. Numeric conversion from int to double
+h. Numeric conversion from int to long, still rubs me the wrong way that this isn't just promotion.
+i. Won't compile due to narrowing conversion; using a double to initialize a float is a narrowing conversion.
+j. Narrowing conversion again, but this one actually will compile as a numeric conversion.
+This is allowed because 5.0 is a constexpr that fits in the range of the float.
+
+
+2. Upgrade the following program using type aliases:
+    #include <iostream>
+    namespace constants
+    {
+        inline constexpr double pi { 3.14159 };
+    }
+
+    double convertToRadians(double degrees)
+    {
+        return degrees * constants::pi / 180;
+    }
+
+    int main()
+    {
+        std::cout << "Enter a number of degrees: ";
+        double degrees{};
+        std::cin >> degrees;
+
+        double radians { convertToRadians(degrees) };
+        std::cout << degrees << " degrees is " << radians << " radians.\n";
+
+        return 0;
+    }
+See ch10_x_2.cpp
+My solution differs a bit because I put the type aliases in a namespace.
+
+2b. Given the degrees/radians definitions, why will/won't the following compile?
+radians = degrees;
+    This WILL compile because aliases don't provide type safety. Both of these are considered to be of type double.
+
+3.
+a) What is the output of this program and why?
+
+    #include <iostream>
+    void print(int x)
+    {
+        std::cout << "int " << x << '\n';
+    }
+    void print(double x)
+    {
+        std::cout << "double " << x << '\n';
+    }
+    int main()
+    {
+        short s { 5 };
+        print(s);
+        return 0;
+    }
+
+Because of numeric promotion, print(int) will be matched as the correct overload of print() when providing a short argument.
+Output:
+int 5 
+
+b) Why don't the following compile?
+    #include <iostream>
+    void print()
+    {
+        std::cout << "void\n";
+    }
+    void print(int x=0)
+    {
+        std::cout << "int " << x << '\n';
+    }
+    void print(double x)
+    {
+        std::cout << "double " << x << '\n';
+    }
+    int main()
+    {
+        print(5.0f);
+        print();
+        return 0;
+    }
+
+The second call to print() with no argument provided will give a compiler error for ambiguity.
+Overload resolution won't work out because the compiler can't tell whether print() means to call print(int) with a default argument of x=0, or if it means to call print() without any argument.
+
+3c) Why won't the following compile?
+    #include <iostream>
+    void print(long x)
+    {
+        std::cout << "long " << x << '\n';
+    }
+    void print(double x)
+    {
+        std::cout << "double " << x << '\n';
+    }
+    int main()
+    {
+        print(5);
+        return 0;
+    }
+Both int to long and int to double are considered type conversion, not type promotion.
+Overload resolution will see them as equally matching and will not decide on a best match between the overloads.
+
+4. What is the output of this program and why?
+    #include <iostream>
+    template <typename T>
+    int count(T) // This is the same as int count(T x), except we're not giving the parameter a name since we don't use the parameter
+    {
+        static int c { 0 };
+        return ++c;
+    }
+    int main()
+    {
+        std::cout << count(1) << '\n';
+        std::cout << count(1) << '\n';
+        std::cout << count(2.3) << '\n';
+        std::cout << count<double>(1) << '\n';
+        return 0;
+    }
+Oh boy. Let's see if this explanation comes out in English.
+First two calls will have a function generated, count<int>(int). This comes with its own static int c, initialized to 0.
+The third function call causes another function to be instantiated, count<double>(double), with its own static int c, distinct from the static int c corresponding to the count(int) function.
+These functions will count/increment their static int c variables separately.
+    The output is:
+    1
+    2
+    1
+    2
+
+
+5.
+    5a) Write a function template named add that allows the users to add 2 values of the same type. The following program should run:
+
+        #include <iostream>
+
+        // write your add function template here
+
+        int main()
+        {
+            std::cout << add(2, 3) << '\n';
+            std::cout << add(1.2, 3.4) << '\n';
+
+            return 0;
+        }
+see ch10_x_5a.cpp
+
+    5b. Write a function template named mult that allows the user to multiply one value of any type (first parameter) and an integer (second parameter). The function should return the same type as the first parameter. The following program should run:
+
+        #include <iostream>
+
+        // write your mult function template here
+
+        int main()
+        {
+            std::cout << mult(2, 3) << '\n';
+            std::cout << mult(1.2, 3) << '\n';
+
+            return 0;
+        }
+see ch10_x_5b.cpp   
+
+
+    5c) Write a function template named sub that allows the user to subtract two values of different types. The following program should run:
+
+        #include <iostream>
+        // write your sub function template here
+        int main()
+        {
+            std::cout << sub(3, 2) << '\n';
+            std::cout << sub(3.5, 2) << '\n';
+            std::cout << sub(4, 1.5) << '\n';
+
+            return 0;
+        }
+        
+see ch10_x_5c.cpp
