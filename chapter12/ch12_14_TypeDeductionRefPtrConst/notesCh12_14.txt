@@ -1,0 +1,127 @@
+12_14
+Type deduction with pointers, references, and const
+
+We've gone over auto, and using auto to have the compiler deduce the type of a variable from the initializer.
+
+Type deduction drops references.
+In addition to dropping const qualifiers, type deduction will drop references.
+e.g.
+    std::string& getRef(); // some function that returns a reference
+    int main()
+    {
+        auto ref { getRef() }; // type deduced as std::string (not std::string&)
+        auto ref1 { getRef() };  // std::string (reference dropped)
+        auto& ref2 { getRef() }; // std::string& (reference reapplied)
+        return 0;
+    }
+
+If you want the deduced type to be a reference, you can reapply the reference at the point of definition.
+
+Top-level const and low-level const
+A top-level const is a const qualifier that applies to an object itself
+e.g.
+    const int x; //const applies to x, so it's top-level
+    int* const ptr; //const applies to ptr, so it's top-level
+
+In contrast, a low-level const is a const qualifier that applied to the object being referenced or pointed to.
+e.g. 
+    const int& ref; //applied to the object being referenced
+    const int* ptr; //applied to the object being pointed to
+     
+When we say that type deduction drops const qualifiers, it only drops top-level consts. Low-level consts are not dropped.
+
+Type deduction and const references
+If the initializer is a reference to const (or constexpr), the reference is dropped first (and then reapplied if applicable), and then any top-level const is dropped from the result.
+e.g.
+    const std::string& getConstRef(); // some function that returns a reference to const
+    auto ref1{ getConstRef() }; // std::string (reference dropped, then top-level const dropped from result)
+    //we can reapply the const, though!
+    const auto ref2{ getConstRef() };  // const std::string (reference dropped, const reapplied)
+    auto& ref3{ getConstRef() };       // const std::string& (reference reapplied, low-level const not dropped)
+    const auto& ref4{ getConstRef() }; // const std::string& (reference and const reapplied)
+
+This one is actually a little weird starting with ref3.
+Since we've reapplied the (dropped) reference, it is not dropped. The type is still const std::string&, and since this is a low-level const, it is not dropped.
+ref4 has const again, but the const is redundant. That makes it clear that the result will be const, though, whereas ref3 isn't as intuitive.
+
+Best practice: If you want a const reference, reapply the const qualifier even when it's not strictly necessary. This makes your intent clear and helps prevent mistakes.
+
+What about constexpr references?
+Same thing.
+e.g.
+    constexpr std::string_view hello { "Hello" };
+    constexpr const std::string_view& getConstRef()
+    {
+        return hello;
+    }
+    auto ref1{ getConstRef() };            // std::string_view (top-level const and reference dropped)
+    constexpr auto ref2{ getConstRef() };  // constexpr std::string_view (constexpr reapplied, reference dropped)
+    auto& ref3{ getConstRef() };           // const std::string_view& (reference reapplied, low-level const not dropped)
+    constexpr auto& ref4{ getConstRef() }; // constexpr const std::string_view& (reference reapplied, low-level const not dropped, constexpr applied)
+
+Type deduction and pointers
+Unlike references, type deduction does not drop pointers.
+But we can use an asterisk in conjunction with pointer type deduction.
+e.g.
+    std::string* getPtr(); // some function that returns a pointer
+    auto ptr1{ getPtr() };  // std::string*
+    auto* ptr2{ getPtr() }; // std::string*
+
+The difference between auto and auto*
+When we use auto with a pointer type initializer, the type deduced for auto includes the pointer.
+When we use auto* with a pointer type initializer, the type deduced for auto does not include the pointer; the pointer is reapplied after the type is deduced.
+The practical effect here is usually the same.
+However, there are a couple of differences.
+First, auto* must resolve to a pointer initializer, or a compile error will result.
+e.g.
+    std::string* getPtr(); // some function that returns a pointer
+    auto ptr3{ *getPtr() };      // std::string (because we dereferenced getPtr())
+    auto* ptr4{ *getPtr() };     // does not compile (initializer not a pointer)
+
+Second, there are differences when we introduce const.
+
+Type deduction and const pointers
+Since pointers aren't dropped, we don't have to worry about that. But with pointers, we have both the const pointer and pointer to const to consider.
+We also have auto vs auto*.
+Just like with references, only top-level const is dropped during pointer type deduction.
+e.g.
+    std::string* getPtr(); // some function that returns a pointer
+    const auto ptr1{ getPtr() };  // std::string* const
+    auto const ptr2 { getPtr() }; // std::string* const
+    const auto* ptr3{ getPtr() }; // const std::string*
+    auto* const ptr4{ getPtr() }; // std::string* const
+When we use auto const or const auto, we're saying "make whatever the deduced type is const". So this is similar to const int and int const mean the same thing.
+
+When we use auto*, the order of the const qualifier matters; the const on the left means "make the deduced pointer type a pointer to const". The const on the right means "make the deduced pointer type a const pointer".
+
+Example where the initializer is a const pointer to const:
+    std::string s{};
+    const std::string* const ptr { &s };
+
+    auto ptr1{ ptr };  // const std::string*
+    auto* ptr2{ ptr }; // const std::string*
+
+    auto const ptr3{ ptr };  // const std::string* const
+    const auto ptr4{ ptr };  // const std::string* const
+
+    auto* const ptr5{ ptr }; // const std::string* const
+    const auto* ptr6{ ptr }; // const std::string*
+
+    const auto const ptr7{ ptr };  // error: const qualifer can not be applied twice
+    const auto* const ptr8{ ptr }; // const std::string* const
+Note that in the case of ptr8, we apply const twice and get away with it because auto* does not include the pointer in its deduced type. 
+
+Best practice: If you want a const pointer, reapply the const qualifier even when it's not strictly necessary, as it makes your intent clear and helps prevent mistakes.
+
+
+
+
+
+
+
+
+
+
+
+
+

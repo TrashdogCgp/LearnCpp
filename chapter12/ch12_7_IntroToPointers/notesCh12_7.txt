@@ -1,19 +1,179 @@
 12_7
 Introduction to pointers
 
+Pointers behave a lot like lvalue references.
+
+When code is generated for a definition, a piece of memory from RAM will be assigned to the object.
+When the program accesses a variable, the program will go to the variable's memory address to access the value stored there.
+
+Variables are nice because we don't have to worry about what specific memory addresses are assigned, or how many bytes are required to store the object's value.
+We refer to the variable by its given identifer, and the compiler translates this name to the appropriate assigned memory address. The compiler takes care of the addressing.
+
+This is also true with references.
+When ref acts as an alias for x, when we use ref, the program will go to the memory address of x to access the value.
+
+Although the memory addresses used by variables aren't exposed to us by default, we can access these addresses via the address-of operator, &
+This is pretty straightforward.
+
+We can use the address-of operator (&) to retrieve the address assigned to a variable.
+Memory addresses typically print as hex values, often without the 0x prefix.
+For an object that uses more than one byte of memory, address-of will return the memory address of the first byte used by the object.
+
+Note that when & is used in a binary context in an expression, it's not the address-of operator. & is the bitwise AND operator in the context of a binary operator.
+
+The dereference operator
+Getting the address on its own isn't too useful.
+We tend to want to access the value stored at the address, too.
+The deference operator (*), also called the indirection operator, returns the value at a given memory address as an lvalue.
+
+Given a memory address, we can use the dereference operator to get the value at that address (as an lvalue).
+The address-of operator & and dereference operator * work as opposites. Address-of gets the address of an object, and dereference gets the object at an address.
+
+The dereference operator is unary, which is how we distinguish it from the multiplication operator.
+
+Pointers are objects that hold a memory address (typically the address of another variable) as their value.
+This allows us to store the address of some other object to use later.
+
+In modern C++, we call these dumb pointers or raw pointers rather than smart pointers.
+
+Much like reference types are declared using an ampersand (&) character, pointer types are declared using an asterisk (*).
+
+Best practice: When declaring a pointer type, place the asterisk next to the type name, rather than the variable name.
+
+Pointer Initialization
+Like normal variables, pointers are not initialized by default. A pointer without an initialization is sometimes called a wild pointer.
+Wild pointers contain a garbage address.
+Dereferencing a wild pointer results in undefined behavior.
+
+Best practice: Always initialize pointers.
+
+Since pointers hold addresses, when we initialize or assign a value to a pointer, that value has to be an address.
+Pointers typically hold the address of another variable (can get this using address-of operator &).
+
+Once we have a pointer with another object's address, we can use the dereference operator to access the value at that address.
+We say the pointer is "pointing to" the address of the variable at the address it holds.
+
+Nomenclature: We say an int pointer as short hand for a pointer to an int.
+This matters when we talk about const pointers.
+
+Much like the type of a reference has to match the type of object being referred to, the type of the pointer has to match the type of the object being pointed to.
+
+There's one exception to this rule, but we also can't initialize a pointer with a literal value
+e.g.
+    int* ptr{ 5 }; // not okay
+    int* ptr{ 0x0012FF7C }; // not okay, 0x0012FF7C is treated as an integer literal
+
+We can use assignment with pointers in two different ways:
+    Change what the pointer is pointing at (give pointer a new address)
+    Change the value being pointed at (assign a new value to the dereferenced pointer)
+Latter case, e.g.
+int x{ 5 };
+int* ptr{ &x }; // initialize ptr with address of variable x
+*ptr = 6; // The object at the address held by ptr (x) assigned value 6 (note that ptr is dereferenced here)
+
+When we use a pointer without a dereference (ptr), we are accessing the address held by the pointer. Modifying this (ptr = &y;) changes where the pointer is pointing.
+When we dereference a pointer (*ptr), we are accessing the object being pointed at. When we modify this (*ptr =6;), we change the value of the object being pointed at.
+
+Pointers and lvalue references behave similarly.
+Both provide a way to indirectly access another object.
+The primary difference is that with pointers, we need to explicitly get the address to point at, and we have to explicitly dereference the pointer to get the value.
+With references, the address-of and dereference happen implicitly.
+
+Other differences between pointers and references:
+    References must be initialized. Pointers don't have to be initialized, but definitely should be.
+    References are not objects, but pointers are.
+    References cannot be reseated (made to reference something else), but pointers can change wht they're pointing at.
+    References must always be bound to an object. Pointers can point to nothing.
+    References are "safe" aside from dangling references. Pointers are inherently dangerous (see next lesson)
+
+The address-of operator returns a pointer
+It's worth noting that the address-of operator (&) doesn't return the address of its operand as a literal.
+Instead, it returns a pointer containing the address of the operand, whose type is derived from the argument.
+e.g. taking the address of an int will return the address of an int pointer.
+
+The size of pointers
+A pointer's size is dependent on the architecture.
+A 32 bit executable uses 32-bit memory addresses, but a 64-bit executable uses 64 bit pointers.
+This sizing remains true regardless of the size of the object being pointed to, because the pointer is just a memory address, and the number of bits needed to access a memory address is constant.
+
+Dangling pointers
+Much like dangling references, a dangling pointer is a pointer that holds the address of an object that is no longer valid (e.g. destroyed object)
+Dereferencing a dangling pointer results in undefined behavior. Rather, any other use of an invalid pointer value has implementation-defined behavior. You can assign an invalid pointer a new value, but operations using the invalid pointer's value (copying or incrementing an invalid pointer) will yield implementation-defined behavior.
+
+Quiz
+
+1. What values does this program print?
+Assume a short is 2 bytes, and the program runs on a 32-bit machine.
+
+    #include <iostream>
+
+    int main()
+    {
+        short value{ 7 }; // &value = 0012FF60
+        short otherValue{ 3 }; // &otherValue = 0012FF54
+
+        short* ptr{ &value };
+
+        std::cout << &value << '\n';
+        std::cout << value << '\n';
+        std::cout << ptr << '\n';
+        std::cout << *ptr << '\n';
+        std::cout << '\n';
+
+        *ptr = 9;
+
+        std::cout << &value << '\n';
+        std::cout << value << '\n';
+        std::cout << ptr << '\n';
+        std::cout << *ptr << '\n';
+        std::cout << '\n';
+
+        ptr = &otherValue;
+
+        std::cout << &otherValue << '\n';
+        std::cout << otherValue << '\n';
+        std::cout << ptr << '\n';
+        std::cout << *ptr << '\n';
+        std::cout << '\n';
+
+        std::cout << sizeof(ptr) << '\n';
+        std::cout << sizeof(*ptr) << '\n';
+
+        return 0;
+    }
+Answer:
+DAMN THESE LITTLE FREAKING
+fine, my hands hurt from all the typing I've done today, but I'll evaluate 17 freaking lines of cout.
+
+Output:
+
+0012FF60
+7
+0012FF60
+7
+
+0012FF60
+9
+0012FF60
+9
+
+0012FF54
+3
+0012FF54
+3
+
+4
+2
 
 
+Okay, for all my grousing, that wasn't that bad, wasn't even that much typing.
+I just hate having to take hand-health breaks.
 
+2. What is wrong with this snippet of code?
+    int value{ 45 };
+    int* ptr{ &value }; // declare a pointer and initialize with address of value
+    *ptr = &value; // assign address of value to ptr
 
-
-
-
-
-
-
-
-
-
-
-
+Third line is trying to assign the address of value to the dereference of pointer.
+This will attempt to assign an int pointer to an int, which is a type mismatch.
 

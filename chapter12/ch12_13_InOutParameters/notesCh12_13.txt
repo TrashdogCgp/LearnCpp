@@ -1,0 +1,88 @@
+12_13
+In and out parameters
+
+A function and its caller communicate with each other via two mechanisms: parameters and return values.
+When a function is called, the caller provides arguments, which the function receives via its parameters.
+These arguments can be passed by value, reference, or address.
+
+Typically, we'll pass arguments by value or by const reference. But there are times to do otherwise.
+
+In parameters
+In most cases, a function parameter is only used to receive an input from the caller.
+Parameters only used for receiving input from the caller are sometimes called in parameters.
+e.g.
+    void print(const std::string& s) // s is an in parameter
+    {
+        std::cout << s << '\n';
+    }
+
+Out parameters
+A function argument passed by (non-const) reference (or by address) allows the function to modify the value of an object passed as an argument. This allows a function to return data back to the caller in cases where a return value is not sufficient for some reason.
+
+A function parameter that is only used for the purpose of returning information back to the caller is called an out parameter.
+e.g.
+    // sinOut and cosOut are out parameters
+    void getSinCos(double degrees, double& sinOut, double& cosOut)
+    {
+        // sin() and cos() take radians, not degrees, so we need to convert
+        constexpr double pi { 3.14159265358979323846 }; // the value of pi
+        double radians = degrees * pi / 180.0;
+        sinOut = std::sin(radians);
+        cosOut = std::cos(radians);
+    }
+
+The parameters are named with the "out" suffix to denote that they're out parameters.
+This helps remind the caller that the initial value doesn't matter; we should expect these to be overwritten.
+By convention, output parameters are typically the rightmost parameters.
+
+Out parameters have an unnatural syntax.
+While functional, they have a few downsides; one is that they have to be instantiated and initialized, and passed in as arguments even if there's no intention of using them.
+These objects must be able to be assigned to, so they can't be made const.
+Because the caller must pass in objects, these values can't be used as temporaries, or easily used in a single expression.
+
+Out-parameters by reference don't make it obvious that the arguments will be modified.
+When we use assignment, it's clear that a value is being modified.
+When we pass a value into a function, that's less clear, but it can still happen. This can cause semantic errors.
+It gets a bit clearer that we should expect a value to be modified if we have to pass in &i rather than i, for example. But that's not foolproof. The caller may think they can pass in nullptr as a valid argument when this is disallowed, and the function is then also required to do more null pointer checking/handling.
+
+For all these reasons, out-parameters should be avoided unless no other good options exist.
+
+Best practice:
+Avoid out-parameters (except in the case where no better options exist)
+Prefer pass by reference for non-optional out-parameters.
+
+In/out parameters
+In rare cases, a function will use the value of an out-parameter before overwriting its value.
+Such a parameter is called an in-out parameter.
+These have the same challenges and work the same as out-parameters.
+
+When to pass by non-const reference
+If passing by reference to avoid making a copy of the argument, you should almost always use const reference.
+Two exceptions:
+    First, pass by non-const reference for an in-out parameter.
+    Since we're already passing in the object we need back out, it's often better to just modify that object.
+
+    Second, use pass by non-const reference when a function would otherwise return an object by value to the caller, but making a copy of that object is very expensive.
+
+That said, it's rare that objects are so expensive that resorting to non-conventional methods of returning those objects is worthwhile.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

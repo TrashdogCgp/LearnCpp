@@ -1,0 +1,49 @@
+12_x
+Quiz
+
+1. For each of the following indicate whether the expression on the right side of operator << is an lvalue or rvalue.
+(trivial except for the last one, not copy/pasting due to format grievances)
+a)rvalue
+b)lvalue
+c)rvalue (x+1 evaluates to a temporary value)
+d)rvalue (function call evaluates to an rvalue return here)
+e)lvalue (reference return type yields an lvalue)
+
+2. What is the output of this program?
+    #include <iostream>
+    int main()
+    {
+        int x{ 5 };
+        int y{ 6 };
+        int& ref{ x };
+        ++ref;
+        ref = y;
+        ++ref;
+        std::cout << x << ' ' << y;
+        return 0;
+    }
+Answer:
+7 6
+
+3. Name two reasons why we prefer to pass arguments by const reference instead of by non-const reference whenever possible.
+First, const ref parameters prevent unintended modification of the argument.
+Second, const reference parameters can accept literals, modifiable lvalues, and const lvalues. By contrast, non-const reference parameters can't accept const lvalues or literals.
+
+4. What is the difference between const pointer and pointer-to-const?
+Pointer-to-const is a modifiable (by default) pointer that does not allow modification of the value it points to.
+A const pointer is a pointer that does not allow modification of where it is pointing.
+
+5.
+Write a function named sort2 which allows the caller to pass 2 int variables as arguments. When the function returns, the first argument should hold the lesser of the two values, and the second argument should hold the greater of the two values.
+
+see ch12_x_5.cpp
+Didn't notice that it said to take type int. Oops. Did a template instead of just the function they asked for.
+
+
+
+
+
+
+
+
+
