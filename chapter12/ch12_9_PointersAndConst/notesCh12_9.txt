@@ -1,0 +1,61 @@
+12_9
+Pointers and const
+
+With normal (non-const) pointers, we can change both what the pointer is pointing at (giving a new address) or change the value at the address being held (assigning new value to dereferenced pointer).
+
+What about if the value we want to point at is const?
+Well, we won't be able to compile if we try to set a normal pointer to point at a const variable.
+
+A pointer to const is a non-const pointer that points to a constant value.
+To declare a pointer to a const value, use the const keyword before the pointer's data type
+e.g.
+    const int x{ 5 };
+    const int* ptr { &x }; // okay: ptr is pointing to a "const int"
+
+Because the pointer to const is not const itself (it just points to a const value), we can change what the pointer is point at by assigning a new address.
+e.g.
+    const int x{ 5 };
+    const int* ptr { &x }; // ptr points to const int x
+
+    const int y{ 6 };
+    ptr = &y; // okay: ptr now points at const int y
+
+Just like a reference to const, a pointer to const can also point at a non-const variable.
+A pointer to const treats the value being pointed to as constant, regardless of whether the object at that address was initially defined as const or not.
+e.g.
+    int x{ 5 }; // non-const
+    const int* ptr { &x }; // ptr points to a "const int"
+
+    *ptr = 6;  // not allowed: ptr points to a "const int" so we can't change the value through ptr
+    x = 6; // allowed: the value is still non-const when accessed through non-const identifier x
+
+Const pointers
+A const pointer is a pointer whose address cannot be changed after initialization.
+To declare a const pointer, we use the const keyword after the asterisk in the pointer declaration.
+e.g.
+    int x{ 5 };
+    int* const ptr { &x }; // const after the asterisk means this is a const pointer
+
+In this case, ptr is a const pointer to a non-const value.
+
+Just like other kinds of const variables, a const pointer must be initialized upon definition, and this value can't be changed via assignment.
+
+Because the value being pointed to is non-const, it is possible to change the value being pointed to via dereferencing the const pointer.
+
+Finally, it's possible to declare a const pointer to a const value by using const both before the type and after the asterisk.
+e.g.
+    int value { 5 };
+    const int* const ptr { &value }; // a const pointer to a const value
+A const pointer to a const value cannot modify the value it is pointing to, and cannot have its address changed. It can only be dereferenced to get the value it is pointing at.
+
+Pointer and const recap:
+4 rules to remember, and they're pretty intuitive:
+    1. A non-const pointer can be assigned another address to change what it is pointing at.
+    2. A const pointer always points to the same address, and this address cannot be changed.
+    3. A pointer to a non-const value can change the value it is pointing to. These cannot point to a const value.
+    4. A pointer to a const value treats the value as const when accessed through the pointer, and thus cannot change the value it is pointing to. These can be pointed to const or non-const lvalues. These cannot be pointed to rvalues, which don't have an address.
+
+Syntax is a bugger.
+    const before the asterisk is associated with the type being pointed to, so const before asterisk is for pointer to const, and the value cannot be modified through the pointer.
+    const after the asterisk is associated with the pointer itself, so the pointer cannot be assigned a new address.
+    

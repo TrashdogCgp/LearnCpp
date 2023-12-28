@@ -1,0 +1,86 @@
+12_11
+Pass by address part 2
+
+One of the more common uses for pass by address is allowing a function to accept an optional argument.
+See this example:
+    #include <iostream>
+    #include <string>
+    void greet(std::string* name=nullptr)
+    {
+        std::cout << "Hello ";
+        std::cout << (name ? *name : "guest") << '\n';
+    }
+    int main()
+    {
+        greet(); // we don't know who the user is yet
+        std::string joe{ "Joe" };
+        greet(&joe); // we know the user is joe
+        return 0;
+    }
+
+In many cases, function overloading is a better alternative; define guest() and guest(std::string_view name).
+
+Changing what a pointer parameter points to
+When we pass an address to a function, that address is copied from the argument into the pointer parameter. This is fine because copying an address is fast.
+
+But we're still -copying- the address.
+See this function:
+    void nullify([[maybe_unused]] int* ptr2)
+    {
+        ptr2 = nullptr; // Make the function parameter a null pointer
+    }
+If you pass in an argument to ptr2, you'd expect it to point to nullptr after the function. But the parameter is not the argument, so the argument is not affected.
+
+If we wanted to change the address of the pointer being passed in, for real, we'd have to:
+PASS BY ADDRESS, BY REFERENCE
+Yeah, seriously. It's not actually that wacky.
+    void nullify(int*& refptr) // refptr is now a reference to a pointer
+    {
+        refptr = nullptr; // Make the function parameter a null pointer
+    }
+
+Because references to pointers are rare, it's hard to tell whether you're supposed to put the * or & first.
+The good news is that if you get it backwards, the compiler will error because you can't have a pointer to a reference (references aren't objects).
+
+Using 0 or NULL is no longer preferred thanks to nullptr.
+Why is this?
+Well, the literal 0 can be interpreted as either an integer literal, or as a null pointer literal.
+In certain cases, it can be ambiguous which one we intend. The compiler may assume we mean one when we mean the other, and this can have unintended consequences to the behavior of our program.
+
+Also, NULL is not defined by the language standard; it's a preprocessor macro that might be defined as 0, 0L, or something else entirely (e.g. ((void*)0) )
+
+Functions can be overloaded, as we know. The compiler can figure out which overloaded function you want by the arguments passed in. Resolving this can be more difficult or troublesome when you use 0 or NULL.
+e.g.
+    void print(int x) // this function accepts an integer
+    {
+        std::cout << "print(int): " << x << '\n';
+    }
+    void print(int* ptr) // this function accepts an integer pointer
+    {
+        std::cout << "print(int*): " << (ptr ? "non-null\n" : "null\n");
+    }
+
+    print(NULL); // this statement could do any of the following:
+	// call print(int) (Visual Studio does this)
+	// call print(int*)
+	// result in an ambiguous function call compilation error (gcc and Clang do this)
+	print(nullptr); // always calls print(int*)
+
+When passing integer value 0 as a parameter, the compiler would prefer the print(int) overload over print(int*). Keep in mind print(int) is a direct match for the int 0 provided.
+
+Since nullptr only matches to a pointer type, using nullptr removes this ambiguity.
+
+std::nullptr_t
+Since nullptr can be differentiated from integer values in function overloads, it must have a different type. So... what type is nullptr?
+It's actually type std::nullptr_t, defined in the header <cstddef>
+If we want a function that accepts only a nullptr literal argument, we can make the parameter a std::nullptr_t.
+Note that functions pointer types will not implicitly convert to a std::nullptr_t, so such a function can't accept a pointer given the value of nullptr if it's any other type than nullptr_t itself; the function will receive a pointer argument as a pointer, not a nullptr_t.
+
+Revisiting from a bird's-eye view:
+There is only pass by value.
+
+The compiler can often optimize references away entirely, but there are cases where this isn't possible and a reference is actually needed. References are normally implemented by the compiler using pointers. So behind the scenes, invisible to you, pass by reference is actually passing by address, with access to the reference doing an implicit dereference.
+
+Pass by address just copies an address, which is passing by value... and just making that value an address.
+
+So C++ really passes everything by value, when you think about it. The properties of pass by address and pass by reference come solely from the fact that we can dereference a passed address to change the argument. We can't do this with a normal value parameter.

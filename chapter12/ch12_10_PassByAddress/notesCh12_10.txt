@@ -1,0 +1,72 @@
+12_10
+Pass by address
+
+We've gone over passing arguments to a function by value and by reference.
+
+When we pass an argument by value, the parameter receives a copy of the argument.
+When we pass an argument by reference, the parameter is bound to the actual argument.
+
+In both cases, the caller is providing the actual object to be passed in as an argument to the function call.
+
+Pass by address
+C++ provides a third way to pass values to a function, called pass by address.
+With pass by address, instead of providing an object as an argument, the caller provides an object's address via a pointer.
+This pointer (holding the address of the object) is copied into a pointer parameter of the called function (which now also holds the address of the object).
+The function can dereference the pointer to access the object whose address was passed.
+
+When we pass in an argument by address, we need to pass the address of the object, not the object itself.
+The easiest way to do this is using the address-of operator to get a pointer/address.
+
+Pass by address does not copy the object being pointed to
+We don't want to copy a std::string. When we pass a std::string by address, we're not copying the actual std::string object. We're just copying the pointer (holding the address of the object) from the caller to the called function.
+Just like pass by reference, pass by address is fast and avoids making a copy of the argument object.
+
+Pass by address allows the function to modify the argument's value
+When we pass an object by address, the function receives the address of the passed object, which it can access via dereferencing.
+Because this is the address of the actual argument, and not a copy, the function can modify the argument via the pointer parameter.
+Modification of the argument persists even after the function call returns.
+
+If a function is not supposed to modify the object being passed in, the function parameter can be made a pointer to const.
+e.g.
+    void changeValue(const int* ptr) // note: ptr is now a pointer to a const
+    {
+        *ptr = 6; // error: can not change const value
+    }
+
+Null checking
+When passing a pointer, it's not out of the question that a parameter will be null pointer.
+When this null pointer is dereferenced in the function body, undefined behavior results.
+
+We can ensure that we don't dereference a nullptr parameter by using a conditional statement.
+e.g.
+    void print(int* ptr)
+    {
+        if (!ptr) // if ptr is a null pointer, early return back to the caller
+            return;
+        std::cout << *ptr << '\n';
+    }
+
+If there should be no way a null pointer is ever passed to the function, an assert can be used instead.
+e.g.
+    void print(const int* ptr) // now a pointer to a const int
+    {
+        assert(ptr); // fail the program in debug mode if a null pointer is passed (since this should never happen)
+        std::cout << *ptr << '\n';
+    }
+
+Prefer pass by const reference
+Note that the functions don't handle null names very well, effectively, we just quit the function.
+Given this, why allow a user to even pass in a null value?
+Pass by reference has the same benefits as pass by address without the null pointer dereferencing hazard.
+
+Pass by const reference has a few other advantages over pass by address.
+
+Because an object being passed by address must have an address, only lvalues can be passed by address. rvalues don't have addresses, so you can't pass them by address at all.
+Pass by const reference is more flexible because you can pass rvalues and lvalues just fine.
+
+The syntax for pass by reference is more natural, since we don't need ampersands and asterisks all over the function calls and bodies.
+
+In modern C++, most things that can be done via pass by address are better accomplished in other ways.
+
+Best practice: Prefer to pass by reference rather than pass by address unless you have a specific reason to pass by address.
+

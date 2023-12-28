@@ -1,0 +1,35 @@
+12_5
+Pass by lvalue reference
+
+In isolation, lvalue reference and lvalue references to const may not seem that useful.
+Well, we've used pass by value, where an argument passed to a function is copied into the function's parameter.
+
+When we call the function, we make a copy of our argument's value, only to use it briefly and then destroy it.
+This isn't a problem for fundamental data types, because they're cheap to copy.
+
+Some objects are expensive to copy, like std::string and class types. Most of the standard library's provided types are class types, so we want to avoid making unnecessary copies of objects like those, especially when we'll destroy them almost immediately anyway.
+
+We can do better than passing these class type objects by value.
+
+Pass by reference
+When using pass by reference (instead of pass by value), we declare a function parameter as a reference (or const reference) type rather than as a normal type.
+When the function is called, each reference parameter is bound to the appropriate argument.
+Because the reference acts as an alias for the argument, no copy of the argument is made.
+Binding a reference is always inexpensive, and since a reference acts as an alias for the object being referenced, functions use the actual argument rather than a copy made for the parameter.
+
+Pass by reference allows us to pass arguments to a function without making copies of the arguments each time the function is called.
+
+Pass by reference allows us to change the value of an argument.
+
+When an object is passed by value, the function parameter receives a copy of the argument. This means that changes to the parameter will apply to the copy, not the argument itself.
+
+Passing values by reference to non-const allows us to write functions that modify the value of arguments passed in.
+Since a reference acts identically to the object being referenced, when using pass by reference, any changes made to the reference parameter will affect the argument.
+
+The ability for functions to modify the value of arguments passed in can be useful!
+
+Pass by reference can only accept modifiable lvalue arguments.
+Because a reference to a non-const avlue can only bind to a modifiable lvalue (essentally a non-const variable), pass by reference only works with arguments that are modifiable lvalues.
+In practical terms, this excludes const variables and literals from being passed by reference.
+
+However, the next section discusses pass by const lvalue reference, which is the easy way around the limitation of pass by reference only working for modifiable lvalues.

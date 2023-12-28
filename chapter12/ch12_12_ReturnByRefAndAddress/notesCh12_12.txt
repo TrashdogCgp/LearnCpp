@@ -1,0 +1,132 @@
+12_12
+Return by reference and return by address
+
+Copying is typically expensive for class types.
+We've gone over this with copying an argument vice passing a reference to an argument.
+But we have a similar issue when we return by value; a copy is returned to the caller.
+
+If we would be passing a class type back to the caller, we may (or may not) want to return by reference instead.
+Return by reference returns a reference bound to the object being returned, which avoids making a copy of the return value.
+We simply define the return value of the function to be a reference type.
+e.g.
+    const std::string& getProgramName() // returns a const reference
+    {
+        static const std::string s_programName { "Calculator" }; // has static duration, destroyed at end of program
+        return s_programName;
+    }
+
+Because getProgramName() returns a const reference, it returns a const reference without making a copy. That const reference can be used by the caller to access the value of s_programName.
+
+The object being returned by reference must exist after the function returns
+Using return by reference has one major caveat. The programmer must be sure that the object being referenced outlives the function returning the reference; otherwise, the reference is left dangling and results in undefined behavior.
+e.g.
+    const std::string& getProgramName()
+    {
+        const std::string programName { "Calculator" }; // now a non-static local variable, destroyed when function ends
+        return programName;
+    }
+
+Modern compilers will produce a warning or error if you try to return a local variable by reference, but compilers have trouble detecting some more complicated cases.
+
+Objects returned by reference must live beyond the scope of the function returning the reference. Never return a non-static local variable or temporary by reference.
+
+Lifetime extension doesn't work across function boundaries.
+e.g.
+    const int& returnByConstReference()
+    {
+        return 5; // returns const reference to temporary object
+    }
+    std::cout << ref; // undefined behavior
+
+The return type of the function is const int&, which results in the creation of a temporary reference bound to a temporary object holding value 5. This temporary reference to a temporary object is returned. The temporary object goes out of scope, leaving the object dangling.
+
+Reinforce: Reference lifetime extension does not work across function boundaries.
+
+Don't return non-const static local variables by reference.
+See the following:
+    #include <iostream>
+    #include <string>
+    const int& getNextId()
+    {
+        static int s_x{ 0 }; // note: variable is non-const
+        ++s_x; // generate the next id
+        return s_x; // and return a reference to it
+    }
+    int main()
+    {
+        const int& id1 { getNextId() }; // id1 is a reference
+        const int& id2 { getNextId() }; // id2 is a reference
+        std::cout << id1 << id2 << '\n';
+        return 0;
+    }
+
+id1 and id2 will reference the same object (static variable s_x) here, so when anythign modifies that value, all references are now accessing the modified value.
+
+Best practice: Avoid returning references to non-const local static variables
+
+Returning a const reference to a const local static is sometimes done if the local variable is expensive to create.
+Returning a const reference to a const global variable can also encapsulate access to a global variable, and this is okay when done carefully and intentionally.
+
+Assigning/initializing a normal variable with a returned reference makes a copy
+e.g.
+    const int& getNextId()
+    {
+        static int s_x{ 0 };
+        ++s_x;
+        return s_x;
+    }
+    const int id1 { getNextId() }; // id1 is a normal variable now and receives a copy of the value returned by reference from getNextId()
+This kind of defeats the purpos of returning a value by reference.
+Also note that if the program returns a dangling reference, the reference is left dangling before the copy is made.
+This leads to undefined behavior.
+
+It's okay to return reference parameters by reference.
+e.g.
+    const std::string& firstAlphabetical(const std::string& a, const std::string& b)
+    {
+        return (a < b) ? a : b; // We can use operator< on std::string to determine which comes first alphabetically
+    }
+	std::string hello { "Hello" };
+	std::string world { "World" };
+	std::cout << firstAlphabetical(hello, world) << '\n';
+
+It's okay to return by const reference an rvalue passed by const reference
+When an argument for a const reference parameter is an rvalue, it's still okay to return that parameter by const reference. This is because rvalues are not destroyed until the end of the full expression in which they're created.
+e.g.
+    #include <iostream>
+    #include <string>
+    const std::string& foo(const std::string &s)
+    {
+        return s;
+    }
+    std::string getHello()
+    {
+        return std::string{"Hello"};
+    }
+    int main()
+    {
+        const std::string s{ foo(getHello()) };
+        std::cout << s;
+        return 0;
+    }
+
+The rvalue is passed by const reference to foo() and then returned by const reference back to the caller before it's used to initialize s.
+
+The caller can modify values through the reference
+When an argument is passed to a function by non-const reference, the function can use the reference to modify the value of the argument.
+Similarly, when a non-const reference is returned from a function, the caller can use the reference to modify the value being returned.
+e.g.
+    int& max(int& x, int& y)
+    {
+        return (x > y) ? x : y;
+    }
+    max(a, b) = 7; // sets the greater of a or b to 7
+
+Return by address works almost identically to return by reference.
+The difference is that a pointer to an object is returned instead of a reference to an object.
+Return by address has the same primary caveat as return by reference--the object being returned by address must outlive the scope of the function returning the address, otherwise the caller will receive a dangling pointer.
+The advantage to return by address is that we can have a function return nullptr if there is no valid object to return.
+The major disadvantage is that the caller has to remember to do a nullptr check before dereferencing the return value, otherwise a null pointer dereference may occur and undefined behavior will result.
+Return by reference should be preferred over return by address unless the ability to return no object is needed.
+
+Best practice: Prefer return by reference over return by address unless the ability to return no object (using nullptr) is important.

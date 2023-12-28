@@ -1,0 +1,141 @@
+12_3
+Lvalue references
+
+Start with quiz! 
+C'mon, Trashdog. You know this topic. Get yourself a little confidence boost and do the quiz before the lecture, just to prove you haven't been wasting the years prior to this grind.
+
+Quiz
+1. Determine what values the following program prints (without compiling it):
+
+    #include <iostream>
+    int main()
+    {
+        int x{ 1 };
+        int& ref{ x };
+        std::cout << x << ref << '\n';
+
+        int y{ 2 };
+        ref = y;
+        y = 3;
+        std::cout << x << ref << '\n';
+
+        x = 4;
+        std::cout << x << ref << '\n';
+
+        return 0;
+    }
+
+Output:
+    11
+    22
+    44
+WHEW, would've been crushed if I'd been dumb or paid insufficent attention or forgotten a details or whatever and gotten that wrong.
+
+Probably should've spewed some word vomit about coming up with the answer, but I'm sure there'll be plenty of word vomit in the notes.
+
+Notes from the lecture:
+Lvalue references
+
+In C++, a reference is an alias for an existing object.
+Once a refernece has been defined, any operation on the reference is applied to the object being referenced.
+A reference is essentially identical to the object being referenced.
+
+This means we can use a reference to read or modify the object being referenced.
+On first glance, this might seem redundant, they're used everywhere in C++.
+
+You can create references to functions, though this is done less often.
+
+Modern C++ has rvalue references and lvalue references.
+In this chapter, we're just going over lvalue references.
+Rvalue references are covered in chapter 22, move semantics.
+
+An lvalue reference (commonly just called a reference, since they were the only kind of reference until C++11) acts as an alias for an existing value.
+
+To declare an lvalue reference type, we use an ampersand in the type declaration.
+e.g.
+    int& //an lvalue reference to an int object
+
+One thing we can do with an lvalue reference type is create an lvalue reference variable.
+An lvalue reference variable is a variable that acts as a reference to an lvalue (usually another variable).
+
+To create an lvalue reference variable, we define a variable with an lvalue reference type.
+e.g.
+    int x{5};
+    int& ref{x};
+
+ref here is defined as an lvalue reference to an int, which we then initialize with lvalue expression x.
+After that, ref and x can be used synonymously.
+
+From the compiler's perspective, it doesn't matter whether the ampersand is attached to the type name (int& ref) or the variable's name (int &ref).
+Modern C++ programmers tend to prefer attaching the ampersand to the type, as that makes it clearer that the reference is part of the type info, not part of the identifier.
+
+Best practice: When defining a reference, place the ampersand next to the type (not the reference variable's name).
+
+Note that the ampersand in the context of defining a reference does not mean "address of". It means "lvalue reference to".
+
+Modifying values through an lvalue reference
+We can also use a reference to modify the value of the object being referenced.
+e.g.
+    int x{5};
+    int& ref{x};
+    ref = 7;//printing ref or x will result in 7 printing; referenced object has been assigned 7
+    x = 3;//printing ref or x will now result in 3 printing
+
+Initialization of lvalue references
+Much like constants, references have to be initialized.
+
+When a reference is intialized with an object (or function), we say it's bound to that object (or function).
+Reference binding is the process by which an object is initialized with an object or function.
+
+The object or function being referenced is sometimes called the referent.
+Lvalue references must be bound to a modifiable value.
+
+Lvalue references can't be bound to non-modifiable lvalues or rvalues.
+Otherwise, you'd be able to change a const, which would violate the const qualifier.
+For this reason, lvalue references are sometimes called lvalue references to non-const, or shorter, non-const references.
+
+In most cases, the type of the reference must match the type of the referent, although inheritance throw a monkey wrench into this rule of thumb just a bit.
+
+Lvalue references to void are not allowed.
+
+Once initialized, a reference in C++ cannot be reseated; references can't be changed to reference another object.
+Attempting to do so will compile, but not behave as new programmers might expect.
+e.g.
+    int& ref { x }; // ref is now an alias for x
+    ref = y; // assigns 6 (the value of y) to x (the object being referenced by ref)
+
+When a reference is evaluated in an expression, it resolves to the object it's referencing.
+So here, ref=y doesn't change ref to reference a new variable. Instead, ref=y evaluates the same as x=y, so if y evaluates to 6, x is assigned the value of 6.
+
+Reference variables follow the same scoping and duration as normal variables do.
+
+References and referents have independent lifetimes.
+
+With one exception (pass by value lreferences, next section), the lifetime of a reference and the lifetime of its referent are independent.
+In other words, both of the following are true:
+    A reference can be destroyed before the object it is referencing
+    The object being referenced can be destroyed before the reference
+
+When a reference is destroyed before the referent, the refernt is not impacted.
+
+When an object being referenced is destroyed before a reference to it, the reference is left referencing an object that no longer exists. Such a reference is called a dangling reference.
+Accessing a dangling reference results in undefined behavior.
+
+Dangling references are easy to avoid, but this can still happen in practice, see ch 12_12.
+
+References aren't objects
+Perhaps surprisingly, references are not objects in C++.
+A reference is not required to exist or occupy storage. If possible, the compiler will optimize references away by replacing all occurrences of a reference with its referent.
+This isn't always possible, so references can require storage.
+
+The term "reference variable", then, is actually kind of a misnomer; variables are objects with a name, and references aren't even objects.
+
+Since references aren't objects, they can't be used anywhere an object is required. For example, you can't have a reference to a reference, since an lvalue reference must reference an identifiable object.
+In the case that you'd need a reference to a reference, std::reference_wrapper provides a solution, covered in ch23_3 on aggregation.
+
+Note that the following still compiles, though:
+    int var{};
+    int& ref1{ var };  // an lvalue reference bound to var
+    int& ref2{ ref1 }; // an lvalue reference bound to var
+
+Also note that int&& syntax is not a reference to a reference. Rather, it's an rvalue reference as of C++11.
