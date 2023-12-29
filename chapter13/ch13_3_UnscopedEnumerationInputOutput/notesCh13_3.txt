@@ -1,0 +1,114 @@
+13_3
+Unscoped enumeration input and output
+
+Enumerators are integral symbolic constants.
+As a result, enumerated types actually hold an integral value.
+This is kind of similar to chars, which are a 1-byte integral value.
+
+When we define an enumerator, each enum is automatically assigned an integer value based on its position in the enum list. By default, the first enum is assigned the integral value 0, and each subsequent enum has a value one greater than the previous enumerator.
+
+It is also possible to explicitly define the value of enumerators.
+These integral values can be positive or negative, and can share the same value as other enumerators.
+
+Any non-defined enumerator is given a value one greater then the previous enumerator.
+e.g.
+    enum Animal
+    {
+        cat = -3,
+        dog,         // assigned -2
+        pig,         // assigned -1
+        horse = 5,
+        giraffe = 5, // shares same value as horse
+        chicken,      // assigned 6
+    };
+
+Note here that horse and giraffe become non-distinct; they're essentially interchangeable.
+This should generally be avoided, even though C++ allows it.
+
+Best practice: Avoid assigning explicit values to your enumerators unless you have a compelling reason to do so.
+
+Unscoped enumerations will implicitly convert to integral values.
+When an enum type is used in a function call or with an operator, the compiler will first try to find a function or operator that matches the enum type.
+If it can't find a match, the compiler will implicitly convert an unscoped enumeration or enumerator to its corresponding integer value.
+
+Printing enumerator names
+Most of the time, we don't want std::cout to just print the number represented by the enum.
+This is what it'll do by default.
+C++20 doesn't come with an easy way to have cout print the enumerator name when handed an enum.
+Doing so ourselves is easy enough, but a bit tedious/annoying:
+    if (color == black) std::cout << "black";
+
+There's also switch/case for longer enums:
+    std::string getColor(Color color)
+    {
+        switch (color)
+        {
+        case black: return "black";
+        case red:   return "red";
+        case blue:  return "blue";
+        default:    return "???";
+        }
+    }
+The above does work, but it's not great.
+From C++17 on, it's more efficient to replace std::string with string_view, returning string literals much more efficiently.
+
+Teaching operator << how to print an enum
+We can overload the insertion operator to print a name for a specific enum.
+    std::ostream& operator<<(std::ostream& out, Color color)
+    {
+        switch (color)
+        {
+        case black: return out << "black";
+        case red:   return out << "red";
+        case blue:  return out << "blue";
+        default:    return out << "???";
+        }
+    }
+
+Enum size and underlying type (base)
+Since enums are integral constants, the specific integral type used to represent enumerators is called the underlying type (or base).
+For unscoped enums, the C++ standard does not specify which integral type should be the underlying base.
+Most compilers will use int unless a larger type is required to store the enumerator values.
+It's possible to specify a different underlying type, which could be helpful in bandwidth-sensitive contexts.
+e.g.
+    // Use an 8-bit integer as the enum underlying type
+    enum Color : std::int8_t
+    {
+        black,
+        red,
+        blue,
+    };
+
+Best practice: Specify the base type of an enumeration only if necessary
+
+Also, note that int8_t and uint8_t are usually type aliases for char types, so using either of these will likely cause the enums to print as char values rather than int values.
+
+Integer to unscoped enum conversion
+While the compiler will implicitly convert unscoped enumerators to an integer, it won't implicitly convert an integer to an unscoped enum.
+We can get around this in two ways.
+    1. Force the compiler to convert int to unscoped enum with static_cast
+        Pet pet {static_cast<Pet> 2};
+    2. If an unscoped enum has a specified base, the compiler will allow you to list initialize an unscoped enum with an integral value.
+        Pet pet1{2}; // only okay if enum Pet has specified its base
+
+Unscoped enumerator input
+std::cin doesn't know how to input a program-defined type.
+To work around this, we can read in an integer and use static_cast to convert the integer to an enumerator of the appropriate enumerated type.
+
+Of course, we could also overload the extraction operator, if we like overloading operators.
+
+Quiz
+1. True or false: Enumerators can be:
+a) given an integer value
+True
+b) given no explicit value
+True
+c) Given a floating point value
+False
+d) Given a negative value
+True
+e) Given a non-unique value
+True
+f) Initialized with the value of prior enumerators (e.g. magenta = red)
+True
+Explanation: Integers can be assigned to enumerators, and enumerators evaluate to integers. So enumerators can be initialized with other enumerators.

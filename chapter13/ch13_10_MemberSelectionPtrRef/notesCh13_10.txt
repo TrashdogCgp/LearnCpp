@@ -1,0 +1,56 @@
+13_10
+Member selection with pointers and references
+
+The period member selection operator can select a member from a struct object.
+
+Since references to an object act just like an object does itself, we can also use the member selection operator to select a member from a reference to a struct.
+
+The . member select operator doesn't work if you have a pointer to a struct.
+
+With normal variables or references, we can access objects directly. However, because pointers hold addresses, we need to dereference the pointer before we can actually do anything with it.
+e.g. 
+    Employee* ptr{ &joe };
+    std::cout << (*ptr).id << '\n';
+
+This is ugly, especially with the parenthesized deference operation that is required for taking precedence over the member selection operation.
+
+For cleaner syntax, C++ offers a member selection from pointer operator, ->, also sometimes called the arrow operator.
+This can be used to select members from a pointer to an object.
+
+This member selection from pointer operator works identically to dereferencing the pointer and using the . member selection operator.
+The arrow operator does an implicit dereference of the pointer object before selecting the member.
+Thus, ptr->id is equvalent to (*ptr).id
+
+Best practice: When using a pointer to access the value of a member, use the member selection from pointer operator (->) instead of the member selection operator (.)
+
+Mixing pointers and non-pointers to members
+The member selection operator is always applied to the currently selected variable.
+If you have a mix of pointers and normal member variables, you can see member selections where . and -> are both used in sequence:
+e.g.
+    struct Paw
+    {
+        int claws{};
+    };
+
+    struct Animal
+    {
+        std::string name{};
+        Paw paw{};
+    };
+
+    int main()
+    {
+        Animal puma{ "Puma", { 5 } };
+
+        Animal* ptr{ &puma };
+
+        // ptr is a pointer, use ->
+        // paw is not a pointer, use .
+
+        std::cout << (ptr->paw).claws << '\n';
+
+        return 0;
+    }
+
+Note that in the case of (ptr->paw).claws, parentheses aren’t necessary since both operator-> and operator. evaluate in left to right order, but it does help readability slightly.
+Yeesh. Would much rather use the parentheses and not have to know about that left-to-right order bit every time I read this code. Wonder how people memorize this stuff.

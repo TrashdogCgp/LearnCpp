@@ -1,0 +1,102 @@
+13_4
+Scoped enumerations (enum classes)
+
+Although unscoped enumerations are distinct types in C++, they are not type safe, and in some cases will allow unintended or nonsensical things.
+
+e.g.
+    enum Color
+    {   red,
+        blue, };
+    enum Fruit
+    {   banana,
+        apple,    };
+    Color color { red };
+    Fruit fruit { banana };
+    if (color == fruit) // The compiler will compare color and fruit as integers
+        std::cout << "color and fruit are equal\n"; // and find they are equal!
+
+When color and fruit are compared, the compiler will look to see if it knows how to compare Color and Fruit types. It doesn't because we haven't overloaded an operator or handled that situation.
+Next, it will try to convert Color and/or Fruit to integers to look for a match.
+It finds that if it converts both to integers, it can do the comparison.
+Since color and fruit are both set to enumerators that convert to 0 in this case, they satisfy equivalence.
+
+But that's semantically nonsense. The two types are from different enums and aren't intended to be comparable.
+With standard enums, there's no easy way to prevent this.
+
+The solution, then, is scoped enums (often called enum class)
+Scoped enums work similarly to unscoped enums, but with two primary differences:
+    1. They're strongly typed (won't implicitly convert to integers)
+    2. They're strongly scoped (the enumerators are only placed into the scope region of the enum).
+
+To make a scoped enum, we use the keywords enum class.
+The rest of the scoped enum definition is the same as an unscoped enum definition.
+e.g.
+    enum class Color // "enum class" defines this as a scoped enumeration rather than an unscoped enumeration
+    {
+        red, // red is considered part of Color's scope region
+        blue,
+    };
+
+In this case, the scoped enumeration will produce a compile error if a comparison is attempted to an unscoped enumeration; it won't convert to any type that can be compared with another type.
+
+Note that the class keyword (much like the static keyword) is one of the most overloaded keywords in C++, and can have different meanings depending on context.
+While scoped enumerations use the class keyword, they're not considered to be a class type.
+Class types are structs, classes, and unions.
+enum struct actually behaves identically to enum class. But use of enum struct isn't conventionally appreciated, so avoid its use.
+
+Scoped enumerations define their own scope regions
+Unlike unscoped enumerations, which place their enumerators in the same scope as the enumeration itself, scoped enumerations place ther enumerators only in the scope region of the enumerator.
+That is, they have to be accessed via the :: operator.
+This means they reduce global namespace pollution and name conflict potential, and don't need to be put inside another scoped region (such as a namespace) unless there's some additional reason to do so; the namespace would be redundant.
+
+Scoped enumerations don't convert implicitly to integers.
+Scoped enumerators won't implicitly convert to integers, and this is considered a good thing in most cases; it rarely makes sense to do so and would usually facilitate semantic errors.
+Note that you can still compare enumerators from within the same scoped enumeration (same type).
+
+If we need to treat a scoped enum as an integral value, we can explicitly convert a scoped enumerator to an integer by using static_cast.
+C++23 has std::to_underlying(), but... jeez, are we ready for that?
+Are we going to start expecting compilers to come with C++23 stuff already?
+
+As of C++, you can list initialize a scoped enum using an integral value without static_cast. Unlike an unscoped enumeration, you don't need the enum class to specify a base for this to work.
+
+Best practice: Favor scoped enums over unscoped enums unless there's a compelling reason to do otherwise.
+
+Despite their benefits, unscoped enums are still commonly used in C++ because there are cases where we want implicit conversion to int, and static_cast can be annoying and excessive.
+
+Easing conversion of scoped enumerators to integers
+Scoped enums are great, but lack of implicit conversion can be a pain.
+If we need to implicit convert to int often, we could just overload unary + to perform this conversion.
+e.g.
+    // Overload the unary + operator to convert Animals to the underlying type
+    constexpr auto operator+(Animals a) noexcept
+    {
+        return static_cast<std::underlying_type_t<Animals>>(a);
+    }
+    int main()
+    {
+        std::cout << +Animals::elephant << '\n'; // convert Animals::elephant to an integer using unary operator+
+
+        return 0;
+    }
+This both prevents unintended conversions to an integral type, and provides a convenient way to explicitly request such conversions as needed.
+
+using enum statements (C++20)
+Since C++20, a using enum statement imports all an enum into the current scope.
+With an enum class type, this lets us access the enum class enumerators without having to prefix each with the name of the enum class.
+This can be useful to avoid the annoying repeated prefixes within a scope.
+
+Quiz
+
+1. Define an enum class named Animal that contains the following animals: pig, chicken, goat, cat, dog, duck. Write a function named getAnimalName() that takes an Animal parameter and uses a switch statement to return the name for that animal as a std::string_view (or std::string if you’re using C++14). Write another function named printNumberOfLegs() that uses a switch statement to print the number of legs each animal walks on. Make sure both functions have a default case that prints an error message. Call printNumberOfLegs() from main() with a cat and a chicken.
+see ch13_4_1.cpp
+
+
+
+
+
+
+
+
+
+
+

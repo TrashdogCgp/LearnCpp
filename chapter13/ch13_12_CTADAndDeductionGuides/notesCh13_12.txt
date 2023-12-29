@@ -1,0 +1,126 @@
+13_12
+Class template argument deduction (CTAD) and deduction guidelines
+
+Starting in C++17, when instantiating an object from a class template, the compiler can deduce the template types from the types of the object's initializer.
+This is called CTAD, class template argument deduction.
+e.g.
+    std::pair<int, int> p1{ 1, 2 }; // explicitly specify class template std::pair<int, int> (C++11 onward)
+    std::pair p2{ 1, 2 };           // CTAD used to deduce std::pair<int, int> from the initializers (C++17)
+
+CTAD is only performed if no template argument list is present. Therefore, the following are errors.
+    std::pair<> p1 { 1, 2 };    // error: too few template arguments, both arguments not deduced
+    std::pair<int> p2 { 3, 4 }; // error: too few template arguments, second argument not deduced
+
+Many future lessons will make use of CTAD. If you're compiling before C++14, you'll get an error and need to explictly add such arguments to the examples to make things compile.
+
+Template argument deduction guidelines
+In most cases, CTAD works without help.
+In some cases, the compiler may still need a bit of help to deduce template arguments properly.
+The following will break in C++17, but will not break in C++20:
+    // define our own Pair type
+    template <typename T, typename U>
+    struct Pair
+    {
+        T first{};
+        U second{};
+    };
+
+    int main()
+    {
+        Pair<int, int> p1{ 1, 2 }; // ok: we're explicitly specifying the template arguments
+        Pair p2{ 1, 2 };           // compile error in C++17 (okay in C++20)
+
+        return 0;
+    }
+The reason this breaks is usually specified as something like "cannot deduce template arguments".
+C++17 CTAD doesn't know how to deduce template arguments for aggregate class templates.
+Struct Pair here is an aggregate class template (aggregate meaning it is a type that can contain multiple data members)
+To address this, we can provide the compiler with a deduction guide, which tells the compiler how to deduce the template argments for a given class template.
+With a deduction guide:
+    template <typename T, typename U>
+    struct Pair
+    {
+        T first{};
+        U second{};
+    };
+
+    // Here's a deduction guide for our Pair (needed in C++17 only)
+    // Pair objects initialized with arguments of type T and U should deduce to Pair<T, U>
+    template <typename T, typename U>
+    Pair(T, U) -> Pair<T, U>;
+
+    int main()
+    {
+        Pair<int, int> p1{ 1, 2 }; // explicitly specify class template Pair<int, int> (C++11 onward)
+        Pair p2{ 1, 2 };           // CTAD used to deduce Pair<int, int> from the initializers (C++17)
+        return 0;
+    }
+
+Looking closer at the deduction guide portion and how it works:
+We use the same template type definition as the Pair struct.
+On the right side of the arrow, we have the type we're helping the compiler to deduce.
+On the left side of the arrow, we tell the compiler what kind of declaration to look for.
+We're telling it to look for a declaration of some object named Pair with two arguments: one of type T, the other of type U.
+Altogether, we're telling the compiler that if it sees a declaration of a Pair with two arguments (type T and type U), it should deduce the type to ba a Pair<T, U>
+
+Consequently, when the compiler sees the definition
+    Pair p2{1, 2};
+it will see a declaration of Pair with two arguments, one of type int and the other of type int.
+It will deduce this to be a Pair<int, int>
+
+A similar example, but with only one type for the Pair:
+    template <typename T>
+    struct Pair
+    {
+        T first{};
+        T second{};
+    };
+
+    // Here's a deduction guide for our Pair (needed in C++17 only)
+    // Pair objects initialized with arguments of type T and T should deduce to Pair<T>
+    template <typename T>
+    Pair(T, T) -> Pair<T>;
+
+    int main()
+    {
+        Pair<int> p1{ 1, 2 }; // explicitly specify class template Pair<int> (C++11 onward)
+        Pair p2{ 1, 2 };      // CTAD used to deduce Pair<int> from the initializers (C++17)
+
+        return 0;
+    }
+
+C++20 added the ability for the compiler to automatically generate deduction guides for aggregates. Deduction guides, then, are only necessary for C++17 compatibility.
+std::pair and other standard library template types come with pre-defined deduction guides, so std::pair is ready to use in C++17
+
+Non-aggregates don't need deduction guides in C++17 because the presence of a constructor serves the same purpose.
+
+Type template parameters with default values
+Just like function parameters can have default arguments, template parameters can be given different values.
+These will be used when the template parameter isn't explicitly defined and can't be deduced.
+e.g.
+template <typename T=int, typename U=int> // default T and U to type int
+    struct Pair
+    {
+        T first{};
+        U second{};
+    };
+
+    template <typename T, typename U>
+    Pair(T, U) -> Pair<T, U>;
+
+    int main()
+    {
+        Pair<int, int> p1{ 1, 2 }; // explicitly specify class template Pair<int, int> (C++11 onward)
+        Pair p2{ 1, 2 };           // CTAD used to deduce Pair<int, int> from the initializers (C++17)
+        Pair p3;                   // uses default Pair<int, int>
+        return 0;
+    }
+
+CTAD doesn't work with non-static member initialization
+When initializing the member of a class type using non-static member initialization, CTAD will not work in this context. All template arguments must be explicitly specified.
+e.g.
+    struct Foo
+    {
+        std::pair<int, int> p1{ 1, 2 }; // ok, template arguments explicitly specified
+        std::pair p2{ 1, 2 };           // compile error, CTAD can't be used in this context
+    };

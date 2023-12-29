@@ -1,0 +1,16 @@
+Couldn't sleep last night.
+Pretty sleep-deprived this morning, best I can do is start up at 5:30 and see how long I can focus, or maybe if I can nap in the afternoon.
+In the meantime, got through enums yesterday. Not too much progress from that, but it's at least a topic.
+Starting today with structs.
+
+Somehow zombie-studied my way through the remainder of chapter 13 before noon, but a few things don't fully click, and I'm not just talking about constexpr this time.
+CTAD, deduction guides, and whether or not to assume C++11 and explicitly identify types rather than taking advantage of C++17 CTAD, are not fully clear to me.
+I'd personally rather, at least at this stage, to explicitly provide types for templates where possible. I don't know if that's a valid desire to include type info in my code, or if that's just lack of comfort with type deduction in general.
+I need to read up more on CTAD from external sources and maybe go through CTAD again on the pages here, stare at code for a while, and repeat lines from the lesson out loud a few times.
+
+Also realizing I'm fuzzy on the conditions for std::string_view becoming invalid.
+If you pass a std::string where a function parameter is std::string_view, and if the string goes out of scope, then the std::string view is invalid... but in the case of a string literal, I think that's no longer so?
+Refresh on this!
+
+
+

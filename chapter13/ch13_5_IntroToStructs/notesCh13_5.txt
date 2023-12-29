@@ -1,0 +1,47 @@
+13_5
+Intro to structs, members, and member selection
+
+We frequently need more than one variable to represent something of interest.
+An example is holding the numerator and denominator of a fraction.
+
+Indicating that variables are related isn't very practical and doesn't scale well.
+Same goes with managing multiple related variables by identifier.
+
+C++ comes with two compound data types to solve this problem: structs and classes.
+A struct is a program-defined data type that allows us to group multiple variables together into a single type.
+
+Because structs are a program-defined type, we first have to tell the compiler what our struct type looks like before we can begin using it.
+e.g.
+    struct Employee
+    {
+        int id {};
+        int age {};
+        double wage {};
+    };
+
+The struct keyword tells the compiler we're defining a struct, and the type name comes after.
+Start struct names with a capital letter, as is convention for program-defined types.
+
+The variables within the struct are called data members (or member variables).
+
+In C++, a member is a variable, function, or type that belongs to a struct or class.
+All members must be declared within the struct (or class) definition.
+
+The empty curly braces after each member ensures that the member variables are value initialized when an Employee is created.
+The struct definition must end with a semicolon.
+
+Accessing members
+To access a specific member variable, we use the member selection operator, ., in between the struct variable name and the member name.
+Struct member variables work just like normal variables, so it's possible to do normal operations on them such as assignment, arithmetic, comparison, etc.
+
+One big advantage of structs is that we only need one new name per struct variable (member names are fixed as part of the struct type definition).
+e.g.
+    Employee joe {};
+    joe.id = 14;
+    joe.age = 32;
+    Employee frank {};
+    frank.id = 15;
+
+This makes it clear which member variables belong to each struct, and organizes much better than individual variables would.
+Member variable consistency also provides type consistency when you have multiple variables of the same struct type.
+

@@ -1,0 +1,35 @@
+13_x
+Chapter 13 summary and quiz
+
+1. In designing a game, we decide we want to have monsters, because everyone likes fighting monsters. Declare a struct that represents your monster. The monster should have a type that can be one of the following: an ogre, a dragon, an orc, a giant spider, or a slime. Use an enum class for this.
+
+Each individual monster should also have a name (use a std::string or std::string_view), as well as an amount of health that represents how much damage they can take before they die. Write a function named printMonster() that prints out all of the struct’s members. Instantiate an ogre and a slime, initialize them using an initializer list, and pass them to printMonster().
+see ch13_x_1.cpp
+
+
+
+2. Specify whether objects of each of the given types should be passed by value, const address, or const reference. You can assume the function that takes these types as parameters doesn’t modify them.
+a) char
+Pass by value
+b) std::string
+Pass by const reference
+c) unsigned long
+Pass by value
+d) bool
+Pass by value 
+e) An enumerated type
+Pass by value
+f) struct Position
+Pass by const reference
+g) struct Player
+Pass by const reference
+h) An object whose address is held in an int*
+Pass by const address
+i) std::string_view
+Pass by value; string_view is cheap to copy and doesn't create a copy of the string being viewed
+
+
+3. Create a class template named Triad that has 3 members of the same template type. Also create a function template named print that can print a Triad. The following program should compile:
+see ch13_x_3.cpp
+
+

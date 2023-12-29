@@ -1,0 +1,56 @@
+13_9
+Struct miscellany
+
+Structs with program-defined members
+In C++, structs can have members that are other program-defined types. There are two ways to do this.
+One is including a program-defined type (from global scope) as a member of a struct, just like any other variable.
+
+Another way is to define a nested type; types can be nested inside other types, so if an Employee existed only as part of a Company, the Employee type could be nested in the Company struct.
+e.g.
+    struct Company
+    {
+        struct Employee // accessed via Company::Employee
+        {
+            int id{};
+            int age{};
+            double wage{};
+        };
+        int numberOfEmployees{};
+        Employee CEO{}; // Employee is a struct within the Company struct
+    };
+This is more often done with classes, so we'll talk more about that in chapter 15.
+
+Struct size and data structure alignment
+Typically, the size of a struct is the sum of the size of all its members.
+That's not always the case, though.
+It could be larger; for performance reasons, the compiler will sometimes add gaps into structures.
+This adding of gaps into structures is called padding.
+
+The reason compilers may add padding is beyond this tutorial's scope, but here's a Wikipedia page on structure alignment. 
+https://en.wikipedia.org/wiki/Data_structure_alignment
+Structure alignment and padding can have a pretty significant impact on struct size.
+See thing:
+    #include <iostream>
+    struct Foo1
+    {
+        short a{}; // will have 2 bytes of padding after a
+        int b{};
+        short c{}; // will have 2 bytes of padding after c
+    };
+
+    struct Foo2
+    {
+        int b{};
+        short a{};
+        short c{};
+    };
+
+    int main()
+    {
+        std::cout << sizeof(Foo1) << '\n'; // prints 12
+        std::cout << sizeof(Foo2) << '\n'; // prints 8
+
+        return 0;
+    }
+
+Foo1 is 12 bytes while Foo2 is only 8 bytes. The difference is due to padding, which occurs despite the two having the same members.

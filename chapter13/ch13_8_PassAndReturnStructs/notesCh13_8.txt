@@ -1,0 +1,71 @@
+13_8
+Passing and returning structs
+
+If we wanted to pass a bunch of variables to a function, it'd usually take a bunch of parameters, which is annoying and painful and error-prone.
+
+Passing structs (by reference)
+A big advantage of structs over individual variables is that we can pass the entire struct to a function that needs to work with the members.
+Structs are generally passed by const reference to avoid making copies.
+
+Because we pass the entire struct instead of just individual members, we only need one parameter even if the struct has many members.
+In the future, we wouldn't have to change the function declaration or call if we added new members. The new member is automatically included.
+
+Returning structs
+What if we wanted to pass a struct with 3 coordinates back to the user?
+Structs are usually returned by value, to avoid returning a dangling reference.
+Thus, we can return a temporary (unnamed/anonymous) object for structs.
+e.g.
+    Point3d getZeroPoint()
+    {
+        return Point3d { 0.0, 0.0, 0.0 }; // return an unnamed Point3d
+    }
+
+Deducing the return type
+In the case where the function has an explicit return type, we can even omit the type in the return statement seen previously.
+e.g.
+    struct Point3d
+    {
+        double x { 0.0 };
+        double y { 0.0 };
+        double z { 0.0 };
+    };
+    Point3d getZeroPoint()
+    {
+        return Point3d { 0.0, 0.0, 0.0 }; // return an unnamed Point3d
+    }
+In this case, a temporary Point3d is constructed, copied back to the caller, and then destroyed at the end of the expression.
+Note that this is cleaner than declaring a Point3d variable, initializing it, and then returning it on the next line.
+
+Deducing the return type
+In the case where the function has an explicit return type (e.g. Point3d), we can even omit the type in the return statement.
+e.g. 
+    Point3d getZeroPoint()
+    {
+        // We already specified the type at the function declaration
+        // so we don't need to do so here again
+        return { 0.0, 0.0, 0.0 }; // return an unnamed Point3d
+    }
+
+Trashdog's note: I really don't like this. Maybe it's just unfamiliarity with this possibility and use of deduction, but this feels much less intuitive to me than the previous method of returning an explicit temporary Point3d value. Maybe this will be used often and it'll become second nature, but jeez, how cryptic.
+
+Classes build directly on top of structs and the concepts introduced so far.
+
+Quiz
+
+1. Write a program that allows you to enter 3 pieces of data (for a website):
+    How many ads were watched
+    What percentage of users clicked on an ad
+    The average earnings per clicked ad
+Store those 3 values in a struct. Pass that struct to a function that prints each of the values.
+The function should then calculate how much you made for that day (product of the three fields) and print the value.
+see ch13_8_1.cpp
+
+
+2. Create a struct to hold a fraction. The struct should have an integer numerator and an integer denominator number. No requirement to reduce the fraction. Write another function to multiply two fractions together and return the result as a Fraction. Write another function that prints a fraction.
+see ch13_8_2.cpp
+
+
+
+3. In the solution prior, why does getFraction() return by value instead of by reference?
+Attempting to return the newly instantiated Fraction by reference would probably result in a dangling reference unless it were implemented in some counterintuitive way that accounts for the variable going out of scope.
+
