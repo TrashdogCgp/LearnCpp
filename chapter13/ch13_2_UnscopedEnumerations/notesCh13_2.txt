@@ -1,0 +1,162 @@
+13_2
+Unscoped Enumerations
+
+C++ contains many useful fundamental and compound types, but these types aren't always sufficient for what we want to do.
+
+Imagine keeping track of marble colors:
+    constexpr int red{ 0 };
+    constexpr int green{ 1 };
+    constexpr int blue{ 2 };
+
+The programmer here still has to deduce that ints mean to represent colors (which are likely elsewhere in a separate file).
+
+We can make this a little more clear by using a type alias.
+    constexpr Color red{0};
+etc.
+But we'd still have to let the reader know that these symbolic constants are supposed to be used with variables of type color.
+We'd also have the problem that nothing enforces proper usage of these constants, like:
+    Color eyeColor{8};//valid syntax, invalid intent
+
+Also, debugging would only show the integer value of the color, not the symbolic meaning, which can make it harder to tell if our program is correct.
+
+Enumerations
+An enumeration (also called an enum) is a compound data whose values are restricted to a set of named symbolic constants (called enumerators).
+
+C++ supports two types of enumerations: unscoped enumerations (which we'll cover now) and scoped enumerations (which we'll cover soon)
+
+Because enums are program-defined types, each enum needs to be fully defined before being used; a forward declaration is not sufficient.
+Unscoped enums are defined by the enum keyword.
+e.g.
+    enum Color
+    {
+        // These symbolic constants define all the possible values this type can hold
+        red,
+        green,
+        blue, // trailing comma optional but recommended
+    }; // the enum definition must end with a semicolon
+
+Enumerators in the enum define the specific values that Color is restricted to.
+A trailing comma after the last enumerator is optional, but still recommended for consistency.
+
+The type definition for Color ends with a semicolon.
+
+Naming enumerators and enums
+By convention, the names of enumerated types start with a capital letter.
+This is convention for all program-defined types.
+
+Enumerators don't have to be named, but unnamed enumerations should be avoided in modern C++.
+Enumerators must be given names. Unfortunately, there isn't a common naming convention for enumerator types.
+Common choices include starting with lower case, starting with caps, going all caps, going all caps with a prefix (e.g. COLOR_RED rather than just RED), or prefixed with a k and camelCased (kColorRed).
+Modern C++ guidelines typically recommend avoiding all-caps, since all-caps is typically preprocessor macros and may conflict.
+Also avoid starting with a capital letter, because names beginning with a capital letter are supposed to be reserved for program types.
+
+Best practice: Name your enumerated types starting with a captial letter. Name your enumerators starting with a lower case letter.
+
+Enumerated types are distinct types
+Each enumerated type you create is considered to be a distinct type, meaning the compiler can distinguish it from other types (unlike typedefs or typedef aliases, which are considered non-distinct from the types they are aliasing).
+Because enum types are distinct, enums defined as part of one enum type can't be used with objects of another enum type.
+e.g. the following is illegal
+    Pet myPet{ cat }; //legal
+    Color shirt {cat}; //Illegal; cat belongs to the pet enum, not the color enum
+
+Using enums
+Because enums are descriptive, they're useful for enhancing code readability/documentation.
+Enums are best used when you have a small set of related constants, and objects only need to hold one value at a time.
+Common use cases are days of the week, the cardinal directions, and suits in a deck of cards.
+
+Functions have traditionally returned small negative numbers to return error codes.
+Using magic numbers like these can be avoided via enum.
+
+Enums can make for useful function parameters when the user needs to choose between two or more options.
+e.g.
+    enum SortOrder
+    {
+        alphabetical,
+        alphabeticalReverse,
+        numerical,
+    };
+
+Many languages use enumerations to define Booleans; after all, bool is just an enum with true and false.
+In C++, true and false are defined as keywords, though, not enumerators.
+
+Because enums are small and inexpensive to copy, it's fine to pass/return them by value.
+
+Unscoped enumerators will implicitly convert to integral values, which means we can use an enumerator where an integral value is expected.
+
+Scope of unscoped enumerations
+Unscoped enumerations are named such because they put their enumerator names into the same scope as the enumeration definition itself (as opposed to creating a new scope region like a namespace does).
+
+These enumerations are defined in the global scope. Therefore, all the enum names also go into global scope.
+This pollutes the global scope and significantly raises the odds of naming collisions.
+
+An enum name can't be used in multiple enums within the same scope.
+e.g.
+    enum Color
+    {
+        red,
+        green,
+        blue, // blue is put into the global namespace
+    };
+
+    enum Feeling
+    {
+        happy,
+        tired,
+        blue, // error: naming collision with the above blue
+    };
+
+blue here leads to a naming collision and a resulting compile error.
+
+Unscoped enums also provide a named scope region for their enumerators.
+So even though we don't have to, we -could- access the enumerators of the above as follows:
+    Color apple {Color::green}; //the better apples are tart, and understand that they should bite you back
+
+Avoiding enumerator collisions
+One option is to prefix each enumerator with the name of the enum
+e.g.    
+    enum Color{
+        color_red,
+        color_blue,
+    };
+
+This at least helps with avoiding collision, but the namespace is still polluted.
+
+A better option is to put the enum type inside of a namespace.
+    namespace Color{
+        enum Color{
+            color_red,
+            color_blue,
+        };
+    }
+
+This approach means we'd have to prefix our enumeration and enumerator names with the name of the scoped region.
+
+Note that classes also provide a scoped region. It's common to put enum types related to a class inside the scope region of the class. This is discussed in chapter 15's lecture on nested types (member types)
+
+A related option is to use a scoped enumeration, which defines its own scope region.
+
+Best practice: Prefer putting your enums in a named scope region (namespace or class, for example) so the enums don't pollute the global namespace.
+
+Comparing against enumerators
+We can use the equality operators to test whether an enum has the value of a particular enum or not.
+e.g.
+    Color shirt{ blue };
+    if (shirt == blue) // if the shirt is blue
+        std::cout << "Your shirt is blue!";
+
+Quiz
+
+1. Define an enumerated type called MonsterType to choose between the following monster races: orc, goblin, troll, ogre, and skeleton.
+Trashdog's note: Not doing this one on its own. Doing this as part of question 2, since it's a subset of the work to make the code for question 2.
+
+2. Put the monsterType enumeration in a namespace. Then create a main() function and instantiate a troll. The program should compile.
+See ch13_2_2.cpp
+
+
+
+
+
+
+
+
+

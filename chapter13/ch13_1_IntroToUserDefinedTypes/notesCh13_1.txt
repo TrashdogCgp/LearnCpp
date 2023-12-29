@@ -1,0 +1,77 @@
+13_1
+Introduction to program-defined (user-defined) types
+
+Fundamental types are defined as part of the core C++ language, so they're immediately available for use.
+If we want a variable with type int or double, we can just declare one.
+
+This is also true for compound types that are simple extensions of fundamental types (functions, pointers, references, arrays).
+
+This works because C++ already knows what the type names (and symbols) mean for these types; we don't need to provide or import any definitions.
+
+Type aliases allow us to define a new name for an existing type.
+Because a type alias introduces a new identifier into the program, a type alias must be defined before it can be used.
+
+What are user-defined/program-defined types?
+C++ allows us to create entirely new, custom types for our programs.
+These are often called user-defined types, though program-defined types probably fits better.
+C++ has two categories of compound types that allow for this: enumerated types (scoped and unscoped) and class types (structs, classes, and unions)
+
+Defining program-defined types
+Just like type aliases, program-defined types must also be defined before they can be used.
+The definition for a program-defined type is called a type definition.
+e.g.
+    // Define a program-defined type named Fraction so the compiler understands what a Fraction is
+    // (we'll explain what a struct is and how to use them later in this chapter)
+    // This only defines what a Fraction type looks like, it doesn't create one
+    struct Fraction
+    {
+        int numerator {};
+        int denominator {};
+    };
+
+This type definition doesn't allocate any memory, only tells the compiler what a Fraction looks like, so we can allocate objects of Fraction type later.
+Program-defined type definitions always end in a semicolon. Failure to include the semicolon at the end of a type definition is a common programmer error, which can be hard to debug because the compiler will usually error on the line after the type definition.
+
+Naming program-defined types
+By convention, program-defined types are named starting with a capital letter and don't use a suffix.
+
+Best practice: Name your program-defined types starting with a capital letter and not using a suffix.
+
+Using program-defined types throughout a multi-file program
+Every code file that uses a program-defined type needs to see the full type definition before it is used.
+A forward declaration is not sufficient. This is required so that the compiler knows how much memory to allocate for objects of that type.
+To propogate type definitions into the code files that need them, program-defined types are typically defined in header files, then included into any code file that requires that type definition.
+
+Best practice: A program-defined type used in only one code file should be defined in that code file as close to the first point of use as possible.
+A program-defined type used in multiple code files should be defined in a header file with the same name as the program-defined type and then #included into each code file as needed.
+
+Type definitions are partially exempt from the one-definition rule (ODR).
+The one-definition rule requires that each funciton and global variable only have one definition per program.
+We'd need a forward declaration to use a given function/variable that doesn't contain the definition.
+This works because declarations satisfy the compiler for functions/non-constexpr variables, and the linker can connect everything up.
+
+Forward declarations don't work for types, because the compiler needs the full definition to use a type.
+We have to be able to propagate the full type definition to every code file that uses/needs it.
+
+Types are partly exempt from the ODR; a given type can be defined in multiple code files.
+We've already done this without thinking about it too much; if a program has <iostream> included in two code files, you import all the definitions into both files.
+
+Caveats to ODR exemption:
+You can still only have one type definition per code file. Header guards usually make this a non-issue.
+Also, all type definitions must be identical, otherwise undefined behavior will result.
+
+Nomenclature: User-defined types vs program-defined types
+The term "user-defined type" sometimes comes up in casual conversation, and is also mentioned (but not defined) in the C++ language standard.
+user-defined type is used in a non-conventional manner in the C++ language standard, which describes it as a class or enumerated type defined by you, the standard library, or the implementation. This makes std::string a user-defined type, which is a little weird.
+
+To provide additional distinction, C++20 defines "program-defined type" to mean class types and enumerated types that are not defined as part of the standard library, implementation, or core language.
+So program-defined types include only class and enum types that are defined by us (or a third-party library).
+
+Clarifying types:
+
+Fundamental- A type built into core C++
+Compound- A type built from fundamental types
+User-defined- A class type or enumerated type (including those in std library or implementation)
+Program-defined- A class type or enumerated type.
+
+Trashdog's note: I will continue to use user-defined and program-defined interchangeably, since this is pretty common conversationally/casually.

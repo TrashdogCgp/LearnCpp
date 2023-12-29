@@ -1,0 +1,14 @@
+Late start today, but I somehow finished all of chapter 12 (pointer/reference basics) yesterday and it feels almost like I'm having a hangover today.
+I'm confident that I can at least get the first 6 lectures done for chapter 13, though (enums and structs).
+
+Still not fully solid on when type deduction for yesterday's topics will drop consts, pointers, and refs from a type. There's top-level and low-level constants, and the low-level constants will persist through type deduction, but I feel I could be quizzed on some niche cases and probably miss a couple.
+I hate not understanding things all the way through and need to make time for this once I get the gumption to freaking go for it.
+
+Got virtually no studying done until 6 PM.
+I don't think it's burnout or exhaustion. I woke up more tired than expected, ran some long errands, played some piano, gamed (too much, despite trying not to crack and fall into wasting this time on gaming), and cooked.
+I should've started this sooner and held to a rule of not gaming past noon... or maybe until after 3 PM?
+Not sure which works better, might decide once the new year starts.
+
+Either way, won't be getting through chapter 13 until tomorrow, and that's okay for now.
+
+
