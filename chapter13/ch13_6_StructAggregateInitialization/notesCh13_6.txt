@@ -1,0 +1,119 @@
+13_6
+Struct aggregate initialization
+
+Data members are not initialized by default
+Much like normal variables, data members are not initialized by default.
+e.g.
+    struct Employee
+    {
+        int id; // note: no initializer here
+        int age;
+        double wage;
+    };
+
+Since we don't provide initializers, an instance of Employee will have id, age, and wage uninitialized. We then get undefined behavior if we try to access a new Employee variable's id member.
+
+What is an aggregate?
+An aggregate data type, called an aggregate, is any type that can contain multiple data members. Some types of aggregates allow members to have different types (e.g. structs) while others require that all members be of a single type (e.g. arrays).
+In C++, the definition of an aggregate is narrower than this general definition, and much more complicated.
+We're going to ignore the C++ definition for now rather than spelling it out, I guess.
+But the important thing for now is that structs with only data members are aggregates.
+
+Aggregate initialization of a struct
+Because a normal variable can only hold a single value, we only need to provide a single initializer.
+Structs can have multiple members.
+When we define an object with a struct type, we need a way to initialize multiple members at initialization time.
+
+Aggregates use a form of initialization called aggregate initialization, which allows us to directly initialize the members of aggregates.
+To do this, we provide an initializer list as an initializer, which is just a braced list of comma-separated values.
+
+e.g.
+    Employee frank = { 1, 32, 60000.0 }; // copy-list initialization using braced list
+    Employee joe { 2, 28, 45000.0 };     // list initialization using braced list (preferred)
+
+Each of these initialization forms does memberwise initialization.
+Memberwise initialization means each member in the struct is initialized in the order of declaration.
+
+Best practice: Prefer the non-copy braced list form when initializing aggregates.
+
+Direct initialization is also possible for structs, but it's recommended to avoid it where possible, because it doesn't currently work with aggregates that use brace elision (whatever that is), notably including std::array.
+e.g. Employee robert ( 3, 45, 62500.0 );  // direct initialization using parenthesized list (C++20)
+
+Missing initializers in an initializer list
+If an aggregate is initialized but the number of init values is fewer than the number of members, then all remaining members will be value-initialized.
+
+This means we can use an empty initialization list to value-initialize all members of the struct.
+
+Const structs
+Variables of a struct type can be const or constexpr, and like all const variables, they must be initialized.
+e.g.
+    struct Rectangle
+    {
+        double length {};
+        double width {};
+    };
+    const Rectangle unit { 1.0, 1.0 };
+
+Designated initializers
+When initializing a struct from a list of values, the initializers are applied to the members in order of declaration.
+So what if we added an extra member in the middle of the definition (ie not the last member in the definition)?
+
+Since initialization values have shifted, things get borked, and the compiler might not catch this as an error because the syntax is still valid.
+
+C++20 added designated initializers for structs.
+Designated initializers allow you to explicitly define which initialization values map to which members.
+The members can be initialized using list or copy initialization, and must be initialized in the same order in which they are declared in the struct, otherwise an error will result.
+Members not designated an initializer will be value initialized.
+e.g.
+    struct Foo
+    {
+        int a{ };
+        int b{ };
+        int c{ };
+    };
+    Foo f2{ .a = 1, .c = 3 };   // ok: f2.a = 1, f2.b = 0 (value initialized), f2.c = 3
+    Foo f3{ .b{ 2 }, .a{ 1 } }; // error: initialization order does not match order of declaration in struct
+
+Designated initializers are nice because they provide some level of self-documentation and help ensure you don't mix up the order of initialization values. However, they also clutter up the init list, so using them isn't necessarily best practice.
+There's also no enforcement that designated initializers are being used consistently where an aggregate is initialied, so it's a good idea to avoid adding new members to the middle of an existing definition, which would cause initializer shifting, which could break things elsewhere in the code.
+
+Best practice: When adding a new member to an aggregate, it's safest to add it to the bottom of the definition list so the initializers for other members don't shift.
+
+Assignment with an intializer list
+We can assign values to members of structs individually.
+This is fine for single members (e.g. joe.age = 33;)
+Not so great, though, when we want to update many members. Similar to initializing a struct with an initializer list, you can also assign values to structs using an initializer list (which does memberwise assignment).
+e.g.
+    joe = { joe.id, 33, 66000.0 }; 
+Note that in the example, we don't want this initializer list assignment to change joe's id, hence providing the previous one.
+
+Assignment with designated initializers
+Designated initializers can also be used in a list assignment.
+    struct Employee
+    {
+        int id {};
+        int age {};
+        double wage {};
+    };
+
+    int main()
+    {
+        Employee joe { 1, 32, 60000.0 };
+        joe = { .id = joe.id, .age = 33, .wage = 66000.0 }; // Joe had a birthday and got a raise
+
+        return 0;
+    }
+Any members that aren't designated in such an assignment will be assigned the value that would be used for value initialization (default, empty brace value).
+If we hadn't specified a designated intializer for joe.id, it would have been assigned the value 0.
+
+Initializing a struct with another struct of the same type
+A struct may be initialized using another struct of the same type.
+e.g.
+    Foo foo { 1, 2, 3 };
+
+    Foo x = foo; // copy initialization
+    Foo y(foo);  // direct initialization
+    Foo z {foo}; // list initialization
+Note that this uses standard forms of initialization that we're familiar with (copy, direct, or list initialization) rather than aggregate initialization.
+This is most commonly seen when initializing a struct with the return value of a function that returns a struct of the same type.
+

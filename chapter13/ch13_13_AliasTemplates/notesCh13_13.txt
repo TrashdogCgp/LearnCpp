@@ -1,0 +1,82 @@
+13_13
+Alias templates
+
+Creating a type alias for a class template where all template arguments are explicitly specified works just like a normal type alias.
+e.g.
+    template <typename T>
+    struct Pair
+    {
+        T first{};
+        T second{};
+    };
+
+    template <typename T>
+    void print(const Pair<T>& p)
+    {
+        std::cout << p.first << ' ' << p.second << '\n';
+    }
+
+    int main()
+    {
+        using Point = Pair<int>; // create normal type alias
+        Point p { 1, 2 };        // compiler replaces this with Pair<int>
+
+        print(p);
+
+        return 0;
+    }
+
+Alias templates
+In other cases, we might want a type alias for a template class where not all of the template arguments are defined as part of the alias (and will instead be provided by the user of the type alias).
+We can define an alias template.
+An alias template is a template that can be used to instantiate type aliases.
+Just like type aliases do not define distinct types, alias templates do not define distinct types.
+e.g.
+    // Here's our alias template
+    // Alias templates must be defined in global scope
+    template <typename T>
+    using Coord = Pair<T>; // Coord is an alias for Pair<T>
+
+We're defining an alias template called Coord as an alias for Pair<T>, where type template parameter T will be defined by the user of the Coord alias.
+We can use this in a main function like so:
+    Coord<int> p1 { 1, 2 }; // Pre C++-20: We must explicitly specify all type template argument
+    Coord p2 { 1, 2 };      // In C++20, we can use alias template deduction to deduce the template arguments in cases where CTAD works
+
+There are a few things worth noting about this.
+
+Unlike normal type aliases, which can be defined inside a block, alias templates must be defined in the global scope (like all templates must).
+
+Prior to C++20, we have to explicitly specify the template arguments when instantiating an object using an alias template. In C++20, alias template deduction will deduce the type of the tamplate arguments from an initializer in cases where the aliased type would work with CTAD.
+
+Because CTAD doesn't work on function parameters, when we use an alias template as a function parameter, we must explicitly define the template arguments used by the alias template.
+e.g.
+    template <typename T>
+    void print(const Coord<T>& c)
+    {
+        std::cout << c.first << ' ' << c.second << '\n';
+    }
+in contrast to the incorrect/nonfunctional variant:
+    void print(const Coord& c) // won't work, missing template arguments
+    {
+        std::cout << c.first << ' ' << c.second << '\n';
+    }
+This is no different than if we'd used Pair or Pair<T> instead of Coord or Coord<T>.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

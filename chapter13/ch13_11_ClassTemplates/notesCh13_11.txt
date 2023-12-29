@@ -1,0 +1,118 @@
+13_11
+Class templates
+
+We introduced the challenge of overloading functions for each set of types we want to work with in previous chapters.
+The solution was to create function templates that the compiler can use to instantiate normal functions for whichever set of types we need.
+
+Aggregate types have similar challenges.
+
+If we're writing a program where we need a pair of int values, we might also need a pair of double values.
+This could just duplicate a struct, but this clutters the code, and a second definition of a struct named Pair wouldn't compile; it'd be an erroneous second declaration.
+
+Class templates
+Much like a function template is a template definition for instantiating functions, a class template is a template definition for instantiating class types.
+Note that a class type is a struct, class, or union type. While we're using "class templates" here on structs, everything here also applies to classes.
+
+As an example, see the Pair struct definition for int:
+    struct Pair
+    {
+        int first{};
+        int second{};
+    };
+
+Rewritten as a class template, we'd have the following:
+    template <typename T>
+    struct Pair{
+        T first;
+        T second;
+    };
+
+When we use our template type T, we can instantiate an object of type Pair<int> and if a type definition doesn't exist yet for Pair<int>, the compiler uses the class template to instantiate a struct type definition named Pair<int>, where all occurrences of template type T are replaced with int.
+We can similarly use Pair<double>.
+
+The actual compiled code after the compiler has used the template uses a feature called class template specialization (covered in chapter 26) to make use of something generated that looks like the following for an instantiated struct type definition named Pair<double>:
+    // Explicitly define what Pair<double> looks like
+    template <> // tells the compiler this is a template type with no template parameters
+    struct Pair<double>
+    {
+        double first{};
+        double second{};
+    };
+
+Using our class template in a function
+If we return to the challenge of making a max() function work with different types for a Pair, the compiler treats Pair<int> and Pair<double> as separate types.
+
+This pretty much assures us that we'll have to use function templates to make max() work without a ton of redundancy.
+    template <typename T>
+    struct Pair
+    {
+        T first{};
+        T second{};
+    };
+
+    template <typename T>
+    constexpr T max(Pair<T> p)
+    {
+        return (p.first < p.second ? p.second : p.first);
+    }
+The max() function template is pretty straightforward; since we want a Pair<T> passed in, the compiler has to understand what T is.
+When the max() function is called with a Pair<int> argument, the compiler will instantiate the function int max<int>(Pair<int>) from the function template, where template type T is replaced with int.
+
+When calling the function template, we can be explicit or implicit about the template type argument, e.g. max<int>(p1) or just max(p1). The compiler will use template argument deduction to determine what the template type argument should be.
+
+Class templates with template type and non-template type members
+Class templates can have some members using a template type and other members using normal (non-template) types.
+e.g.
+    template <typename T>
+    struct Foo
+    {
+        T first{};    // first will have whatever type T is replaced with
+        int second{}; // second will always have type int, regardless of what type T is
+    };
+
+This works just the way you'd expect; first is of type T, second is always of type int.
+
+Class templates with multiple template types
+Class templates can have multiple template types, much like function templates. This works the way we'd probably expect:
+    template <typename T, typename U>
+    struct Pair
+    {
+        T first{};
+        U second{};
+    };
+    template <typename T, typename U>
+    void print(Pair<T, U> p)
+    {
+        std::cout << '[' << p.first << ", " << p.second << ']';
+    }
+
+Making a function template work with more than one class type
+Note that in the previous example, print() takes in a Pair<T, U> parameter.
+This is ideal if we only want to be able to call our function with a Pair<T, U> argument.
+
+In some cases, we may write function templates that we want to use with any type that will successfully compile. To do that, we use a type template parameter as the function parameter instead.
+e.g.
+    template <typename T>
+    void print(T p)
+    {
+        std::cout << '[' << p.first << ", " << p.second << ']'; // will only compile if type has first and second 
+    }
+
+Since print now only has a single type template parameter (T), it will match any type.
+The function body will compile for any class type with a first and second member.
+Just note that it's possible to shadow a struct's type name by using that name in the template function definition; if we have type Pair, and then say
+    template <typename Pair> //then define a function body
+the name Pair matches to any argument type within the function body, and doesn't recognize the global scoped Pair type.
+
+std::pair
+Because working with pairs of data is common, the C++ standard library contains a class template called std::pair (in the <utility> header) defined identically to the Pair class template we've gone over in this section.
+
+Favor std::pair over rewriting the version shown here.
+[butterfly anime guy meme: Is this a tuple?]
+
+Using class templates in multiple files
+Just like function templates, class templates are typically defined in header files so they can be included into any code file that needs them.
+Both template definitions and type definitions are exempt from the one-definition rule.
+
+Reinforce: Prefer to define class templates in header files so they can be included in any code file that needs them.
+
