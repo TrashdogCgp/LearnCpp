@@ -42,5 +42,5 @@ For now, the tutorial recommends:
     Prefer implementing behaviors or actions instead of access functions. For example, instead of a setAlive(bool) setter, implement a kill() function
     Only provide access functions in cases where the public would reasonably need to get/set the value of the member.
 
-    
+
 

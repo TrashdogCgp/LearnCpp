@@ -1,0 +1,104 @@
+14_x
+Quiz
+
+1.
+a) Write a class named Point2d. Point2d should contain two member variables of type double: m_x, and m_y, both defaulted to 0.0.
+
+Provide a constructor and a print() function.
+
+The following program should run:
+
+#include <iostream>
+
+    int main()
+    {
+        Point2d first{};
+        Point2d second{ 3.0, 4.0 };
+
+        // Point2d third{ 4.0 }; // should error if uncommented
+
+        first.print();
+        second.print();
+
+        return 0;
+    }
+see ch14_x_a.cpp
+
+b) Now add a member function named distanceTo() that takes another Point2d as a parameter, and calculates the distance between them. Given two points (x1, y1) and (x2, y2), the distance between them can be calculated using the formula std::sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2)). The std::sqrt function lives in header cmath.
+
+The following program should run:
+
+    #include <cmath>
+    #include <iostream>
+
+    int main()
+    {
+        Point2d first{};
+        Point2d second{ 3.0, 4.0 };
+
+        first.print();
+        second.print();
+
+        std::cout << "Distance between two points: " << first.distanceTo(second) << '\n';
+
+        return 0;
+    }
+see ch14_x_b.cpp
+
+2. In lesson 13.8 -- Passing and returning structs, we wrote a short program using a Fraction struct. The reference solution looks like this:
+
+    #include <iostream>
+
+    struct Fraction
+    {
+        int numerator{ 0 };
+        int denominator{ 1 };
+    };
+
+    Fraction getFraction()
+    {
+        Fraction temp{};
+        std::cout << "Enter a value for numerator: ";
+        std::cin >> temp.numerator;
+        std::cout << "Enter a value for denominator: ";
+        std::cin >> temp.denominator;
+        std::cout << '\n';
+
+        return temp;
+    }
+
+    Fraction multiply(const Fraction& f1, const Fraction& f2)
+    {
+        return { f1.numerator * f2.numerator, f1.denominator * f2.denominator };
+    }
+
+    void printFraction(const Fraction& f)
+    {
+        std::cout << f.numerator << '/' << f.denominator << '\n';
+    }
+
+    int main()
+    {
+        Fraction f1{ getFraction() };
+        Fraction f2{ getFraction() };
+
+        std::cout << "Your fractions multiplied together: ";
+
+        printFraction(multiply(f1, f2));
+
+        return 0;
+    }
+Convert Fraction from a struct to a class following the standard best practices. Convert all of the functions to member functions.
+
+see ch14_x_2.cpp
+Note: That was... worse than I thought. I wasn't sure whether or not I was allowed to change the function signatures, or how much I was allowed to take out of the class. Multiply, from my point of view, just freaking had to be moved out. Also wasn't sure about getters/setters, so my solution uses them while the tutorial's solution doesn't. 
+Not honestly sure how well I followed best practice here, considering that the solution in the site definitely doesn't seem ideal.
+
+
+3. In the prior quiz solution, why was the Fraction constructor made explicit?
+Making the Fraction constructor explicit means that we won't invoke the constructor implicitly, like by errantly passing in an int argument to a function that expects a parameter of type Fraction.
+Such a use would instead get a (warranted) compilation error because the compiler would be unable to find a match for func(int) where only func(Fraction) exists (no way to convert func(int) into a Fraction).
+
+4. Which member functions in the Fraction quiz question are probably better left as non-member functions, and why?
+printFraction(const Fraction& f) and multiply(const Fraction& f1, const Fraction& f2) would be better as non-member functions.
+Removing them from the class simplifies the user interface and does not require instantiating an object or invoking the class to call the functions.

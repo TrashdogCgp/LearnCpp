@@ -1,0 +1,128 @@
+14_12
+Delegating constructors
+
+When possible, we want to reduce redundant code (DRY principle).
+If we can remove redundant code that exists in functions, our code becomes easier to maintain, as changes only need to be made in one place.
+When a class contains multiple constructors, it's common for each constructor to have repetition.
+We'd like to remove constructor redundancy where possible.
+
+Constructors can call other functions, including member functions within the same class.
+But this might require new functions just to reduce redundancy.
+We can do better.
+
+The obvious solution doesn't work
+Constructors are not designed to be called directly from the body of another function, including other constructors. Trying to do so will result in a compilation error.
+A more dangerous case occurs when we try to explicitly call a constructor without any arguments. This doesn't perform a function call to the default constructor--rather, it creates a temporary (unnamed) object and value initializes it.
+e.g.
+    Foo(int value): y { value }
+    {
+        // intent: call Foo() function
+        // actual: value initializes nameless temporary Foo (which is then discarded)
+        Foo(); // note: this is the equivalent of writing Foo{}
+    }
+This synatx actually creates an unnamed temporary Foo and then value initializes it, as if we'd written Foo{}.
+The default constructor only calls on the temporary Foo, and it's discarded once construction finishes.
+Note that this doesn't cause a compilation error; it just fails silently.
+
+Constructors should not be called directly from the body of another function. Doing so will either result in a compilation error, or will value initialize a temporary object and then discard it.
+
+Note that the following would be the compile error case, where a constructor call within a constructor passes in an argument:
+    Employee(std::string_view name)
+        : m_name{ name }
+    {
+        std::cout << "Employee " << m_name << " created\n";
+    }
+
+    Employee(std::string_view name, int id)
+        : m_name{ name }, m_id{ id }
+    {
+        Employee(name); // compile error
+    }
+
+Constructors are allowed to delegate (transfer responsibility for) initialization to another constructor from the same class type. This process is sometimes called constructor chaning, and such constructors are called delegating constructors.
+
+To make a constructor delegate initialization to another constructor, call the constructor in the member initializer list.
+e.g.
+    Employee(std::string_view name)
+        : Employee{ name, 0 } // delegate initialization to Employee(std::string_view, int) constructor
+    {
+    }
+
+    Employee(std::string_view name, int id)
+        : m_name{ name }, m_id{ id } // actually initializes the members
+    {
+        std::cout << "Employee " << m_name << " created\n";
+    }
+
+In the case where we initialize with Employee(std::string_view), the member initializer list of the delegated constructor Employee(std::string_view, int) initializes the members. The body of the delegated constructor runs.
+
+The downside here is that we sometimes have to duplicate initialization values. For example, we need an initialization value for the int parameter, which has us set literal 0; there's no way to reference the default member initializer here.
+
+Additional notes about delegating constructors:
+    First, a constructor that delegates to another constructor is not allowed to do any member initialization itself. So your constructor can delegate or initialize, but not both.
+    Note that we had the constructor with fewer parameters delegate to the constructor with more parameters; it's more common to have this than vice versa.
+    If we'd instead chosen to have Employee(string_view, int) delegate to Employee(string_view), that would've left us unable to initialize m_id using id, as a constructor can delegate or initialize, but not both.
+    Second, it's possible for a constructor to delegate to another constructor, which delegates back to the first constructor. This forms an infinite loop, and will cause the program to run out of stack space and crash. You can avoid this by ensuring all constructors resolve to a non-delegating constructor.
+
+Reducing constructors using default arguments
+Default values can also be used to reduce multiple constructors into fewer constructors.
+For example, by putting a default value on our id parameter, we could create a single employee constructor that requires a name argument, but will optionally accept an id argument (default to 0 if nothing is provided).
+
+Since default values must be attached to the rightmost parameters in a function call, good practice when defining classes is to define members for which a user must provide initialization values for first (make these the leftmost parameters of the constructor). Optional members should be defined second (rightmost parameters of the constructor).
+
+Best practice: Members for which the user must provide initialization values should be defined first. Members for which the user can optionally provide initialization values should be defined second (and as rightmost parameters of the constructor).
+
+Note that this method also required duplication of the default initialization value for m_id ('0'); once as a default member initializer, and once as a default argument.
+
+A conundrum: Redundant constructors vs redundant default values
+Above, we used delegating constructors and then default arguments to reduce constructor redundancy. But both of these methods required us to duplicate initialization values for our members in various places.
+Unfortunately, there's no way to specify that a delegating constructor or default argument should use the default member initializer value.
+There are various opinions about whether it's better to have fewer constructors (duplicate initialization values) or more constructors (no duplication of initialization values).
+This tutorial thinks it's usually more straightforward to accept duplication of initialization values, but have fewer constructors.
+
+Note that when we have an initialization value that is used in multiple places (e.g. as a default member initializer and a default argument for a constructor parameter), we can instead define a named constant to use whenever our init value is needed. This allows it to be defined in one place.
+This is best done with a static constexpr member inside the class.
+e.g.
+    class Employee
+    {
+    private:
+        static constexpr int default_id { 0 }; // define a named constant with our desired initialization value
+
+        std::string m_name{};
+        int m_id{ default_id }; // we can use it here
+
+    public:
+        Employee(std::string_view name, int id = default_id) // and we can use it here
+            : m_name{ name }, m_id{ id }
+        {
+            std::cout << "Employee " << m_name << " created\n";
+        }
+    };
+
+The downside is that each additional named constant adds another name, cluttering and adding complexity to the class.
+This may be worth it, but it depends on how many of such constants are required.
+
+Quiz
+
+1. Write a class named Ball. Ball should have two private member variables, one to hold a color (default value: black), and one to hold a radius (default value: 10.0). Add 4 constructors, one to handle each case below:
+
+int main()
+{
+    Ball def{};
+    Ball blue{ "blue" };
+    Ball twenty{ 20.0 };
+    Ball blueTwenty{ "blue", 20.0 };
+
+    return 0;
+}
+
+see ch14_12_1.cpp
+
+
+2. Reduce the number of constructors in the program by using default arguments and delegating constructors.
+see ch14_12_2.cpp
+
+
+
+
+

@@ -1,0 +1,80 @@
+14_8
+The benefits of data hiding (encapsulation)
+
+The member variables of a class are typically made private.
+The separation of interface and implementation is useful because it allows us to use objects without having to understand how they work. Intead, we only have to understand how to interact with them, which reduces complexity of using object and increases how much we can interact with.
+
+Implementation and interfaces in class types
+The interface of a class type defines how a user of the class type will interact with objects of the class type.
+Because only public members can be accessed from outside the class type, the public members of a class type form its interface.
+An interface composed of public members is sometimes called a public interface.
+
+An interface is an implicit contract between the author and user of a class. If an existing interface changes, code that uses it may break. It's important, then, to ensure the interfaces for our class types are well-designed and stable (don't change much).
+
+The implementation of a class type consists of code that actually makes the class behave as intended. This includes member variables that store data, and the bodies of the mmeber functions that contain program logic and manipulate member variables.
+
+encapsulation
+Data hiding (information hiding/data abstraction) is a technique used to enforce separation of interface and implemention by hiding the implementation of a program-defined type from users.
+
+Encapsulation is also used to refer to data hiding, but this term also refers to bundling of data and functions together without regard for access controls, so the term can be ambiguous.
+This tutorial series will assume all encapsulated classes implement data hiding.
+
+How to implement data hiding
+Data hiding is simple to implement in C++.
+First, we ensure the data members of a class type are private so the user can't directly access them.
+The statements inside the bodies of member functions are already not directly accessible to users.
+Second, we ensure the member functions are public, so the user can call them.
+
+By following these rules, we force the user of a class type to manipulate objects via the public interface, and prevent direct access to implementation details.
+Classes defined in C++ should use data hiding. The standard library is full of classes that do just that. Structs, on the other hand, should not use data hiding.
+
+Data hiding makes classes easier to use, and reduces complexity
+To use an encapsulated class, you don't need to know how it is implemented, only need to understand its interface (member functions available, what arguments they take, and what values they return).
+Not having to care about implementation details reduces the complexity of programs, which in turn reduces mistakes.
+
+Data hiding allows us to maintain invariants
+Invariants are conditions that must be true throughout the lifetime of an object in order for the object to stay valid.
+When we give users direct access to the implementation of a class, they become responsible for maintaining all invariants, which they may not do. This adds complexity to using a class.
+By using data hiding, we can make sure that setters maintain an invariant, which the user no longer has to do.
+
+Data hiding allows better error detection (and handling)
+We can have setters validate user input. Our interface can detect misuse and handle it as appropriate, although handling such cases is a topic for another day.
+
+Data hiding makes it possible to change implementation details without breaking existing programs
+We can change how classes are implemented without breaking the programs that use them. As long as we don't change the public interface, programs that use the public interface don't need to change, and we could, say, replace three data members with an array in the implementation without breaking things.
+
+Classes with interfaces are easier to debug
+Encapsulation can help debug a program when something goes wrong. Often, when a program doesn't work correctly, it's because of our member variables being given an incorrect value. Finding where this happens can be painful and require a lot of breakpoints.
+If a member can only be changed through a member function, then you can just breakpoint that single function. This makes it easier to catch where something is going wrong.
+
+Prefer non-member functions to member functions
+If a function can be implemented as a non-member function, consider implementing it as a non-member function instead of as a member function.
+This has benefits:
+    Non-member functions are not part of the interface of your class, so the interface of your class will be more straightforward, making your class easier to understand.
+    Non-member functions increase encapsulation, as such functions must work through the public interface of the class. There's no temptation to access the implementation directly just because it's convenient.
+    Non-member functions don't need to be considered when making changes to the implementation of a class.
+    Non-member functions tend to be easier to debug
+    Non-member functions containing application specific data and logic can be separated from the reusable portions of the class
+
+Best practice: Prefer implementing functions as non-members when possible (especially functions that contain application specific data or logic)
+
+The order of class member declaration
+When writing code, we have to declare variables and functions before we can use them.
+In a class, the order does not exist as a limitation. We can order members in any order we like.
+So how to order them?
+Two schools of thought:
+    List private members first, then public member functions. This follows declare-before-use tradition, and anyone looking at class code will see how you've defined your data members before they're used. This can make reading through and understanding implementation details easier.
+    Alternatively...
+    List your public members first and put your private members down at the bottom. Because someone who uses your class is interested in the public interface, putting public members first makes the info they need easier to find, and buries implementation details.
+In modern C++, public members first is recommended, especially for code that will be shared with other developers.
+
+Best practice: Declare public members first, protected members next, and private members last. This spotlights the public interface and de-emphasizes implementation details.
+
+The following order is recommended by the Google C++ style guide"
+    Types and type aliases (typedef, using, enum, nested structs and classes, and friend types)
+    Static constants
+    Factory functions
+    Constructors and assignment operators
+    Destructor
+    All other functions (static and non-static member functions, and friend functions)
+    Data members (static and non-static)

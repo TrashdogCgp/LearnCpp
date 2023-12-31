@@ -1,0 +1,186 @@
+14_16
+Converting constructors and the explicit keyword
+
+Reminder of initialization types, again:
+int a;         // no initializer (default initialization)
+int b = 5;     // initializer after equals sign (copy initialization)
+int c( 6 );    // initializer in parentheses (direct initialization)
+
+// List initialization methods (C++11)
+int d { 7 };   // initializer in braces (direct list initialization)
+int e = { 8 }; // initializer in braces after equals sign (copy list initialization)
+int f {};      // initializer is empty braces (value initialization)
+
+
+We introduced type conversion and the concept of implicit type conversion in prior lessons, where the compiler will implicitly convert a value of one type to a value of another type as needed if such a conversion exists.
+
+For example, a function with a double parameter can be called by passing in an argument of int; since the type of the argument doesn't match the type of the parameter, the compiler will see if it can implicitly convert the type. Using numeric conversion rules, int converts to double and since we're passing by value, the parameter will be copy initialized with this value.
+
+User-defined conversions
+see this example:
+    class Foo
+    {
+    private:
+        int m_x{};
+    public:
+        Foo(int x)
+            : m_x{ x }
+        {
+        }
+
+        int getX() const { return m_x; }
+    };
+
+    void printFoo(Foo f) // has a Foo parameter
+    {
+        std::cout << f.getX();
+    }
+
+    int main()
+    {
+        printFoo(5); // we're supplying an int argument
+
+        return 0;
+    }
+Since we're tryint go pass an int argument to a function that expects a parameter of type Foo, the compiler will try to implicitly convert the int value of 5 into a Foo object so the function can be called.
+Since one of our types here is a program-defined type, the C++ standard doesn't have specific rules that tell the compiler how to convert values to/from a program-defined type.
+The compiler will instead look to see if we've defined some function that it can use to perform such a conversion.
+Such a function is called a user-defined conversion.
+
+Converting constructors
+Since we're trying to find a function that lets the compiler convert an int value into a Foo object, it will find the Foo(int) constructor.
+Prior, we've used constructors to explicitly construct object:
+    Foo x{5}; // explicity convert int value 5 to a Foo
+If we think about it, we're providing an int value and getting a Foo object in return.
+In the context of a function call, we're trying to solve the same problem.
+    printFoo(5);// Implicitly convert int value 5 into a Foo
+
+A constructor hat can be used to perform an implicit conversion is called a converting constructor.
+By default, all constructors are converting constructors.
+
+Only one user-defined conversion may be applied
+See this example:
+    class Employee
+    {
+    private:
+        std::string m_name{};
+
+    public:
+        Employee(std::string_view name)
+            : m_name{ name }
+        {
+        }
+
+        const std::string& getName() const { return m_name; }
+    };
+
+    void printEmployee(Employee e) // has an Employee parameter
+    {
+        std::cout << e.getName();
+    }
+
+    int main()
+    {
+        printEmployee("Joe"); // we're supplying an string literal argument
+
+        return 0;
+    }
+This one actually won't compile because only one user-defined conversion may be applied to perform an implicit conversion, and this example would require two.
+We'd first have to have the c-string literal converted to a std::string_view, which uses a std::string_view converting constructor. Then, that std::string_view has to be converted into an Employee using the Employee(std::string_view) converting constructor.
+
+There are two ways to make this example work.
+    1. Use a string_view literal instead of a c-string literal
+    2. Explicitly construct an Employee rather than having one implicitly made
+
+This also works because only one user-defined conversion is now required (string literal to std::string_view for initializing the Employee object).
+
+It is trivial to convert an implicit conversion into an explicit conversion.
+An implicit converson can be trivially converted into an explicit conversion by using direct list initialization (or direct initialization).
+
+When converting constructors go wrong
+We may pass in values and have unexpected conversions at runtime.
+Sometimes, it would be better if a print(Employee) function for a class, for example, could only be called with an Employee object, not any value that can be implicitly converted to an Employee, especially a fundamental type if that applies to the situation.
+This would reduce the possibility of inadvertent errors.
+
+The explicit keyword
+To address such issues, we can use the explicit keyword to tell the compiler that a constructor should not be used as a converting constructor.
+Making a constructor explicit has two notable consequences:
+    An explicit constructor cannot be used to do copy initialization or copy list initialization.
+    An explicit constructor cannot be used to do implicit conversions (since this uses copy initialization or copy list initialization)
+We could use this as follows:
+    class Dollars
+    {
+    private:
+        int m_dollars{};
+
+    public:
+        explicit Dollars(int d) // now explicit
+            : m_dollars{ d }
+        {
+        }
+
+        int getDollars() const { return m_dollars; }
+    };
+    print(5); //compilation error because Dollars(int) is explicit
+
+Explicit constructors can be used for direct and list initialization
+An explicit constructor can still be used for direct and direct list initialization.
+e.g.
+    Dollars d1(5); //okay
+    Dollars d2{5}; //okay
+
+If we wanted to call print(5), this wouldn't work because Dollars(int) is explicit.
+But we can explicitly define a Dollars object ourselves:
+    print(Dollars{5});
+This is allowed because we can still use explicit constructors to list initialize objects. And since we've now explicitly constructed a Dollars, the argument type matches the parameter type. No conversion required.
+This also better documents our intent, as it's explicit that we mean to call print() with a Dollars object.
+
+Return by value and explicit constructors
+When we return a value from a function, if that value doesn't need to match the return type of the function, an implicit conversion will occur.
+Just like with pass by value, such conversions can't use explicit constructors.
+e.g.
+    class Foo
+    {
+    public:
+        explicit Foo() // note: explicit (just for sake of example)
+        {       }
+
+        explicit Foo(int x) // note: explicit
+        {       }
+    };
+
+    Foo getFoo()
+    {
+        // explicit Foo() cases
+        return Foo{ };   // ok
+        return { };      // error: can't implicitly convert initializer list to Foo
+
+        // explicit Foo(int) cases
+        return 5;        // error: can't implicitly convert int to Foo
+        return Foo{ 5 }; // ok
+        return { 5 };    // error: can't implicitly convert initializer list to Foo
+    }
+
+Best practices for use of explicit
+The modern best practice is to make any constructor that will accept a single argument explicit by default.
+This includes constructors with multiple parameters where most or all of them have default values.
+This will prohibit the compiler from using that constructor for implicit conversions. If a conversion is required, only non-explicit constructors will be considered. If no non-explicit constructor can be found to perform the conversion, the compiler will error.
+If such a conversion is desired in a case, it is trivial to convert the implicit conversion into an explicit definition using list initialization.
+
+The following should not be made explicit:
+    Copy (and move) constructors (these don't perform conversions)
+    Default constructors with no parameters (these are only used to convert {} to a default object, not something we need to restrict)
+    Constructors that only accept multiple arguments (not typically a candidate for conversions anyway)
+
+There are cases where it makes sense to make a single-argument constructor non-explicit. This can be useful when:
+    The converted value is semantically equivalent to the argument value
+    and
+    The conversion is performant
+
+For example, the std::string_view constructor that accepts a c-style argument is not explicit, because there's unlikely to be a case where we wouldn't be okay with a c-style literal being treated as a string_view instead.
+
+Conversely, the std::string constructor that takes a std::string_view is marked as explicit, because while a std::string value is semantically equivalent to a std::string_view value, constructing a std::string isn't as performant.
+
+Best practice: Make any constructor that accepts a single argument explicit by default.
+If an implicit conversion between types is both semantically equivalent and performant, consider making the constructor non-explicit.
+Don't make copy or move constructors explicit, since these do not perform conversions.

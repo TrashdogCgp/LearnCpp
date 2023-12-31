@@ -1,0 +1,99 @@
+14_14
+Introduction to the copy constructor
+
+see this thing:
+    Fraction f { 5, 3 };  // Calls Fraction(int, int) constructor
+    Fraction fCopy { f }; // What constructor is used here?
+This actually compiles just fine, and produces the expected result with fCopy having {5,3}.
+
+Taking a closer look, the initialization of f is just standard brace init that calls the Fraction(int, int) constructor.
+The initialization of variable fCopy is also clearly an initialization, and we know constructor functions are used to initialize classes.
+So what constructor is the line calling?
+Answer: the copy constructor.
+
+A copy constructor is a constructor that is used to initialize an object with an existing object of the same type. After the copy constructor executes, the newly created object should be a copy of the object passed in as the initializer.
+
+An implicit copy constructor
+If you don't provide a copy constructor for your classes, C++ will create a public implicit copy constructor.
+By default, the implicit copy constructor will do memberwise initialization. This means that each member will be initialized using the corresponding member of the class passed in as the initializer.
+For example, fCopy.m_numerator is initialized using f.m_numerator, and fCopy.m_denominator is initialized using f.m_denominator
+
+After the copy constructor has executed, the members of f and fCopy have the same values, so fCopy is a representative copy of f. Calling print() on either, then, has the same result.
+
+Defining you own copy constructor
+We can also explicitly define our own copy constructor.
+e.g.
+    // Copy constructor
+    Fraction(const Fraction& fraction)
+        // Initialize our members using the corresponding member of the parameter
+        : m_numerator{ fraction.m_numerator }
+        , m_denominator{ fraction.m_denominator }
+    {
+        std::cout << "Copy constructor called\n"; // just to prove it works
+    }
+
+The copy constructor we defined above is functionally equivalent to the one we'd get by default. The difference is that we've added an output statement to prove the copy constructor is actually being called.
+
+Copy constructors should not do anything other than copy an object. This is because the compiler may optimize the copy constructor out in certain cases.
+If you rely on the copy constructor for some other behavior than just copying, that behavior may or may not occur.
+
+Best practice: Copy constructors should have no side effects beyond copyiin.
+
+Prefer the implicit copy constructor
+Unlike the implicit default constructor, which does nothing (and thus is rarely what we want), the memberwise initialization performed by the implicit copy constructor is usually exactly what we want.
+Therefore, in most cases, using the implicit copy constructor is perfectly fine.
+
+Best practice: Prefer the implicit copy constructor unless you have a specific reason to create your own.
+
+The copy constructor's parameter must be a reference
+It is a requirement that the parameter of a copy constructor be an lvalue reference or const lvalue reference. Because the copy constructor should not be modifying the parameter, using a const lvalue reference is preferred.
+
+Best practice: If you write your own copy constructor, the parameter should be a const lvalue reference.
+
+Pass by value (and return by value) and the copy constructor
+When an object is passed by value, the argument is copied into the parameter. When the argument and parameter are the same class type, the copy is made by implicitly invoking the copy constructor. Similarly, when an object is returned back to the caller by value, the copy constructor is implicitly invoked to make the copy.
+example:
+    // Copy constructor
+    Fraction(const Fraction& fraction)
+        : m_numerator{ fraction.m_numerator }
+        , m_denominator{ fraction.m_denominator }
+    {
+        std::cout << "Copy constructor called\n";
+    }
+    Fraction f{ 5, 3 };
+
+    printFraction(f); // f is copied into the function parameter using copy constructor
+
+    Fraction f2{ generateFraction(1, 2) }; // Fraction is returned using copy constructor
+
+    printFraction(f2); // f is copied into the function parameter using copy constructor
+Note that when printFraction(f) is called, the copy constructor is used to pass the object by value.
+
+Using =default to generate a default copy constructor
+If a class has no copy constructor, the compiler will implicitly generate one.
+If we prefer, we can explicitly request the compiler create a default copy constructor for us using the =default syntax.
+e.g.
+    // Explicitly request default copy constructor
+    Fraction(const Fraction& fraction) = default;
+
+Using =delete to prevent copies
+Occasionally, we want objects of a certain class to not be copyable. We can prevent this by marking the copy constructor function as deleted, using =delete syntax.
+e.g.
+    // Delete the copy constructor so no copies can be made
+    Fraction(const Fraction& fraction) = delete;
+    //later, in main()
+    Fraction f { 5, 3 };
+    Fraction fCopy { f }; // compile error: copy constructor has been deleted
+
+You can also prevent the public from making copies of a class object by making the copy constructor private; private functions can't be called by the public. However, a private copy constructor can still be called from other members of the class, so this solution isn't advised unless that's desired.
+
+The rule of three is a well known C++ principle that states that if a class requires a user-defined copy constructor, destructor, or copy assignment operator, then it probably requires all three.
+In C++11, this was expanded to the rule of five, which adds the move constructor and move assignment operator to that list.
+Not following the rule of three/five is likely to lead to malfunctioning code.
+We'll revisit the rule of three and rule of five when we cover dynamic memory allocation.
+
+Quiz
+
+1. In the lesson above, we noted that the parameter for a copy constructor must be a (const) reference. Why aren't we allowed to use pass by value?
+Using pass by value would require a copy constructor to already exist and be defined. Pass by value implicitly invokes the copy constructor to copy the argument into the parameter.
+If we could pass by value for a copy constructor, it would lead to an infinite chain of calls to the copy constructor.
