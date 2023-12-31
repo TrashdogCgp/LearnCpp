@@ -12,5 +12,14 @@ Also realizing I'm fuzzy on the conditions for std::string_view becoming invalid
 If you pass a std::string where a function parameter is std::string_view, and if the string goes out of scope, then the std::string view is invalid... but in the case of a string literal, I think that's no longer so?
 Refresh on this!
 
+Bonus section 13_y goes over using references and has an example where it makes known that std::string is a provided typedef for std::basic_string.
+That's actually kind of a mind-screw, to be honest.
+
+thing.replace(8,3, "blue");
+
+
+
+
+
 
 

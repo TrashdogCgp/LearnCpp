@@ -1,0 +1,7 @@
+Late start today. Sleep debt has caught up with me.
+Going to commit half of chapter 14 today, but I'd already done two lectures last night and ran entirely out of steam at that point and forgot to commit them before sleep.
+Continuing on with class types today.
+Considering starting up a tangential effort now that I've made it to the OOP part of the website. Might try a data structures course, might try screwing around with RTOS stuff on an ESP32 microcontroller. Not totally sure yet.
+
+
+

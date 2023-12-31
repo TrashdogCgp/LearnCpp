@@ -1,0 +1,46 @@
+14_6
+Access functions
+
+Classes typically make their data members private, and private members cannot be directly accessed by the public.
+Despite this, for some classes, it can be appropriate for us to be able to get or set the value of a private member variable.
+
+Access functions
+An access function is a trivial public member function whose job is to retrieve or change the value of a private member variable.
+
+Access functions come in two flavors: getters and setters.
+Getters, sometimes called accessors, are public member functions that return the value of a private member variable.
+Setters, sometimes called mutators, are public member functions that set the value of a private member variable.
+
+Getters are usually made const so that they can be called on both const and non-const objects.
+Setters should be non-const so they can modify data members.
+
+Access function naming
+There is no common convention for naming access functions. However, there are a few naming conventions that are more popular than others.
+
+Prefix with get/set
+The advantage of using get/set prefixes is that it makes clear that these are access functions (should be inexpensive to call).
+
+No prefix
+This style is more concise, and uses the same name for both the getter and setter (relying on function overloading to differentiate the two). The C++ standard library uses this convention.
+The downside is that the no-prefix convention doesn't make it especially obvious that the setter is setting the value of the member variable.
+
+One of the best reasons to prefix private data members with "m_" is to avoid having data members and getters with the same name (which C++ doesn't support, although Java does).
+
+setter prefix only
+getter is no prefix, setter is prefixed with "set"
+Using a set prefix on setters makes it more obvious that the object is changing state.
+
+Getters should return by value or by const lvalue reference
+Getters should provide read-only access to data. Therefore, the best practice is that they should return by value or const lvalue reference (if making a copy of the member is expensive).
+
+Because returning data members by reference is non-trivial, that's covered soon.
+
+Access function concerns
+Many developers argue that use of access functions violates good class design.
+For now, the tutorial recommends:
+    If your class has no invariants and requires a lot of access functions, consider using a struct and providing direct access to members instead.
+    Prefer implementing behaviors or actions instead of access functions. For example, instead of a setAlive(bool) setter, implement a kill() function
+    Only provide access functions in cases where the public would reasonably need to get/set the value of the member.
+
+    
+

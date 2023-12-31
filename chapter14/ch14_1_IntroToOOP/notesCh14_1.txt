@@ -1,0 +1,47 @@
+14_1
+Intro to object-oriented programming
+
+Procedural programming
+Recall that an object is "a piece of memory that can be used to store values".
+An object with a name is called a variable. We've made programs that are sequential lists of instructions to the compuer that define data (via objects) and operations perfored on that data (via functions containing statements and expressions).
+
+Up to now, we've been doing procedural programming.
+The focus has been on creating procedures (functions in C++) that implement program logic.
+We pass data objects to those functions, functions perform operations on the data, and then potentially return a result to be used by the caller.
+
+In procedural programming, the functions and the data they operate on are separate entities.
+The programmer is responsible for combining the functions and data together to produce the desired result.
+
+In real life, objects have two major components: properties and behaviors. These properties and behaviors are inseparable.
+
+In programming, properties are represented by objects, and behaviors are represented by functions. So procedural programming represents reality poorly, because it separates properties from behaviors.
+
+What is object-oriented programming?
+In OOP, the focus is on creating program-defined data types that contain both properties and a set of well-defined behaviors. The term "object" in OOP refers to the objects we can instantiate from such types.
+This leads to code that looks more like this:
+    you.eat(apple);//OOP approach
+    eat(you, apple);//procedural programming approach
+
+Because properties and behaviors are no longer separate, objects are easier to modularize, which makes our programs easier to write and understand, and also provides a higher degree of code reuse.
+
+OOP brings other benefits
+In school, submit a programming assignment and work is pretty much done.
+On the other hand, submit code into a repo and it's used by other devs. New OS/software releases can break your code, or users can find a logic error, or someone will need a new capability.
+Other devs need to extend your code without breaking it. Your code needs to be able toe volve, perhaps significantly, and needs to be able to do so quickly and with minimal headaches/breakage.
+
+The best way to address this need for maintainable code is keeping code as modular and non-redundant as possible. OOP brings a number of other useful concepts to the table:
+Inheritance, encapsulation, abstraction, and polymorphism
+
+We'll cover those four in due time. For now, note that OOP doesn't replace procedural programming. Rather, it helps manage complexity when needed.
+
+The term "object".
+It's overloaded a bit, and this causes some confusion.
+In OOP, an "object" implies both that it's a piece of memory to store values, and that it combines both properties and behaviors. This tutorial will call this new interpretation "class objects" when referring to OOP.
+
+Quiz.
+
+1. Update the animal procedural example above and instantiate a snake instead of a cat.
+see ch14_1_1.cpp
+
+2. Update the animal OOP-like example and instantiate a snake instead of a cat.
+see ch14_1_2.cpp

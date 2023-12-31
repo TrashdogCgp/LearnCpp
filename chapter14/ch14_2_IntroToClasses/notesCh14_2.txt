@@ -1,0 +1,59 @@
+14_2
+Introduction to classes
+
+Structs bundle multiple member variables into a single object that can be initialized and passed around as a unit.
+While useful, structs have a number of deficiencies that can present challenges when building larger, complex programs, especially those worked on by multiple developers.
+
+The class invariant problem
+Perhaps the biggest difficulty with structs is that they don't provide an effective way to document and enforce class invariants.
+An invariant is a condition that must be true while some component is executing.
+
+With class types (including structs, classes, and unions), a class invariant is a condition that must be true throughout the lifetime of an object in order for the object to remain valid.
+An object that has a violated class invariant is said to be in an invalid state, and unexpected or undefined behavior may result from further use of that object.
+
+Using an object whose class invariant has been violated may result in unexpected or undefined behavior.
+
+Considering a struct:
+    struct Fraction
+    {
+        int numerator { 0 };
+        int denominator { 1 };
+    };
+A denominator of 0 is mathematically undefined.
+Therefore, the invariant of this struct is that the denominator should never be set to 0.
+
+Nothing prevents us from explicitly violating the class invariant for Fraction. We can explicitly initialize the denominator to 0. This doesn't cause an immediate issue, but our object is invalid due to this, and further use of the object could cause unexpected/undefined behavior.
+We could add assert(f.denominator != 0) somewhere to document intent in the code, but this doesn't behaviorally change much; we'd rather catch the problems at the source (initialization/assignment) rather than downstream, where the value is used.
+
+Relying on the user of an object to maintain class invariants is likely to result in problems.
+Ideally, we'd like to bulletproof our class types so that an object either can't become invalid, or can signal immediately if it becomes invalid (rather than letting undefined behavior occur in the future).
+Structs don't have the mechanics to solve this problem well.
+
+Intro to classes
+A class is a program-defined compound type that can have many member variables with different types. This is a lot like a struct.
+From a technical standpoint, classes and structs are almost identical, so structs and classes can implement the same things. Practically, however, we use structs and classes differently.
+
+Defining a class
+Because a class is a program-defined data type, it must be defined before it can be used.
+Classes are defined similarly to structs, except we use the class keyword instead of struct.
+e.g.
+    class Employee
+    {
+        int m_id {};
+        int m_age {};
+        double m_wage {};
+    };
+
+Most of the C++ standard library is classes.
+std::string and std::string_view are defined as classes. In fact, most non-aliased types in the standard library are defined as classes.
+
+Quiz
+1. Given some set of values (ages, address numbers, etc…), we might want to know what the minimum and maximum values are in that set. Since the minimum and maximum values are related, we can organize them in a struct, like so:
+    struct minMax
+    {
+        int min; // holds the minimum value seen so far
+        int max; // holds the maximum value seen so far
+    };
+However, as written, this struct has an unspecified class invariant. What is the invariant?
+min <= max?
+WHEW, that was the correct answer.
