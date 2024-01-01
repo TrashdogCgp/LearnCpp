@@ -1,0 +1,93 @@
+14_7
+Member functions returning references to data members
+
+With return by reference, we noted that the object being returned by reference must exist after the function returns.
+This means we shouldn't return local variables by reference, because the reference will be left dangling after the variable is destroyed.
+However, it's okay to return by reference either function parameters passed by reference, or variables with static duration, as they will generally not be destroyed after the function returns.
+
+Member functions can also return by reference, and they follow the same rules for when it is safe to return by reference as non-member functions.
+However, member functions have one additional case we need to discuss: member functions that return data members by reference.
+This is most commonly seen with getter access functions, so we'll illustrate this topic using getter member functions. But this topic applies to any member function returning a reference to a data member.
+
+Returning data members by value can be expensive
+while it's safer to return by value, non-fundamental types (like std::string) can be expensive. This makes return by value not the best choice, generally.
+
+Returning data members by lvalue reference
+Member functions can also return data members by (const) lvalue reference.
+Data members have the same lifetime as the object containing them. Since member functions are always called on an object, and that object must exist in the scope of the caller, it is generally safe for a member function to return a data member by (const) lvalue reference (as the member being returned by reference will still exist in the scope of the caller when the function returns).
+
+It is okay to return a (const) lvalue reference to a data member. The implicit object (containing the data member) still exists in the scope of the caller after the function returns, so any returned references will be valid.
+
+The return type of a member function returning a reference should match the type of the data member being returned.
+For example, returning a std::string_view in place of const std::string& would require a temporary std::string_view to be created and returned every time the function was called, which is inefficient. If the caller wants a string_view, they can do the conversion on their end.
+
+Best practice: A member function returning a reference should return a reference of the same type as the data member being returned, to avoid unnecessary conversions.
+
+For getters, using auto to have the compiler deduce the return type from the returned member is a useful way to ensure conversions don't occur
+e.g.
+	void setName(std::string_view name) { m_name = name; }
+	const auto& getName() const { return m_name; } // uses `auto` to deduce return type from m_name
+
+However, using an auto return type obscures the return type of the getter for documentation.
+For this reason, we'd prefer to use explicit return types.
+
+Rvalue implicit objects and return by reference
+What if our implicit object is an rvalue instead of an lvalue (like, the return value of some function that returns by value, for example)?
+Rvalue objects are destroyed at the end of the full expression in which they're created.
+When an rvalue object is destroyed, any references to members of that rvalue will be invalidated.
+So a reference to a member of an rvalue object can only safely be used within the full expression where it's created.
+Example cases related to this const reference return:
+	class Employee
+	{
+		std::string m_name{};
+	public:
+		void setName(std::string_view name) { m_name = name; }
+		const auto& getName() const { return m_name; } //  getter returns by const reference
+	};
+	// createEmployee() returns an Employee by value (which means the returned value is an rvalue)
+	Employee createEmployee(std::string_view name)
+	{
+		Employee e;
+		e.setName(name);
+		return e;
+	}
+	int main()
+	{
+		// Case 1: okay: use returned reference to member of rvalue class object in same expression
+		std::cout << createEmployee("Frank").getName();
+
+		// Case 2: bad: save returned reference to member of rvalue class object for use later
+		const std::string& ref { createEmployee("Garbo").getName() }; // reference becomes dangling when return value of createEmployee() is destroyed
+		std::cout << ref; // undefined behavior
+
+		// Case 3: okay: copy referenced value to local variable for use later
+		std::string val { createEmployee("Hans").getName() }; // makes copy of referenced member
+		std::cout << val; // okay: val is independent of referenced member
+
+		return 0;
+	}
+
+Using member functions that return by reference safely
+Despite the potential danger with rvalue implicit objects, it is conventional for getters to return types that are expensive to copy by const reference, not by value.
+Three points about using the return values from these getters safely:
+	Prefer to use the return value immediately when a member function returns by reference. Since this works with both lvalue and rvalue objects, if you always do this, you will avoid trouble.
+	Don't save a returned reference to use later unless you're sure the implicit object is an lvalue. If you do this with an rvalue implicit object, undefined behavior will results with a dangling reference.
+	If you need a returned reference to persist for use later and aren't sure if it's an lvalue, use the returned reference as the initializer for a non-reference local variable to copy the member being referenced.
+
+Best practice: Prefer to use the return value of a member function that returns by reference immediately, to avoid issues with dangling references when the implicit object is an rvalue.
+
+Do not return non-const references to private data members
+Because a reference acts just like the object being referenced, a member function that returns a non-const reference provides direct access to that member even if the member is private.
+If you return a non-const reference to a private member, the caller can subvert the access control system.
+
+Const member functions can't return non-const references to data members
+A const member function is not allowed to return a non-const reference to members. If a const member function could return a non-const reference to a member, it would be handing the caller a way to directly modify that member, which would violate the intent of a const member function.
+
+
+
+
+
+
+
+
+

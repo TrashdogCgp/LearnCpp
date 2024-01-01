@@ -1,0 +1,76 @@
+14_4
+Const class objects and const member functions
+
+Fundamental data types can be made constant via the const keyword. All const variables must be initialized at time of creation.
+
+Similarly, class type objects (struct, class, union) can also be made const via the const keyword, and must be initialized at time of creation.
+You should generally make your class type objects const or constexpr when you need to ensure they aren't modified after creation.
+
+Modifying the data members of const objects is disallowedOnce a const class tpe object has been initialized, any attempt to modify the data members of the object is disallowed; this would violate the object's const-ness.
+This means you can't change member variables (if they're public) or call member functions that set the value of member variables.
+
+Const objects may not call non-const member functions
+Even if a member function doesn't try to modify a member variable, calling a non-const member function is still a const violation.
+
+Const member functions are member functions that guarantee they will not modify the object or call any non-const member functions (as they may modify the object).
+A const member function that attempts to change a member variable or call a non-const member function will cause a compiler error to occur.
+
+For member functions defined outside the class definition, the const keyword must be used on both the function declaration in the class definition, and on the function definiton outside the class definition.
+
+Constructors cannot be made const, as they need to initialize (modify) the members of the object.
+
+Const member functions may be called on non-const objects.
+Because const member functions can be called on both const and non-const objects, if a member function doesn't modify the state of the object, it should be made const.
+
+Best practice: A member function that does not modify the state of the object should be made const, so that it can be called on both const and non-const objects.
+
+Be careful about which member functions you apply const to. Once a member function is made const, that function can be called on const objects. Removing const on a member function later will break any code that calls that member function on a const object.
+
+Const objects via pass by const refer
+Although initializing const local variables is one way to create const objects, a more common way to get a const object is by passing an object to a function by const reference.
+We typically make a reference const to allow functions to accept const lvalue arguments and rvalue arguments (literals and temporary objects).
+Member functions can be made const as follows:
+    struct Date
+    {
+        int year {};
+        int month {};
+        int day {};
+
+        void print() const // now const
+        {
+            std::cout << year << '/' << month << '/' << day;
+        }
+    };
+
+Member function const and non-const overloading
+While it's not done very often, it's possible to have a const and non-const overload version of the same function.
+This works because the const qualifier is considered part of the function's signature, so two functions differing only in const-ness are considered distinct.
+e.g.
+    #include <iostream>
+
+    struct Something
+    {
+        void print()
+        {
+            std::cout << "non-const\n";
+        }
+
+        void print() const
+        {
+            std::cout << "const\n";
+        }
+    };
+
+    int main()
+    {
+        Something s1{};
+        s1.print(); // calls print()
+
+        const Something s2{};
+        s2.print(); // calls print() const
+
+        return 0;
+    }
+
+This is typically done when the return value needs to differ in constness. This is pretty rare.
+

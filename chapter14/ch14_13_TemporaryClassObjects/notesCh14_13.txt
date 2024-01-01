@@ -1,0 +1,31 @@
+14_13
+Temporary class objects
+
+In most cases where a variable is only used once, we don't actually need a variable; instead, we can substitute in the expression used to initialize the variable where the variable would have been used.
+This makes the code cleaner. We don't have to define and give a name to a variable, so we don't have to scan through a function to see if the variable is actually used elsewhere.
+
+Note that this only works in cases where an rvalue expression is accepted. In cases where an lvalue expression is required (pass by reference, for example), we must have an object.
+
+Temporary class objects
+The same issue applies in the context of class types.
+A temporary object (sometimes called anonymous object or unnamed object) is an object that has no name and exists only for the duration of a single expression.
+There are two common ways to create temporary class type objects:
+    // Case 1: Pass variable
+    IntPair p { 3, 4 };
+    print(p);
+
+    // Case 2: Construct temporary IntPair and pass to function
+    print(IntPair { 5, 6 } );
+
+    // Case 3: Implicitly convert { 7, 8 } to a temporary IntPair and pass to function
+    print( { 7, 8 } ); //function expects an IntPair
+
+In case 2, we tell the compiler to construct an IntPair object, initialize it with {5, 6}.
+Since the object has no name, it's temporary. The function call returns and the object is destroyed.
+In case 3, we haven't explicitly specified what type to construct, so the compiler will deduce the necessary type (IntPair) from the function parameter, then implicitly convert {7,8} to an IntPair object.
+
+It's possibly even more common to see temporary objects used with return values.
+
+A few notes
+First, just as in the case of an int, when used in an expression, a temporary class object is an rvalue. Such objects can only be used where rvalue expressions are accepted.
+Second, temporary objects are created at the point of definition, and destroyed at the end of the full expression in which they're defined. A full expression is an expression that is not a subexpression.

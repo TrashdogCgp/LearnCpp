@@ -1,0 +1,86 @@
+14_9
+Introduction to constructors
+
+When a class type is an aggregate, we can use aggregate initialization to initialize the class type directly.
+    e.g. Foo foo { 6, 7 }; // uses aggregate initialization
+Aggregate initialization does memberwise initialization (members initialized in order in which they're defined). So when foo is instantiated in the above example, x gets 6, y gets 7.
+
+As soon as we make any member variables private, our class type is no longer an aggregate; aggregates cannot have private members, so we're no longer able to use aggregate initialization.
+
+Not allowing class types with private members to be initialized via aggregate initialization makes sense for a number of reasons.
+    Aggregate initialization requires knowing about the implementation of the class (already have to know what the members are, and their order), which we want to avoid with data hiding.
+    If our class has an invariant, we'd rely on the user to initialize in a way that preserves the invariant.
+
+So how do we initialize a class with private member variables?
+We need a matching constructor.
+
+Constructors
+A constructor is a special member function that is automatically called after a non-aggregate class type object is created.
+When a non-aggregate class type object is defined, the compiler looks to see if it can find an accessible constructor that is a match for the initialization values provided by the caller (if any).
+    If no accessible matching constructor is found, a compilation error is generated.
+    If an accessible matching constructor is found, memory for the object is allocated and the constructor function is called.
+
+The constructor does not create the object. The compiler sets up memory allocation for the object prior to constructor call. The constructor is then used to initialize the object.
+However, the lack of a matching constructor for a set of initializers will cause the compiler to error, and prevent creation of an object.
+
+Constructors generally perform two functions
+    They typically perform initialization of any member variables (via member initialization list)
+    They may perform other setup functions (via statements in the constructor body). This might include things like error checking the initialization values, opening a file or database, etc.
+After the constructor finishes executing, the object is "constructed", and the object should be usable and consistent.
+Note that aggregates are not allowed to have constructors, so if you add a constructor to an aggregate, it's no longer an aggregate.
+
+Naming constructors
+Unlike normal member functions, constructors have specific rules for how they must be named.
+    Constructors must have the same name as the class (with the same capitalization). For template classes, this name excludes template parameters.
+    Constructors have no return type, not even void.
+Because constructors are typically part of the class interface, they're typically public.
+
+Basic example:
+    class Foo
+    {
+    private:
+        int m_x {};
+        int m_y {};
+    public:
+        Foo(int x, int y) // here's our constructor function that takes two initializers
+        {
+            std::cout << "Foo(" << x << ", " << y << ") constructed\n";
+        }
+        void print() const
+        {
+            std::cout << "Foo(" << m_x << ", " << m_y << ")\n";
+        }
+    };
+
+When main() calls "Foo foo{6,7};", it the compiler looks for a matching Foo constructor accepting two int arguments.
+At runtime, memory for foo is allocated, and then the Foo(int, int) constructor is called with parameter x initialized to 6 and parameter y initialized to 7.
+When we call print(), you'll notice that m_x and m_y have value 0. This is because although our Foo(int, int) constructor function was called, it didn't actually initialize the members.
+That's because this example actually kind of sucked and was way too simple and if I'd read the code before copying the notes, I wouldn't have freaking copied it and would've summarized the notes in a shorter blurb.
+
+Constructor implicit conversion of arguments
+The compiler will perform implicit conversion of arguments in a function call (if needed) in order to match a function definition where the parameters are a different type.
+This also applies to constructors; constructor Foo(int, int) will match any call whose arguments implicitly convert to int.
+
+Constructors should not be const
+A constructor needs to be able to initialize the object being constructed. Therefore, a constructor must not be const.
+It'd be pretty silly to try to initialize something with a const function, eh?
+Note that ordinarily, a non-const member function can't be invoked on a const object, so we'd expect the following to not really work:
+    const Something s{}; //const object, but it implicitly invokes a non-const constructor
+Because the constructor is invoked implicitly, a non-const constructor can be invoked on a const object.
+
+Constructors vs setters
+Constructors are designed to initialize an entire object at the point of instantiation. Setters are designed to assign a value to a single member of an existing object.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

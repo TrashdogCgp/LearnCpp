@@ -1,0 +1,98 @@
+14_10
+Constructor member initialization lists
+
+Member initialization via member initialization list
+To have a constructor initialize members, we use a member initializer list (also called member initialization list). This is not to be confused with the similarly named "initializer list" used to initialize aggregates with a list of values.
+Member initialization lists are best leraned by example:
+    public:
+        Foo(int x, int y)
+            : m_x { x }, m_y { y } // here's our member initialization list
+        {
+            std::cout << "Foo(" << x << ", " << y << ") constructed\n";
+        }
+
+        void print() const
+        {
+            std::cout << "Foo(" << m_x << ", " << m_y << ")\n";
+        }
+    };
+The member initializer list is defined after the constructor parameters. It begins with a colon : and then lists each member to initialize along with the initialization value for that variable, separated by a comma.
+You must use a direct form of initialization here (braces or parentheses); copy initialization doesn't work here.
+Note that the member initializer list does not end in a semicolon.
+In main, call:
+    Foo foo{ 6, 7 };
+
+When foo is instantiated, the members in the initialization list are initialized with the specified initialization values. Then the body of the constructor runs.
+
+Member initializer list formatting
+C++ provides a lot of freedom to format your member initializer lists as you prefer, and doesn't care where you put whitespace, colon, or commas.
+
+The tutorial recommends the following formatting:
+    Foo(int x, int y)
+        : m_x { x }
+        , m_y { y }
+    {
+    }
+
+Because the C++ standard says so, the members in a member initializer list are always initialized in the order in which they're defined inside the class (not the order they're defined in the member initializer list).
+
+In the example above, m_x is defined before m_y in the class definition, so m_x will be initialized first.
+Even if we flip the order in the member initializer list, m_x will get its value first.
+If one variable's assignment value is dependent on another, make sure the dependent variable is initialized after the variable it depends on.
+To avoid these errors, members in the member initializer list should be listed in the order in which they're defined in the class. Some compilers will issue a warning if members are initialized out of order.
+
+Best practice: Member variables in a member initializer list should be listed in order that they are defined in the class.
+It's also a good idea to avoid initializing members using the value of other members if possible. That way, even if you make a mistake on initialization order, it shouldn't matter due to there not being dependencies between initialization values.
+
+Member initializer list vs default member initializers
+Members can be initialized in a few different ways:
+    If a member is listed in the member initializer list, that initialization value is used
+    Otherwise, if the member has a default member initializer, that initialization value is used
+    Otherwise, the member is default initialized
+
+This means that if a member has both a default member initializer and is listed in the member initializer list for the constructor, the member initializer list value takes precedence.
+Example containing all three:
+    class Foo
+    {
+    private:
+        int m_x{};    // default member initializer (will be ignored)
+        int m_y{ 2 }; // default member initializer (will be used)
+        int m_z;      // no initializer
+
+    public:
+        Foo(int x)
+            : m_x{ x } // member initializer list
+        {
+            std::cout << "Foo constructed\n";
+        }
+
+        void print() const
+        {
+            std::cout << "Foo(" << m_x << ", " << m_y << ", " << m_z << ")\n";
+        }
+    };
+
+Note that since m_z is default initialized, it's left uninitialized since it's a fundamental type.
+
+Constructor function bodies
+The bodies of constructor functions are often left empty. This is because we primarily use constructors for initialization, which is done via the member initializer list. If that's all we need, then we don't need statements in the constructor body.
+However, because the statements in the body of the constructor execute after member initializer list has executed, we can add statements to do any other setup tasks.
+Note that assigning values within the constructor won't work if the members are required to be initialized, such as for data members that are const or references.
+Using the assignment operator on such const/ref variables is not an initialization; it's an assignment.
+
+Best practice: Prefer using the member initializer list to initialize your members over assigning values in the body of the constructor.
+
+Quiz
+1. Write a class named Ball. Ball should have two private member variables, one to hold a color and one to hold a radius.
+Also write a function to print out the color and radius of the ball.
+see ch14_10.cpp
+
+2. Why did we make print() a non-member function instead of a member function?
+It's best practice to make functions non-member functions where possible. This reduces the size and complexity of the user interface, which is good.
+
+
+
+
+
+
+

@@ -1,0 +1,53 @@
+14_15
+Class initialization and copy elision
+
+We've discussed 6 basic types of initialization for objects with fundamental types:
+int a;         // no initializer (default initialization)
+int b = 5;     // initializer after equals sign (copy initialization)
+int c( 6 );    // initializer in parentheses (direct initialization)
+
+// List initialization methods (C++11)
+int d { 7 };   // initializer in braces (direct list initialization)
+int e = { 8 }; // initializer in braces after equals sign (copy list initialization)
+int f {};      // initializer is empty braces (value initialization)
+
+All of these initialization types are valid for objects with class types.
+
+In modern C++, copy initialization, direct initialization, and list initialization do the same thing--initialize an object.
+For all types of initialization:
+    When initializing a class type, the set of constructors for that class are examined, and overload resolution is used to determine the best matching constructor. This may involve implicit conversion of arguments.
+    When initializing a non-class type, the implicit conversion rules are used to determine whether an implicit conversion exists.
+
+There are three key differences between the initialization forms:
+    List initialization disallows narrowing conversions
+    Copy initialization only considers non-explicit constructors/conversion functions.
+    List initialization prioritizes matching list constructors over other matching constructors.
+
+It's also worth noting that in some circumstances, certain forms of initialization aren't allowed (in a constructor member initializer list, for example, we can only use direct forms of initialization, not copy initialization)
+
+Unnecessary copies
+Pretend we do this for some silly reason:
+    Something s { Something { 5 } }; // focus on this line
+    s.print();
+Since the temporary and non-temporary Something have the same type, the Something copy constructor would normally be called here to copy the values from the temporary into s. The end result would be s initialized with value 5.
+However, this is needlessly inefficient.
+
+Copy elision
+Since the compiler is free to rewrite statements to optimize them, the compiler can optimize the unnecessary copy away and treat Something s{Something{5}} as if we'd written Something s{5} in the first place.
+This process is called copy elision.
+Copy elision is a compiler optimization technique that allows the compiler to remove unnecessary copying of objects. In cases where the compiler would normally call a copy constructor, the compiler is free to rewrite the code and avoid the call to the copy constructor altogether.
+When the compiler optimizes away a call to the copy constructor, we say the constructor has been elided.
+
+Unlike other types of optimization, copy elision is exempt from the as-if rule.
+Copy elision is allowed to elide the copy constructor even if the copy constructor has side effects (such as printing text to the console).
+
+Copy elision in pass by value and return by value
+The copy constructor is normally called when an argument of the same type as the parameter is passed by value, or when return by value is used.
+However, these copies may be elided.
+It's not important to memorize when copy elision happens; we need to remember that it's an optimization that your compiler will perform if it can. If you expect your copy constructor to be called and it isn't copy elision is probably why.
+
+Prior to C++17, copy elision was an optional optimization that compilers could make.
+In C++17, copy elision became mandatory in some cases.
+In optional elision cases, an accessible copy constructor must be available (not deleted) even if the actual call to the copy constructor is elided.
+In mandatory elision cases, an accessible copy constructor need not be available (mandatory elision can happen even if the copy constructor is deleted).
+

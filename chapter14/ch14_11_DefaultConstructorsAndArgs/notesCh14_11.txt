@@ -1,0 +1,76 @@
+14_11
+Default constructors and default arguments
+
+A default constructor is a constructor that accepts no arguments. Typically, this is a constructor that has been defined with no parameters.
+
+Value initialization vs default initialization for class types
+If a class type has a default constructor, both value initialization and default initialization will call the default constructor. Thus, these are essentially equivalent:
+    Foo foo{};
+    Foo foo2; //default initialization calls deefault constuctor too
+Value initialization is safer for aggregates, and we can't easily tell whether a class type is an aggregate or non-aggregate. It's safer to just use value initializaiton for everything and not worry about it.
+Best practice: Prefer value initialization over default initialization for all class types.
+
+Constructors with default arguments
+As with all functions, the rightmost parameters of constructors can have default arguments.
+e.g.
+    class Foo
+    {
+    private:
+        int m_x { };
+        int m_y { };
+
+    public:
+        Foo(int x=0, int y=0) // has default arguments
+            : m_x { x }
+            , m_y { y }
+        {
+            std::cout << "Foo(" << m_x << ", " << m_y << ") constructed\n";
+        }
+    };
+
+If all the parameters in a constructor have default arguments, the constructor is a default constructor (can be called with no arguments).
+
+Overloaded constructors
+Since constructors are functions, they can be overloaded. That is, we can have multiple constructors so that we can construct objects in different ways.
+e.g.
+    Foo() // default constructor
+    {
+        std::cout << "Foo constructed\n";
+    }
+    Foo(int x, int y) // non-default constructor
+        : m_x { x }, m_y { y }
+    {
+        std::cout << "Foo(" << m_x << ", " << m_y << ") constructed\n";
+    }
+
+A corollary is that a class should only have one default constructor; the compiler will be unable to disambiguate which should be used when it finds two default constructors, and will result in a compile error.
+
+An implicit default constructor
+If a non-aggregate class type object has no user-declared constructors, the compiler will generate a public default constructor. This is called an implicit default constructor.
+The implicit default constructor is equavelent to a constructor with no parameters, no member initializer list, and no statements in the body of the constructor.
+In other words, this:
+    public:
+        Foo() // implicitly generated default constructor
+        {
+        }
+The implicit default constructor is useful mostly when we have classes that have no data members. If a class has data members, we'll probably want to make them initializable with values provided by the user; the implicit default constructor doesn't suffice for that task.
+
+Using =default to generate a default constructor
+In cases where we would write a default constructor equivalent to the implicitly generated default constructor, we can instead tell the compiler to generate an implicit default constructor for us by using the following syntax:
+    Foo() = default;
+
+In the case where we have a user-declared constructor, the implicitly defined default constructor would not normally be generated. Since we've told the compiler to make a default, it will generate the default constructor after all.
+
+Implicit default constructor vs empty user constructor
+There's at least one case where implicit default constructor behaves differently than an empty user-provided constructor. When value initializing a class, if the class has a user-provided default constructor, the object will be default initialized.
+However, if the class has a default constructor that is not user-provided (implicitly-defined or =default), the object will be zero-initialized before being default initialized.
+This shouldn't matter because you should be providing default member initializers for all data members, but it's a distinction worth being aware of.
+
+Best practice: Prefer an explicitly defaulted default constructor (=default) over a default constructor with an empty body.
+
+Only create a default constructor when it makes sense
+A default constructor allows us to create objects of a non-aggregate class type with no user-provided initialization values.
+Thus, a class should only provide a default constructor when it makes sense for objects of a class type to be created using all default values.
+
+For a Fraction, for example, default of 0/1 makes sense.
+For an Employee, though, we shouldn't have an Employee without a name, so a default constructor for such a class shouldn't exist; we'd like a compile error if someone tries to use the class this way.

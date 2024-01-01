@@ -1,0 +1,159 @@
+14_5
+Public and private members and access specifiers
+
+Member access
+Each member of a class type has a property called access level that determines who can access that member.
+C++ had public, private, and protected.
+
+When a member is accessed, the compiler checks whether the access level of the member permits that member to be accessed. If the access is not permitted, the compiler will generate a compilation error. This access level system is sometimes called access controls.
+
+Members of a struct are public by default
+Members with the public access level are called public members. Public members are members of a class type that do not have restrictions on how they can be accessed.
+Public members can be accessed by other members of the same class.
+Notably, public members can also be accessed by "the public", which is what we call code that exists outside the members of a given class type, such as non-member functions and the members of other class types.
+
+The members of a struct are public by default. Public members can be accessed by other members of the class type, and by the public.
+
+Public members can be accessed from anywhere.
+
+The members of a class are private by default
+Members that have private access are called private members.
+Private members are members of a class type that can only be accessed by other members of the same class.
+
+Note that because an aggregate can have no private or protected non-static data members, we can't initialize a class type with private members via aggregate initialization.
+e.g.
+    Date today { 2020, 10, 14 }; // compile error: can no longer use aggregate initialization
+
+Naming your private member variables
+In C++, it's common convention to name a private data member starting with an m_ prefix.
+This is done for a couple of important reasons.
+    First, the m_ prefix allows us to easily distinguish data members from function parameters or local variables within a member function. We can see that m_name is a member, and name is not. This helps make it clear that this function is changing the state of the class. That's important because when we change the value of a data member, it persists beyond the scope of the member function (whereas changes to function parameters or local variables typically do not).
+
+    Second is that the m_ prefix helps avoid naming collisions between private member variables and the names of local variables, function parameters, and member functions.
+
+Best practice: Consider naming your private members starting with an m_ prefix to help distinguish them from the names of local variables, function parameters, and member functions.
+
+Setting access levels via access specifiers
+By default, the members of structs (and unions) are public, and the memebrs of classes are private.
+We can explitly set the access level of our members by using an access specifier.
+
+An access specifier sets the access level of all members that follow the specifier.
+C++ has three access specifiers: public, private, and protected.
+We can make sure a member function is usable by the public as follows:
+    class Date
+    {
+    // Any members defined here would default to private
+
+    public: // here's our public access specifier
+
+        void print() const // public due to above public: specifier
+        {
+            // members can access other private members
+            std::cout << m_year << '/' << m_month << '/' << m_day;
+        }
+
+    private: // here's our private access specifier
+
+        int m_year { 2020 };  // private due to above private: specifier
+        int m_month { 14 }; // private due to above private: specifier
+        int m_day { 10 };   // private due to above private: specifier
+    };
+
+Because classes default to private access, you can omit a leading "private:" access specifier.
+However, because classes and structs have different access level defaults, many developers prefer to be explicit.
+
+
+Access specifiers can be used in any order, in any quantity, repeatedly (can have some public members, then some private ones, then more public ones).
+Most classes make use of both private and public access specifiers for various members.
+
+Access level best practices for structs and classes
+Structs should avoid access specifiers altogether, meaning struct members should be public by default.
+We want our structs to be aggregates, and aggregates can only have public members.
+Using private or protected would make a struct a non-aggregate.
+
+Classes should generally only have private or protected data members.
+Classes normally have public member functions (so those member functions can be used by the public).
+However, some member functions are nonetheless made private or protected.
+
+Best practice: Classes should generally make member variables private or protected, and member functions public.
+Structs should generally avoid using access specifiers; all members will default to public.
+
+Access levels work on a per-class basis
+One nuance of C++ access labels that is often misunderstood is that access is defined on a per-class basis, not on a per-object basis.
+This example demonstrates that:
+    class Person
+    {
+    private:
+        std::string m_name{};
+
+    public:
+        void kisses(const Person& p) const
+        {
+            std::cout << m_name << " kisses " << p.m_name << '\n';
+        }
+
+        void setName(std::string_view name)
+        {
+            m_name = name;
+        }
+    };
+
+    int main()
+    {
+        Person joe;
+        joe.setName("Joe");
+
+        Person kate;
+        kate.setName("Kate");
+
+        joe.kisses(kate);
+
+        return 0;
+    }
+
+Because kisses() is a member function, it has direct access to private member m_name, even from an object other than the one it is called on.
+
+The technical and practical difference between structs and classes
+A class defaults its members to private, whereas a struct defaults is members to public.
+That's actually it.
+
+Although there's another minor difference. Structs inherit from other class types publicly, and classes inherit privately.
+This will be explained in the chapter on inheritance, but this point is just about irrelevant because you shouldn't rely on defaults for inheritance anyway.
+
+In practice, we use structs differently from classes.
+As a rule of thumb, is a struct when:
+    You have a simple collection of data that doesn't benefit from restricting access
+    Aggregation initialization is sufficient
+    You have no class invariants, setup needs, or cleanup needs.
+
+If these three criteria aren't met, use a class.
+We want our structs to be aggregates. So if you use any capabilities that make your struct a non-aggregate, use a class instead and follow best practices for classes.
+
+
+Quiz
+
+1. What is a public member?
+A public member is a function or variable in a class-type object that can be accessed from anywhere in the code.
+
+2. What is a private member?
+A private member is a function or variable that is only accessible by members of the class in which it is defined.
+
+3. What is an access specifier?
+A flag that sets the accessibility property of members of a class that follow the specifier.
+
+4. How many access specifiers are there, and what are they?
+3 access specifiers. Public, private, and protected.
+
+3.
+a) Write a class named Point3d. The class should contain:
+
+Three private member variables of type int named m_x, m_y, and m_z;
+A public member function named setValues() that allows you to set values for m_x, m_y, and m_z.
+A public member function named print() that prints the Point in the following format: <m_x, m_y, m_z>
+see ch14_5_3.cpp
+
+b) Add a function named isEqual() to your Point3d class. The following code should run correctly:
+see ch14_5_3.cpp
+
+
+

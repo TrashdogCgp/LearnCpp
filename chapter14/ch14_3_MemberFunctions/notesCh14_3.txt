@@ -1,0 +1,89 @@
+14_3
+Member functions
+
+Separation of properties and actions
+In programs, we represent properties with variables, and actions with functions.
+We'd like to be able to define those properties and actions together, as a single package.
+
+Member functions
+In addition to having member variables, class types (structs, classes, and unions) can also have their own functions.
+Member functions are functions that belong to a class type.
+
+In other OOP languages, member functions are referred to as methods. This term isn't used in C++, but programmers may still refer by that term if they learned one of the other languages first.
+
+Functions that are not member functions are called non-member functions (sometimes free functions) to distinguish them from member functions.
+
+Member functions must be declared inside the class definition, and can be defined inside or outside the class type definition.
+A definition is also a declaration, so if we define a member function inside a class, that counts as a declaration.
+
+Member function example
+    struct Date
+    {
+        int year {};
+        int month {};
+        int day {};
+
+        void print() // defines a member function named print
+        {
+            std::cout << year << '/' << month << '/' << day;
+        }
+    };
+
+Non-member and member functions have three key differences:
+    Where we declare the function
+    How we call the function
+    How we access members inside the function
+
+Member functions are declared inside the class type definition
+For non-member functions, there is external linkage, so they can be called from other source files.
+For member functions, the member function is declared inside the struct definition. Member functions defined inside the class type definition are implicitly inline, so they won't violate ODR if the class type definition is included into multiple code files.
+
+Calling member functions (and the implicit object)
+In the nonmember example, we call a function and pass in an argument.
+In a member example, we call object.functon() via member selection operator to select the member functino to call.
+The object that the member function is called on is implicitly passed to the member function.
+For this reason, the object a member function is called on is called the implicit object.
+
+Accessing members inside a member function uses the implicit object
+Within a member function, any member identifier that is not prefixed with the member selection operator is associated with the implicit object.
+With non-member functions, we have to explicitly pass an object to the function to work with, and member are explicitly accessed through that object.
+With member functions, we implicitly pass an object (the implicit object) to the function to work with, and members are implicitly accessed through that object.
+
+With non-members, we can forward declare variables or functions so we can use them before the compiler sees the full definition.
+The member data and member functions of class types cannot be explicitly forward declared because the compiler always needs to see the full class type definition to make things work properly.
+Under normal compilation rules, this would mean we wouldn't be able to use the members before defining them, and we'd have to define them in order of use.
+The compiler treats these differently; member initializers and member function definitions are compiled as if they'd been defined after the class definition. The actual definitions inside the class are used as implicit forward declarations.
+This way, by the time the compiler compiles the member initializers and member function definitions, it has already seen implicit declarations for all the members of the class.
+
+Member functions can be overloaded, just like non-member functions.
+
+In C, structs only have data members, not member functions.
+In modern C++, it's fine for structs to have member functions. This excludes constructors, which are a special type of member function covered in 14_9. A class type with a constructor is no longer an aggregate, and we want our structs to remain aggregates.
+
+Best practice: Member functions can be used with both structs and classes.
+However, structs should avoid defining constructor member functions, as doing so makes them a non-aggregate.
+
+It's possible to create class types with no data members (only member functions in the class). It's also possible to instantiate objects of such a class type.
+However, if a class type does not have any data members, then using a class type is probably overkill; consider using a namespace containing non-member functions instead to make it clearer to the reader that no data is being managed.
+
+Best Practice: If your class type has no data members, prefer using a namespace.
+
+Quiz
+
+1. Create a struct called IntPair that holds two integers. Add a member function named print that prints the value of the two integers.
+see ch14_3_1.cpp
+
+
+2. Add a new member function to IntPair named isEqual that returns a bool indicating whether one IntPair is equal to another.
+see ch14_3_1.cpp (added to it rather than make an additional file)
+
+
+
+
+
+
+
+
+
+
+

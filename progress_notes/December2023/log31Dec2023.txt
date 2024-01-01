@@ -1,0 +1,14 @@
+Started off the morning well-rested and have made it through the data hiding/encapsulation and constructor lessons so far.
+
+Definitely planning to get through chapter 14 today, considering starting on some side-effort soon, like a course or some RTOS intro stuff with the ESP32 I've had sitting around for a while.
+
+Thinking it's a little less reliable that I can put in more than 4 hours of concentrated study in a day, so a course would let me put on a video, take in what I can from the lecture, and have assignments/quizzes make sure that was enough. I don't really trust courses because they tend to be less deep than I prefer to get, and they're a lot of time without much guarantee of valuable understanding or clear instruction.
+
+Still, I think if I'm going to understand STL data structures (at the implementation level), which is one of my goals for before March, I'll probably want a course on a related topic just to make use of non-prime study hours.
+
+Delegating constructors was a useful topic that I'd never been clear on! 14_12 was a good chapter to read while still energetic and lucid in the late morning.
+
+
+
+
+
