@@ -1,0 +1,90 @@
+15_1
+The hidden "this" pointer and member function chaining
+
+So, when a member function is called, how does C++ keep track of which object it was called on?
+Somehow, if we call simple.setID(2), C++ knows that setID() should operate on object simple, and m_id refers to simple.m_id.
+
+In every member function, the keyword "this" is a const pointer that holds the address of the current implicit object.
+Most of the time, we don't mention it explicitly, but we can.
+
+It turns out that the following are identical:
+    void print() { std::cout << m_id; }       // implicit use of this
+    void print() { std::cout << this->m_id; } // explicit use of this
+
+When we compile our programs, the compiler will implicitly prefix any member referencing the implicit object with this->
+This helps our code stay concise, and prevents having to explicitly write this-> over and over.
+
+How is "this" set?
+When we call simple.setID(2); it looks like the function setID() has only one argument, but it actually has two.
+When compiler, the compiler rewrites the expression simple.setID(2) as foolows:
+    Simple::setID(&simple, 2);
+Note that this becomes a standard function call, and the object prefix simple is passed by address as an argument to the function.
+
+However, this conversion is only half of the process. Since the function call has an added argument, the member function definition also needs to be modified to accept (and use) this argument as a parameter.
+With an original member function definition for setID() as follows:
+    void setID(int id) { m_id = id; }
+The member function is implicitly rewritten by the compiler as follows:
+    void setID(Simple* const this, int id) { this->m_id = id; }
+
+Note that our setID function now has a new leftmost parameter, called "this". Since it's a const pointer, it can't be repointed, but the contents of the pointer can be modified.
+The m_id member has also been rewritten as this->m_id using the "this" pointer.
+
+Putting it all together:
+    When we call simple.setID(2), the compiler actually calls Simple::setID(&simple, 2), and simple is passed by address to the function
+    The function has a hidden parameter named this, which receives the address of simple
+    Member variables inside setID() are prefixed with this->, which points to simple. So when the compiler evaluates this->m_id, it's actually resolving to simple.m_id.
+This is all automatic, and all we really need to remember is taht all non-static member functions have a this pointer that refers to the object the function was called on.
+
+this always points to the pbject being operated on
+Because the this pointer holds the called object's address, and is just a function parameter, it does not make instances of your class larger memory-wise.
+
+Explicitly referencing this
+Most of the time, you won't need to explicitly reference the this pointer.
+However, sometimes it's useful, like for disambiguation:
+    void setData(int data)
+    {
+        this->data = data; // this->data is the member, data is the local parameter
+    }
+Here, the function parameter shadows the data member, so if we want to reference the data member, we have to use this->data.
+Some developers prefer to explicitly add this-> to all class members to make it clear they're referencing a member.
+This tends to make code less readable for little benefit, and using the "m_" prefix is a more concise way to differentiate private member variables from non-member (local) variables.
+
+It can sometimes be useful to have a member function return the implicit object as a return value. The primary reason to do this is to allow member functions to be "chained" together, so several member functions can be called on the same object in a single expression.
+This is called function chaining (or method chaining).
+
+See how we can use std::cout with the insertion operator. Each call to << returns std::cout, so the next call to operator<< uses std::cout as the left operand.
+e.g.
+    std::cout << "Hello, " << userName;
+
+We can implement similar behavior in our member functions.
+e.g.
+    Calc& add(int value) { m_value += value; return *this; }
+    Calc& sub(int value) { m_value -= value; return *this; }
+    Calc& mult(int value) { m_value *= value; return *this; }
+
+This allows us to do the following method chaining:
+    Calc calc{};
+    calc.add(5).sub(3).mult(4); // method chaining
+
+Since add() returns the reference to the implicit object (calc), calc will be the object used in the subsequent evaluation.
+When mult(4) is called on calc, it returns calc, but that's not used further and is ignored.
+
+This member chaining use is proabbly the most common explicit use of "this", and is one you should consder when it makes sense to have chainable member functions. Because this always points back to the implicit object, we don't need to check whether it's a null pointer before dereferencing it.
+
+Resetting a class back to default
+If your class has a default constructor, you'd think you could call the constructor, but constructors are only for initialization of new objects, and should not be called directly. Doing so will result in unexpected behavior.
+The best way to reset a class is to create a reset() member function, have that function create a new object (using default constructor), and then assign that new object to the current implicit object:
+    void reset()
+    {
+        *this = {}; // value initialize a new object and overwrite the implicit object
+    }
+
+this and const objects
+For non-const member functions, this is a const pointer to a non-const value (this cannot be pointed somewhere else, but the object pointing to may be modified). With const member functions, this is a const pointer to a const value, so the pointer can't be pointed elsewhere and the object being pointed to can't be modified.
+
+Converting a pointer to a const object into a pointer to a non-const object requires discarding the const qualifier, which can't be done implicitly. The compiler error generated by some compilers reflects the compiler complaining about being asked to perform such a conversion.
+
+Why this is a pointer and not a reference
+Since the this pointer always points to the implicit object (and can never be a null pointer unless we've done something to cause undefined behavior), you may wonder why this is a pointer and not a reference.
+The answer is simple. When this was added to C++, references didn't exist yet.
+If this were added to C++ today, it'd almost certainly be a ref, not a ptr. In C# and Java, it's implemented as a reference.

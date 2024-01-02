@@ -1,0 +1,92 @@
+15_3
+Nested types (member types)
+
+Pretend we have an enum that's supposed to be used in conjunction with a class.
+It'd be nice to not have it exist independently of the class, so we don't have to infer how the class and enum are connected.
+
+Nested types
+We've seen data members and member functions.
+Class types support another kind of member: nested types (also called member types).
+To create a nested type, just define the type inside the class, under the appropriate access specifier.
+
+Best practice: Define any nested types at the top of your class type.
+Nested type names must be fully defined before they can be used, so they're usually defined first.
+
+Nested types follow normal access rules. The name and enumerators of a nested enum can be accessed by the public.
+
+Class types also act as a scope region for names declared within, just as namespaces do. Therefore a fully qualified name might look like:
+    Fruit::Type
+and the fully qualified name of an enumerator within it might be
+    Fruit::apple
+
+Within members of the class, we don't need to use the fully qualified name. for example, in a member function, we can access apple without using the Fruit:: scope qualifier.
+
+Outside the class, we must use the fully qualified name.
+
+Also, since the class is acting as a scope region, it's somewhat redundant to use a scoped enumerator (we use enum instead of a named enum class). Changing it to unscoped when moving an enum into a class means we can access enumerators via Fruit::apple rather than Fruit::Type::apple.
+
+Nested typedefs and type aliases
+Class types can also contain nested typedefs or type aliases.
+e.g.
+    class Employee
+    {
+    public:
+        using IDType = int;
+
+    private:
+        std::string m_name{};
+        IDType m_id{};
+        double m_wage{};
+
+    public:
+        Employee(std::string_view name, IDType id, double wage)
+            : m_name { name }
+            , m_id { id }
+            , m_wage { wage }
+        {
+        }
+
+        const std::string& getName() { return m_name; }
+        IDType getId() { return m_id; } // can use unqualified name within class
+    };
+It's very common for classes in C++ to make use of nested typedefs.
+std::string defines ten nested typedefs as of current C++20
+
+Nested classes and access to outer class members
+It is fairly uncommon for classes to have other classes as a nested type, but it's possible.
+In C++, a nested class does not have access to the this pointer of the outer class, so nested classes cannot directly access members of the outer class.
+This is because a nested class can be instantiated independently of the outer class (and in such a case, there would be no outer class members to access).
+Because nested classes are members of the outer class, they can access any private members of the outer class that are in scope.
+e.g.
+    class Employee
+    {
+    public:
+        using IDType = int;
+
+        class Printer
+        {
+        public:
+            void print(const Employee& e) const
+            {
+                // Printer can't access Employee's `this` pointer
+                // so we can't print m_name and m_id directly
+                // Instead, we have to pass in an Employee object to use
+                // Because Printer is a member of Employee,
+                // we can access private members e.m_name and e.m_id directly
+                std::cout << e.m_name << " has id: " << e.m_id << '\n';
+            }
+        };
+
+    private:
+        std::string m_name{};
+        IDType m_id{};
+        double m_wage{};
+    };
+
+There's one case where nested classes are more commonly used.
+In the standard library, most iterator classes are implemented as nested classes of the container they are designed to iterate over.
+For example, std::string::iterator is implemented as a nested class of std::string.
+Iterators are in a future chapter.
+
+Nested types can't be forward declared.
+This is another noteworthy limitation that may be lifted eventually.
