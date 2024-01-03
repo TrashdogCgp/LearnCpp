@@ -5,15 +5,16 @@
 class Random
 {
 private:
-	static std::mt19937 generate();
-    static inline std::mt19937 mt; 
+
+    static std::mt19937 mt; 
 
 public:
+	static std::mt19937 generate2();
     static int get(int min, int max);
 };
 
-
-std::mt19937 generate()
+std::mt19937 Random::mt{Random::generate2()}; 
+std::mt19937 Random::generate2()
 {
 	std::random_device rd{};
 
