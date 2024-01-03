@@ -1,0 +1,102 @@
+15_7
+Static member functions
+
+Static member variables are member variables that belong to the class rather than objects of the class.
+If a static member variable is private, it can be accessed directly using the class name and scope resolution operator.
+
+What if a static member variable is private?
+Well, in this case, we can't access it directly from main because it's private.
+Normally, we access private members through public member functions, but wouldn't we need to instantiate an object of the class type to use that function?
+
+Static member functions
+Member variables aren't the only type of member that can be made static.
+Member functions can be made static as well.
+e.g.
+    class Something
+    {
+    private:
+        static inline int s_value { 1 };
+
+    public:
+        static int getValue() { return s_value; } // static member function
+    };
+
+Because static member functions aren't associated with a particular object, they can be called directly by using the class name and the scope duration operator.
+Like static member variables, they can be called through objects of the class type, too, but this isn't recommended.
+
+Static member functions have no *this pointer
+Static member functions have two interesting quirks worth noting.
+First, because they're not attached to an object, they have no *this pointer. This makes sense because they don't work on an object, and a this pointer is not needed.
+Second, static member functions can directly access other static members, but not non-static members. This also makes sense because non-static members must belong to a class object, and static member functions have no class object to work with.
+
+Static member functions can also be defined outside of the class declaration. This works the same way as for normal member functions.
+e.g.
+    class IDGenerator
+    {
+    private:
+        static inline int s_nextID { 1 };
+
+    public:
+        static int getNextID(); // Here's the declaration for a static function
+    };
+
+    // Here's the definition of the static function outside of the class.  Note we don't use the static keyword here.
+    int IDGenerator::getNextID() { return s_nextID++; }
+
+Note that we don't use the static keyword on the static function outside of the class definition.
+Also note that because the data and functions in the class are static, we don't need to instantiate an object of the class to use its functionality.
+
+Word of warning about classes with all static members
+When writing classes with all static members ("pure static classes", also called "monostates"), be careful. While useful, they come with some potential downsides.
+
+First, because all static members are instantiated only once, there's no way to get multiple copies of a pure static class without cloning and renaming the class.
+
+Second, note that globals are generally dangerous because any piece of code can change the value of the global variable and end up breaking seemingly unrelated code.
+For pure static classes, this also holds true; since the members belong to the class instead of the object of the class, and because class declarations usually have global scope, a pure static class is basically functions and global variables, with all the downsides of global variables.
+
+Instead of writing a class with all static members, consider writing a normal class and instantiating a global instance of it (global variables have static duration).
+This way, the global instance can be used when appropriate, but local instances can still be instantiated if and when that's useful.
+
+Pure static classes vs namespaces
+Pure static classes have a lot of overlap with namespaces. Both allow you to define variables with static duration and functions within their scope region.
+However, classes have access controls while namespaces do not.
+In general, a static class is preferred when you have static data members and/or need access controls. Otherwise, prefer a namespace.
+
+C++ does not support static constructors
+If you can initialize normal member variables via a constructor, then by extension, why not initialize static member variables via a static constructor?
+While some modern languages do this, C++ is not one of them.
+If your static variable can be directly initialized, no constructor is needed. You can initialize the static member variable at the point of definition, even if it's private.
+
+If initializing static member variables requires executing code, there are workarounds. One way is to use a function to create an object, fill it with data, and return it to the caller; the returned value can be copied into the object being initialized.
+A lambda can also be used for this.
+
+Quiz
+
+1. Convert the Random namespace in the following example to a class with static members:
+    #include <chrono>
+    #include <random>
+    #include <iostream>
+
+    namespace Random
+    {
+        inline std::mt19937 generate()
+        {
+            std::random_device rd{};
+
+            // Create seed_seq with high-res clock and 7 random numbers from std::random_device
+            std::seed_seq ss{
+                static_cast<std::seed_seq::result_type>(std::chrono::steady_clock::now().time_since_epoch().count()),
+                    rd(), rd(), rd(), rd(), rd(), rd(), rd() };
+
+            return std::mt19937{ ss };
+        }
+
+        inline std::mt19937 mt{ generate() }; // generates a seeded std::mt19937 and copies it into our global object
+
+        // Generate a random int between [min, max] (inclusive)
+        inline int get(int min, int max)
+        {
+            return std::uniform_int_distribution{min, max}(mt);
+        }
+    }
+see ch15_7_1.cpp

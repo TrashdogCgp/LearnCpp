@@ -1,0 +1,112 @@
+15_6
+Static member variables
+
+We've gone over static variables and global variables.
+Both of these types of variables have static durations, meaning they are created at the start of the program, and destroyed at the end of the program.
+Such variables keep their values even if they go out of scope.
+
+Static member variables
+Member variables of a class can be made static by using the static keyword.
+Unlike normal member variables, static member variables are shared by all objects of the class.
+e.g. if Something has a member variable called s_value:
+    Something first{};
+    Something second{};
+first.s_value and second.s_value are the same variable.
+
+Static members are not associated with class objects
+While you can access static members through objects of the class, static members exist even if no objects have been instantiated. Since they're created at the start of the program and destroyed at the end of the program, this makes sense; their lifetime is not bound to a class object like a normal member.
+
+Essentially, static members are global variables that live inside the scope region of the class. There's very little difference between a static member of a class and a normal variable inside a namespace.
+
+Reinforce: Static members are global variables that live inside the scope region of the class.
+
+Because a static member exists independent of any class objects, it can be accessed directly using the class name and the scope resolution operator.
+    e.g. Something::s_value
+
+Note that we can still access and use a static member even without an instantiated object of type Something. This is the preferred method for accessing static members.
+
+Best practice: Access static members using the class name and the scope resolution operator(::).
+
+Defining and initializing static member variables
+When we declare a static member variable inside a class type, we're telling the compiler about the existence of a static member variable, but we're not actually defining it (much like a forward declaration).
+Because static member variables are essentially global variables, you must explicitly define and initialize the static member ouside of the class, in the global scope.
+e.g.
+    int Something::s_value{ 1 }; // defines the static member variable
+Note that this static member definition is not subject to access controls, and can be defined and initialized even if it's declared as private/protected in the class.
+
+If the class is defined in a header file, the static member definition is usually places in the associated code file for the class.
+If the class is defined in a source (cpp) file, the static member definition is usually placed directly under the class.
+Don't put a static member definition in a header file. Much like a global variable, if that header file gets included more than once, you end up with multiple definitions, which causes a compile error.
+
+Initialization of static member variables inside the class definition
+There are a few shortcuts.
+First, when the static member is a constant integral type or a const enum, the static member can be initialized inside the class definition.
+e.g.
+    class Whatever
+    {
+    public:
+        static const int s_value{ 4 }; // a static const int can be defined and initialized directly
+    };
+
+Static variables that are inline can be initialized within the class definition regardless of whether or not they're constant.
+This is the preferred method of defining and initializing static members.
+e.g. 
+    class Whatever
+    {
+    public:
+        static inline int s_value{ 4 }; // a static inline variable can be defined and initialized directly
+    };
+
+Because constexpr members are implicitly inline as of C++17, static constexpr members can also be initialized inside the class definition without the explicit "inline" keyword.
+
+Best practice: Make your static members inline or constexpr so they can be initialized inside the class definition.
+
+Example of static member variables
+Why use static variables inside classes?
+One use is to assign a unique ID to every instance of the class. Example:
+    #include <iostream>
+
+    class Something
+    {
+    private:
+        static inline int s_idGenerator { 1 };
+        int m_id {};
+
+    public:
+        Something() { m_id = s_idGenerator++; } // grab the next value from the id generator
+
+        int getID() const { return m_id; }
+    };
+
+    int main()
+    {
+        Something first{};
+        Something second{};
+        Something third{};
+
+        std::cout << first.getID() << '\n';
+        std::cout << second.getID() << '\n';
+        std::cout << third.getID() << '\n';
+        return 0;
+    }
+
+Because i_idGenerator is shared by all Something objects, the constructor will initialize m_id with the current value of s_idGenerator, then increment the value for the next object. This guarantees each Something receives a unique id, incremented in order of creation.
+
+Static members are also useful when the class needs a lookup table; by making the lookup table static, only one copy exists for all objects, rather than making a copy for each object instantiated. This can save memory.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

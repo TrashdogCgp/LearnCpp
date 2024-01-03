@@ -1,0 +1,11 @@
+Back to the office job today, and I have to say I'm a bit depressed about how little I got done with a full week off.
+Finished up 15_6 this morning on static variables and the need to apparently make them inline to define them inside a class definition, which is the preferred way to go about it. I haven't actually seen a static variable defined outside of a class definition before, but apparently it's what you have to do (in a cpp file, not a header) if you don't use the inline keyword.
+Going to have substantially less time to sink into this study effort on weekdays starting today. Bummer.
+Wish I could sleep adequately, especially without the upstairs neighbor stomping at 10 PM.
+
+
+
+
+
+
+
