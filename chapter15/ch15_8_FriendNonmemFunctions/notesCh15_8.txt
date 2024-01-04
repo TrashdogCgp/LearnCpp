@@ -1,0 +1,96 @@
+15_8
+Friend non-member functions
+
+We've discussed access controls to control who can access the various members of a class.
+We'd like a way to have a class that's able to access the data of another class, but without cluttering the interface, and maybe without making accessors for absolutely everything.
+
+Inside the body of a class, a driend declaration (using the friend keyword) can be used to tell the compiler that some other class or function is now a friend.
+In C++, a friend is a class or function (member or nonmember) that has been granted full access to the private and protected members of another class.
+This lets a class selectively give other classes or functions full access to their members without impacting anything else.
+
+Friendship is always granted by the class whose members will be accessed, not by the class or function desiring access. Between access controls and granting friendship, a class always retains control of who can access its members.
+
+The friend declaration is not affected by access controls, so it doesn't matter where within the class body it's placed.
+
+Friend non-member functions
+A friend function is a function (member or non-member) that can access the private and protected members of a class as though it were a member of that class.
+In all other regards, the friend function is a normal function.
+e.g.
+    class Accumulator
+    {
+    private:
+        int m_value { 0 };
+
+    public:
+        void add(int value) { m_value += value; }
+
+        // Here is the friend declaration that makes non-member function void print(const Accumulator& accumulator) a friend of Accumulator
+        friend void print(const Accumulator& accumulator);
+    };
+    void print(const Accumulator& accumulator)
+    {
+        // Because print() is a friend of Accumulator
+        // it can access the private members of Accumulator
+        std::cout << accumulator.m_value;
+    }
+
+Defining a friend non-member inside a class
+Much like member functions can be defined inside a class if desired, friend non-member functions can also be defined inside a class.
+Friend functions defined inside of a class are non-member functions, and do not require an instance of an object to be called.
+
+Syntactically preferring a friend non-member function
+There are times where we prefer a non-member function over a member function. 
+In our example, we have two functions to check whether two Value objects are equal. One is a member function, and one is a non-member function.
+In the case of the member function, we have to call it via implicit object and pass in another object as an explicit parameter.
+This case, and the syntax of v1.func(v2) vs func(v1, v2) will come up again when we go over operator overloading.
+
+Multiple friends
+A function can be a friend of more than one class at the same time.
+This can make sense if it uses two classes equally, and wouldn't make sense as a member of either.
+
+Note that in the example, we need to forward declare class Humidity. Class forward declarations work the same as function forward declarations, telling the compiler about an identifier that will be defined later.
+Unlike functions, classes have no return types or parameters, so class forward declarations are always just
+class ClassName
+unless they're class templates.
+example:
+    #include <iostream>
+    class Humidity; // forward declaration of Humidity
+    class Temperature
+    {
+    private:
+        int m_temp { 0 };
+    public:
+        explicit Temperature(int temp) : m_temp { temp } { }
+
+        friend void printWeather(const Temperature& temperature, const Humidity& humidity); // forward declaration needed for this line
+    };
+    class Humidity
+    {
+    private:
+        int m_humidity { 0 };
+    public:
+        explicit Humidity(int humidity) : m_humidity { humidity } {  }
+
+        friend void printWeather(const Temperature& temperature, const Humidity& humidity);
+    };
+    void printWeather(const Temperature& temperature, const Humidity& humidity)
+    {
+        std::cout << "The temperature is " << temperature.m_temp <<
+        " and the humidity is " << humidity.m_humidity << '\n';
+    }
+
+Friendship and data hiding
+Friendship is granted by the class doing the data hiding with the expectation that the friend will access its private members. A friend can be thought of as an extension of the class, with all the same access rights. Access is expected, not a violation of access control.
+Friendship can make a program maintainable by allowing functionality to be separated when it makes sense from a design perspective. Same goes for when it makes more sense to use a non-member function instead of a member function.
+Since friends have direct access to the implementation of a class, changes to the implementation will necessitate changes to the friends as well. If a class has many friends (or those friends have friends), this can lead to a ripple effect.
+Prefer the class interface over direct access where possible. This will help insulate your friend function from future implementation changes and lead to less code needing to be modified/retested later.
+
+Best practice: A friend function should prefer to use the class interface over direct access when possible.
+
+Prefer non-friend functions to friend functions
+Enforcing this preference helps ensure that if the implementation a class is changed, the functions will not need to be updated (use the interface instead of direct access).
+
+Best practice: Prefer to implement a function as a non-friend when possible and reasonable.
+
+Be cautious when adding new members to the public interface of an existing class, since every function (even trivial ones) adds some level of clutter/complexity.
+It's totally reasonable to prefer a single friend function over a bunch of new accessors.

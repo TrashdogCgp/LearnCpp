@@ -1,0 +1,176 @@
+ch15_9
+Friend classes and friend member functions
+
+A friend class is a class that can access the private and protected members of another class.
+e.g.
+    class Storage
+    {
+    private:
+        int m_nValue {};
+        double m_dValue {};
+    public:
+        Storage(int nValue, double dValue)
+        : m_nValue { nValue }, m_dValue { dValue }
+        { }
+
+        // Make the Display class a friend of Storage
+        friend class Display;
+    };
+
+Because Display is a friend of Storage, Display members can access the private members of any Storage object they have access to.
+
+Even though Display is a friend of Storage here, Display has no access to the *this pointer of Storage objects, because *this is actually a function parameter.
+
+Also friendship is not reciprocal; Storage is not a friend of Display just because Display is a friend of Storage.
+If two classes are supposed to be friends of each other, both must declare the other as a friend.
+Class friendship is also not transitive. If A is a friend of B, and B is a friend of C, that doesn't make A a friend of C.
+
+Friendship also is not inherited. If class A makes B a friend, classes derived from B are not friends of A.
+
+Friend member functions
+Instead of making an entire class a friend, you can make a single member function a friend. This is done similarly to making a non-member function a friend, except that the name of the member function is used.
+e.g.
+    class Storage
+    {
+    private:
+        int m_nValue {};
+        double m_dValue {};
+    public:
+        Storage(int nValue, double dValue)
+            : m_nValue { nValue }, m_dValue { dValue }
+        {
+        }
+
+        // Make the Display::displayStorage member function a friend of the Storage class
+        friend void Display::displayStorage(const Storage& storage); // error: Storage hasn't seen the full definition of class Display
+    };
+
+Note that this example won't work, because to make a member functino a friend, the compiler has to have seen the full definition for the class of the friend member function, not just a forward declaration.
+This is easily resolved by moving the definition of Display ahead of the definition of class Storage.
+We could also just move Display to a header file and including it before Storage is defined.
+
+However, we could have another problem if Display uses Storage; the compiler will complain about not knowing what a Storage is, and we can't rearrange definition order to fix this.
+
+To fix this, we add class Storage as a forward declaration so the compiler will be okay with a reference to Storage before seeing the whole class definition.
+Then we move Display::displayStorage() outside of the class, after the full definition of Storage.
+
+The result:
+    #include <iostream>
+    class Storage; // forward declaration for class Storage
+    class Display
+    {
+    private:
+        bool m_displayIntFirst {};
+    public:
+        Display(bool displayIntFirst)
+            : m_displayIntFirst { displayIntFirst }
+        {   }
+        void displayStorage(const Storage& storage); // forward declaration for Storage needed for reference here
+    };
+
+    class Storage // full definition of Storage class
+    {
+    private:
+        int m_nValue {};
+        double m_dValue {};
+    public:
+        Storage(int nValue, double dValue)
+            : m_nValue { nValue }, m_dValue { dValue }
+        {   }
+        // Make the Display::displayStorage member function a friend of the Storage class
+        // Requires seeing the full definition of class Display (as displayStorage is a member)
+        friend void Display::displayStorage(const Storage& storage);
+    };
+    // Now we can define Display::displayStorage
+    // Requires seeing the full definition of class Storage (as we access Storage members)
+    void Display::displayStorage(const Storage& storage)
+    {
+        if (m_displayIntFirst)
+            std::cout << storage.m_nValue << ' ' << storage.m_dValue << '\n';
+        else // display double first
+            std::cout << storage.m_dValue << ' ' << storage.m_nValue << '\n';
+    }
+    int main()
+    {
+        Storage storage { 5, 6.7 };
+        Display display { false };
+        display.displayStorage(storage);
+
+        return 0;
+    }
+
+This is only necessary because we're trying to do it all in a single file.
+A better solution is to put each class definition in a separate header file, with member function definitions in corresponding cpp files.
+This way, all of the class definitions would be available in the cpp files, with no rearrangement necessary.
+Note that the rearrangement was a huge pain.
+
+Quiz
+1. In geometry, a point is a position in space. We can define a point in 3d-space as the set of coordinates x, y, and z. For example, Point { 2.0, 1.0, 0.0 } would be the point at coordinate space x=2.0, y=1.0, and z=0.0.
+
+In physics, a vector is a quantity that has a magnitude (length) and a direction (but no position). We can define a vector in 3d-space as an x, y, and z value representing the direction of the vector along the x, y, and z axis (the length can be derived from these). For example, Vector { 2.0, 0.0, 0.0 } would be a vector representing a direction along the positive x-axis (only), with length 2.0.
+
+A Vector can be applied to a Point to move the Point to a new position. This is done by adding the vector’s direction to the point’s position to yield a new position. For example, Point { 2.0, 1.0, 0.0 } + Vector { 2.0, 0.0, 0.0 } would yield Point { 4.0, 1.0, 0.0 }.
+
+Such points and vectors are often used in computer graphics (with points representing the vertices of a shape, and vectors represent movement of the shape).
+
+Given the following program:
+
+    #include <iostream>
+
+    class Vector3d
+    {
+    private:
+        double m_x{};
+        double m_y{};
+        double m_z{};
+
+    public:
+        Vector3d(double x, double y, double z)
+            : m_x{x}, m_y{y}, m_z{z}
+        {
+        }
+
+        void print() const
+        {
+            std::cout << "Vector(" << m_x << ", " << m_y << ", " << m_z << ")\n";
+        }
+    };
+
+    class Point3d
+    {
+    private:
+        double m_x{};
+        double m_y{};
+        double m_z{};
+
+    public:
+        Point3d(double x, double y, double z)
+            : m_x{x}, m_y{y}, m_z{z}
+        { }
+
+        void print() const
+        {
+            std::cout << "Point(" << m_x << ", " << m_y << ", " << m_z << ")\n";
+        }
+
+        void moveByVector(const Vector3d& v)
+        {
+            // implement this function as a friend of class Vector3d
+        }
+    };
+
+    int main()
+    {
+        Point3d p { 1.0, 2.0, 3.0 };
+        Vector3d v { 2.0, 2.0, -3.0 };
+
+        p.print();
+        p.moveByVector(v);
+        p.print();
+
+        return 0;
+    }
+
+1. Make Point3d a friend of class Vector3d, and implement function Point3d::moveByVector()
+2. Instead of making class Point3d a friend of class Vector3d, make member function Point3d::moveByVector a friend of class Vector3d.
+3. Reimplement the solution to the prior step using 5 separate files: Point3d.h, Point3d.cpp, Vector3d.h, Vector3d.cpp, and main.cpp.
