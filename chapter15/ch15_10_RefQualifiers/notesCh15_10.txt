@@ -1,0 +1,43 @@
+15_10
+Ref qualifiers
+
+We've discussed how calling functions that return references to data members can be dangerous when the implicit object is an rvalue.
+Tbh, I should probably review 14_7 to make sure my grasp on this is firm (it probably isn't). But not tonight.
+
+Initializing a ref with an rvalue that is destroyed results in undefined behavior.
+
+Pretend we have:
+	const std::string& ref { createEmployee("Garbo").getName() }; // reference becomes dangling if return value of getEmployee() is destroyed
+
+This presents a conundrum; this is safe when our getname() function returns by value, this is safe when our implicit object is an rvalue. However, it makes an expensive and unnecessary copy when our implicit object is an lvalue (which is the more common case).
+If our getName() function returns by const reference, this is efficient (no copy of a std::string is made), but it can be misused when the implicit object is an rvalue (results in undefined behavior).
+
+Since member functions are typically called on lvalue implicit objects, the conventional choice is to return by const reference and just avoid misusing the returned reference in cases where the implicit object is an rvalue.
+
+Ref qualifiers
+The root of the challenge is that we only have one function to service two different cases (one where our implicit object is an lvalue, and one where our implicit object is an rvalue).
+What's best for one case isn't ideal for the other.
+C++11 introduced a feature called a ref-qualifier that allows us to overload a member function based on whether it's called on an lvalue or an rvalue implicit object. Using this feature, we can create two versions of getName()--one for the case where our implicit object is an lvalue, and one for the case where our implicit object is an rvalue.
+
+The & qualifier works for this purpose:
+    const auto& getName() const &  { return m_name; } //  & qualifier overloads function to match only lvalue implicit objects, returns by reference
+    auto        getName() const && { return m_name; } // && qualifier overloads function to match only rvalue implicit objects, returns by value
+
+These functions are distinct overloads, and can have different return types.
+The lvalue-qualified overload returns by const reference, whereas our rvalue-qualifier overload returns by value.
+
+This allows us to do the performant thing when our implicit object is an lvalue, and the safe thing when our implicit object is an rvalue.
+
+Notes about ref-qualified member functions
+First, non-ref-qualified overloads and ref-qualified overloads cannot coexist. Use one or the other.
+Second, if only an lvalue-qualified overload is provided (i.e. the revalue-qualified version is not defined), any call to the function with an rvalue implicit object will result in a compilation error. This provides a useful way to completely prevent use of a function with rvalue implicit objects.
+
+Why not use ref-qualifiers?
+While ref-qualifiers are neat, there are downsides to using them this way.
+    Adding rvalue overloads to every getter that returns a reference adds clutter to the class, to mitigate a case that isn't that common and is easy to avoid with good habits.
+    Having an rvalue overload return by value means we have to pay for the coset of a copy/move even when we could have used a reference safely.
+Additionally
+    Most C++ devs aren't aware of this feature (which can lead to screwy or inefficient use)
+    The standard library typically doesn't use this feature.
+
+Based on this, the tutorial recommends not using ref-qualifiers. Instead, always use the result of an access function immediately and don't save returned references for use later.
