@@ -1,0 +1,9 @@
+Another long day, another late start.
+Should finish chapter 15 tonight. Only the section on ref qualifiers left, and the quiz.
+If that doesn't take me an hour, I start on chapter 16. Topic is dynamic arrays(std::vector).
+Getting frustrated by how many other things are on my mind now that work has resumed, but my resolve won't break.
+One hour minimum, every day, for the rest of the year. Continuing to log my progress here until I've finished the entire learncpp compilation.
+
+
+
+

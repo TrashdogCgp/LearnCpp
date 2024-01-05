@@ -1,0 +1,43 @@
+15_4
+Introduction to destructors
+
+The cleanup problem
+Pretend we're writing code that needs to send data over a network, but establishing a connection to the server is expensive, so you want to collect a lot of data and then send it all at once.
+
+This has a potential issue of relying on sendData() being explicitly called before the program is shut down. If the user forgets to do this, the data will not be sent to the server, and will be lost when the program exits.
+
+To generalize, classes that use a resource (memory, files, databases, network connections) often need to be explicitly sent or closed before the class object using them is destroyed. In other cases, we may want to do some record-keeping prior to the destruction of the object, such as writing info to a log file or sending a piece of telemetry to a server.
+the term cleanup is often used to refer to a set of tasks that a class must perform before an object of the class is destroyed in order to behave as expected.
+Relying on a user for cleanup before an object is destroyed is error-prone.
+
+So why require the user to ensure this? If the object is being destroyed, then we know cleanup work needs to happen. Shouldn't that cleanup happen automatically?
+
+Destructors
+Constructors are special member functions that are called when an object of non-aggregate class types are created.
+Constructors are used to initialize member variables, and do any other setup tasks to ensure objects of the class are ready for use.
+Classes also have a special type of member function that is automatically called when an object of a non-aggregate class type is destroyed. This function is called a destructor.
+Destructors are designed to allow a class to do any necessary cleanup before an object of the class is destroyed.
+
+Destructor naming
+Like constructors, destructors have specific naming rules.
+    The destructor must have the same name as the class, preceded by a tilde (~)
+    The destructor cannot take arguments
+    The destructor has no return type
+A class can only have a single destructor.
+Generally, you shouldn't call the destructor explicitly. It will automatically be called when the object is destroyed. There are rarely cases where you want to clean up an object more than once.
+Destructors may safely call other member functions since the object isn't destroyed until after the destructor executes.
+
+Implicit destructors
+If a non-aggregate class type object has no user-declared destructor, the compiler will generate a destructor with an empty body.
+This destructor is called an implicit destructor, effectively a placeholder.
+If your class doesn't need to do cleanup on destruction, it's fine to not define a destructor at all, and let the compiler generate an implicit destructor for your class.
+
+Warning about std::exit() function
+std::exit() can be used to terminate your program immediately. When the program is terminated immediately, the program just ends.
+Local variables are not destroyed first, so no destructors will be called.
+Be wary if you're relying on destructors to do necessary cleanup work in such a case.
+
+Unhandled exceptions will also cause the program to terminate, and may not unwind the stack before doing so.
+If stack unwinding doesn't happen, destructors will not be called prior to program termination.
+
+

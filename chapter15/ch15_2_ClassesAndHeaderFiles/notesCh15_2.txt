@@ -1,0 +1,135 @@
+15_2
+Classes and header files
+
+So far, this tutorial has gone over classes simple enough to implement the member functions directly inside the class definition.
+
+However, classes get longer and more complicated, and member function definitions being inside the class can make it harder to manage and work with.
+Using an already-written class only requires understanding its public interface (public member functions), not how the class works in implementation. The member function implementations clutter up the public interface with details that aren't relevant to actually using the class.
+
+To help address this, C++ allows us to separate the "declaration" portion of the class from the "implementation" portion by defining member functions outside of the class definition.
+
+Member functions can be defined outside the class type just like non-member functions. The only difference is that we have to prefix the member function names with the name of the class type so the compiler knows we're defining a member of that class type rather than a non-member.
+
+Because access functions are typically only one line, defining these functions inside the class definition adds minimal clutter, whereas moving them out of the class defintion would result in multiple extra lines of code.
+For this reason, definitions of access functions and other trivial one-line functions are often left inside the class definition.
+
+Best practice: Member functions with a trivial, one line implementation can be defined inside the class definition.
+Member functions with a complex or multi-line implementation should be defined ouside the class definition, in a source file.
+
+Putting class definitions in a header file
+If you define a class inside a source (cpp) file, that class is only usable within that particular source file.
+In larger programs, it's common that we'll want to use the classes we write in multiple source files.
+We can put function declarations in header files, then include those function declarations into multiple code files or projects. Classes are no different; a class definition can be put in a header file, then included into any other files that want to use the class type.
+
+Unlike functions, which only need a forward declaration to be used, the compiler typically needs to see the full definition of a class (or any program-defined type) in order for the type to be used.
+This is because the compiler needs to understand how members are declared in order to ensure they're used properly, and it needs to be able to calculate how large objects of that type are in order to instantiate them. So our header files usually contain the full definition of a class rather than just a forward declaration of the class.
+
+Naming your class header and code files
+Most often, classes are defined in header files of the same name as the class, and any member functions defined outside of the class are put in a cpp file of the same name as the class.
+e.g.
+    header
+    #ifndef DATE_H
+    #define DATE_H
+
+    class Date
+    {
+    private:
+        int m_year{};
+        int m_month{};
+        int m_day{};
+
+    public:
+        Date(int year, int month, int day);
+
+        void print() const;
+
+        int getYear() const { return m_year; }
+        int getMonth() const { return m_month; }
+        int getDay() const { return m_day; }
+    };
+
+    #endif
+    
+
+    cpp
+    #include "Date.h"
+    // Date constructor
+    Date::Date(int year, int month, int day)
+    {
+        SetDate(year, month, day);
+    }
+    void Date::print() const // print function definition
+    {
+        std::cout << "Date(" << m_year << ", " << m_month << ", " << m_day << ")\n";
+    };
+
+Now any other header or code file that wants to use Date can simply include Date.h
+Note that Date.cpp also needs to be compiler into any project that uses Date.h so that the linker can connect calls to the member functions to their definitions.
+
+Best practice:
+Prefer to put your class definitions in a header file with the same name as the class.
+Trivial member functions (accessors, constructors with empty bodys, etc) can be defined inside the class definition.
+Prefer to define non-trival member functions in a source file with the same name as the class.
+
+Doesn't defining a class in a header file violate the ODR if the header is included more than once?
+Types are exempt from the part of the ODR that says you can only have one definition per program. Thus, there's no issue including class defs into mutlipe code files. If there was, classes wouldn't be of much use.
+Including a class def into a single source file more than once is still an ODR violation. However, header guards will prevent this from happening.
+
+Does defining member functions in the header violate the ODR?
+It depends. Member functions defined in the class definition are implicitly inline, so they're exempt from the one definition per program part of the one-definition rule.
+This means it's fine to define trivial member functions in the class definition.
+Member functions defined outside the class are not implicitly inline, and thus are subject to the ODR. Therefor, such functions are usually defined in a code file (meaning they'll only have one definition across the whole program). However, they can also be defined in the header file if they're marked as inline.
+
+Reinforce: Functions defined inside the class definition are implicitly inline, which allows them to be included in multiple code files without violating the ODR.
+Functions defined ouside the class definition are not implicitly inline. They can be made inline using the inline keyword.
+
+Why not put everything in a header file?
+While it would compile if you were to do this and make all functions inline outside of the class definition, there are some downsides.
+For one, it clutters up your class definition.
+For two, if you change the header, you'll need to recompile every file that includes that header, which can have a ripple effect and cause an entire program to need to recompile, which can be slow. If you changed the cpp instead, only that cpp file needs to be recompiled.
+
+There are cases where it makes sense to violate best practice of putting class def in a header and non-trivial member functions in a code file.
+
+First, for a small class that'll only be used in onle code file, not intended for general reuse, you may prefer to define the class directly in the single cpp file it's used in; this makes it clear that the class is only used within that single file, and is not intended for wider use.
+You can always move that class to a separate header/code file later if you find you want to use it in more than one file, or find it's cluttering up your source file.
+
+Second, if a class only has a few non-trivial member functions, creating a cpp file with only one or two definitions might not be worth the effort. Might be better to make the functions inline in this case and put them under the class definition in the header.
+
+Third, in modern C++, classes/libraries are increasingly distributed as header-only, so all the code is in a header file; this is done to make such inclusions easier. The header only needs to be included, while a code file needs to be explicitly added to every project that uses it so that it can be compiled. If intentionally creating a header-only class or library for distribution, all non-trivial member functions can be made inline and placed in the header file under the class definition.
+
+Finally, for template classes, template member functions defined outside the class are almost always defined inside the header file, just beneath the class definition. Just like non-member template functions, the compiler needs to see the full template definition in order to instantiate it.
+
+Default arguments for member functions
+"If the function has a forward definition (especially in a header file), put the default argument there. Otherwise, put the default argument in the function definition."
+Because member functions are always declared (or defined) as part of the class definition, the best practice for member functions is simpler; always put the default argument inside the class function.
+
+Best practice: Put any default arguments for member functions inside the class definition.
+
+Libraries
+Classes import stuff from the std library, like std::string, by including <string>
+Note that we haven't needed to add code files like string.cpp or iostream.cpp
+The header files provide the declarations that the compiler needs to validate that programs are syntactically correct.
+However, the implementations for the classes that belong to the C++ standard library are contained in a precompiled file that is linked in automatically at the link stage. You never see the code.
+Most commercial libraries provide only .h files and a precompiled library file. There are reasons for this:
+    1. It's faster to link a precompiled library than recompile it every time you need it
+    2. A single copy of a precompiled library can be shared by many applications, while compiled code gets compiled into every executable that uses it (inflating file sizes
+    3. Intellectual property reasons, not sharing source code
+
+Separating classes into header and source files is not only good form, but also makes creating custom libraries easier. It's beyond the scope of these tutorials, but separating declaration and implementation is a prerequisite to doing so if you want to distribute precompiled libraries.
+
+Quiz
+1. What is the purpose of defining member functions outside the class definition?
+To separate the public interface from the implementation details, make the class definition shorter and easier to manage, and minimize recompilation times when an implementation detail changes (when defined in a source file).
+
+2. How do you define a member function ouside the class definition?
+Define the function with the class name prefixed using the scope resolution operator (::)
+
+3. When should trivial member functions be defined inside the class definition?
+When the functions have a single line of code.
+
+4. Where should the class definition be placed to facilitate reuse across multiple files or projects?
+In a separate header file with the same name as the class
+
+5. Which of the following is true about the ODR for classes and member functions?
+c. Member functions defined inside the class are exempt from the ODR (implicitly inline).
+

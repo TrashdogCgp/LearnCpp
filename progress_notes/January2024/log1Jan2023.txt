@@ -1,0 +1,9 @@
+Chapter 15 starts today. We'll see if I can finish it today, too, despite a late start and surprisingly bad sleep.
+Topic is just "more on classes", starting with the this pointer and going on to destructors, friend classes, and static member variables.
+
+I definitely need to go back and look at some things.
+Under what circumstances is a const qualifier dropped?
+When do we need CTAD and how do we use templates without having to define a deduction guide?
+
+
+

@@ -1,0 +1,11 @@
+Only getting the bare minimum done today, I think.
+Had a busy day at work, was obligated to work out with a coworker after, had to do a grocery trip before tomorrow's snowstorm comes in.
+Wish I had more time, wish I had more focus. Honestly extremely anxious tonight. I feel like I screwed something up today and can't put my finger on what it might have been.
+
+Second terrible day of spirit-crushing failure in a row.
+VSCode bullied me until I tried going to tasks.json and putting:
+                "${fileDirname}\\**.cpp",
+in the args section under the -g flag.
+I thought my code was just wrong and I was getting extremely unhelpful debugging info buried under a mountain of vomit with VSCode auto-switching tabs on me.
+I trust the people who swear by this IDE, but like every other IDE, it's caused me some undue pain.
+Anyway, completed ch15_9, probably completing chapter 15 tomorrow even though I definitely have a long day of work ahead (again).
