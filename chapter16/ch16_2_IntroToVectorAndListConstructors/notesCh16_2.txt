@@ -1,0 +1,139 @@
+16_2
+Introduction to std::vector and list constructors
+
+std:;vector is one of the container classes in the C++ standard containers library that implements an array. It's defined in the <vector> header as a class template, with a template type parameter that defines the type of the elements.
+Thus, std::vector<int> declares a std::vector whose elements are of type int.
+
+Instantiating a vector object is straightforward:
+    std::vector<int> empty{}; // vector containing 0 int elements
+This value-initialized object will start empty (no elements).
+
+Initializing a std::vector with a list of values
+Since the goal is to manage a set of related values, most often we'll want to initialize our container with those values. We can do this using list initialization with the specific initialization values we want.
+e.g. 
+	std::vector<int> primes{ 2, 3, 5, 7 };          // vector containing 4 int elements with values 2, 3, 5, and 7
+	std::vector vowels { 'a', 'e', 'i', 'o', 'u' }; // vector containing 5 char elements with 
+Note that vowels uses C++17's CTAD (class template argument deduction) to initialize with 5 elements whose values are a, e, i, o, and u.
+
+List constructors and initializer lists
+When ch13_6 went over struct aggregate initialization, we defined an initializer as a braced list of comma-separated values.
+Containers typically have a special constructor called a list constructor that allows us to contruct an instance of the container using an initializer list.
+The list constructor does three things:
+    Ensures the container has enough storage to hold all the initialization values (if needed)
+    Sets the length of the container to the number of elements in the initializer list (if needed)
+    Initializes the elements to the values in the initializer list (in sequential order)
+So when we provide a container with an initializer list of values, the list constructor is called, and the container is constructed using that list of values.
+
+Best practice: Use list initialization with an initializer list of values to construct a container with those element values.
+
+Note that 23_7 goes over std::initializer_list, which discusses adding list constructors to program-defined classes.
+
+Accessing array elements using subscript operator
+In C++, the most common way to access array elements is by using the name of the array along with the subscript operator. To select a specific element, inside the square brackets of the subscript operator, we provide an integral value that identifies which element we want to select.
+This integral value is called a subscript (or index).
+
+Indexing starts with 0 rather than 1; in C++, arrays are zero-based.
+
+Subscript out of bounds
+When indexing an array, the index provided must select a valid element of the array.
+The subscript operator doesn't do bounds checking, meaning it doesn't check to see whether the index is within the bounds of 0 to N-1 (inclusive).
+Passing an invalid index to the subscript operator will result in undefined behavior.
+
+Arrays are contiguous in memory
+One of the defining characteristics of arrays is that the elements are always allocated contiguously in memory, so the elements are adjacent with no gaps between them.
+This means arrays do not have any per-element overhead. It also allows the compiler to quickly calculate the address of any element in the array.
+
+Arrays are one of the few container types that allow random access, meaning that every element in the container can be accessed directly and with equal speed, regardless of container length. This direct, quick access is the primary reason why arrays are the container of choice.
+
+Constructing a vector of a specific length
+If we want to put in 10 values, we need a vector of length 10.
+Initializing with a 10-element-long list isn't ideal.
+
+std::vector has an explicit constructor (explicit std::vector<T>(int)) that takes a single int value defining the length of the std::vector to construct.
+Each of the created elements are value-initialized, which does zero-initialization for int and calls the default constructor for class types.
+This explicit constructor must be called using direct initialization.
+e.g.
+    std::vector<int> data( 10 ); // vector containing 10 int elements, value-initialized to 0
+
+List constructors take precedence over other constructors.
+    std::vector<int> data{ 10 }; // what does this do?
+In this case, we can interpret an initializer list, match with the list constructor to have a vector of length 1 and value 10.
+We can also interpret {10} as a single braced initialization value, match with the std::vector(int) constructor, and construct a vector of length 10 with elements value-initialized to 0.
+
+Normally, when a class definition matches multiple constructors, it's considered an ambiguous match and we get a compilation error.
+C++ has a special rule where a matching list constructor will be selected over other matching constructors. This prevents list constructors resulting in an ambiguous match with any constructor that took arguments of a single type.
+Some use cases and how they evaluate:
+    // Copy init
+    std::vector<int> v1 = 10;     // 10 not an initializer list, copy init won't match explicit constructor: compilation error
+
+    // Direct init
+    std::vector<int> v2(10);      // 10 not an initializer list, matches explicit single-argument constructor
+
+    // List init
+    std::vector<int> v3{ 10 };    // { 10 } interpreted as initializer list, matches list constructor
+
+    // Copy list init
+    std::vector<int> v4 = { 10 }; // { 10 } interpreted as initializer list, matches list constructor
+    std::vector<int> v5({ 10 });  // { 10 } interpreted as initializer list, matches list constructor
+
+Weird thing here is that {10} will match a list constructor if one exists, or a single-argument constructor if a list constructor doesn't exist.
+This means whichever behavior you get depends on what constructors exist.
+You can generally assume containers have list constructors.
+
+List initializers are generally designed to allow us to initialize a container with a list of element values, and should be used for that purpose.
+
+Best practice: When constructing a container (or any type that has a list constructor) with initializers that are not element values, use direct initialization.
+
+Note that to initialize a std::vector that is a member of a class type, it's not obvious how to provide a default initializer that sets the length of a std::vector to an initial value.
+Here's an implementation, since direct initialization isn't allowed for a member default initializer, CTAD is not allowed, and we have to use either copy or list initialization:
+    struct Foo
+    {
+        std::vector<int> v{ std::vector<int>(8) }; // ok
+    };
+
+Const and constexpr std::vector
+A const std::vector must be initialized, and then cannot be modified. 
+The elements of such a vector are treated as if they were const.
+The elements of a non-const std::vector must be non-const.
+Thus, the following is not permitted:
+    std::vector<const int> prime{2,3,5,7,11};
+
+One major downside of std::vector is that it cannot be made constexpr.
+std::array is more friendly toward constexpr.
+
+Also finally an answer!
+vector's name comes from Scheme and Common Lisp (earlier programming langues).
+It's inconsistent with the older meaning of the term in mathematics (object with a magnitude and direction), and should've been called array, but it's too late to change it now.
+
+Quiz:
+
+1. Define a std::vector using CTAD and initialize it with the first 5 positive square values:
+k, just doing this here in the notes:
+    std::vector firstSquares{1,4,9,16,25};
+
+2. What is the behavioral difference between these two definitions?
+    std::vector<int> v1 { 5 };
+    std::vector<int> v2 ( 5 );
+The former calls the list constructor and initializes with length 1, value 5.
+The latter calls the explicit non-list constructor via direct initialization and value-initializes five elements for a vector with a length of 5.
+
+3. Define a std::vector (using an explicit template type argument) to hold the high temperature (to the nearest tenth of a degree) for each day of a year, assuming 365 days a year.
+    std::vector<double> temperatures(365);
+
+4. Using a std::vector, write a program that asks the used to enter 3 integral values. Print the sum and product of those values.
+See ch16_2_4.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
