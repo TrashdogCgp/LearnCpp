@@ -1,0 +1,7 @@
+Not sure how I missed making a log yesterday, but I guess these things happen.
+
+Started the chapter on std::vector and have made two days of relatively slow progress. This is an informative topic, though! 
+
+I think I agree with the verdict that the tutorial put out. Choosing to make indexes unsigned was the wrong decision.
+Not too much to say other than that the at() member function for vector seems just about useless and I'll just have to keep static casting ints to index adequately.
+Blegh.
