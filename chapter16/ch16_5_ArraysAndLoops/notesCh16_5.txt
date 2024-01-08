@@ -1,0 +1,82 @@
+16_5
+Arrays and loops
+
+The variable scalability challenge
+Pretend we want an average test score for a class.
+We add scores to a vector, but what about accessing them all without having to list each element explicitly?
+We need a way to access each array element without having to explicitly list each one.
+
+Arrays and loops
+Array subscripts can be runtime expressions, so we can use the value of a variable as an index.
+This lends well to using a for loop.
+e.g.
+    for (std::size_t index{ 0 }; index < length; ++index) // index from 0 to length-1
+        average += testScore[index];                      // add the value of element with index `index`
+This is ideal for maintainability. The number of times the loop iterates is determined from the length of the array, and the loop variable is used for the indexing.
+Accessig each element of a container in some order is called traversal, or traversing the container.
+Traversal is also called iterating over or iterating through the container.
+
+Templates, arrays, and loops unlock scalability
+Arrays provide a way to store multiple objects without naming each element.
+Loops provide a way to traverse an array without explicitly listing each element.
+Templates provide a way to parameterize the element type.
+Together, they allow us to write code that can operate on a container of elements, regardless of element type or number of elements in the container.
+
+What we can do with arrays and loops
+We typically traverse a container to do one of four things:
+    Calculate a new value based on the value of existing elements (e.g. average, sum)
+    Search for an existing element (e.g. has exact match, count number of matches, find highest value)
+    Operate on each element (double each, output each)
+    Reorder the elements (sort ascending)
+
+The first three of these are straightforward. We can use a single loop to traverse, and inspect/modify each element as appropriate.
+
+Reordering elements is a lot more tricky, since it usually involves loops within loops. It's usually better to use an existing standard library to do this, which we'll discuss later.
+
+Arrays and off-by-one errors
+When traversing a container using an index, take care to ensure the loop executes the proper number of times.
+Typically, when traversing a container using an index, we start the index at 0 and loop until index<length.
+Using index <= length as the loop condition will cause the loop to execute when index == length, which will result in an out of bounds subscript and undefined behavior.
+
+Quiz
+1. Write a short program that prints the elements of a vector to the screen using a loop.
+see ch16_5_1.cpp
+
+
+2. Update your code for the prior quiz solution so that the following program compiles with the same output:
+#include <iostream>
+#include <vector>
+
+// Implement printArray() here
+
+int main()
+{
+    std::vector arr{ 4, 6, 7, 3, 8, 2, 1, 9 };
+
+    printArray(arr); // use function template to print array
+
+    return 0;
+}
+
+3. 
+Given the solution for quiz 2, do the following:
+
+Ask the user for a value between 1 and 9. If the user does not enter a value between 1 and 9, repeatedly ask for an integer value until they do. If the user enters a number followed by extraneous input, ignore the extraneous input.
+Print the array.
+Write a function template to search the array for the value that the user entered. If the value is in the array, return the index of that element. If the value is not in the array, return an appropriate value.
+If the value was found, print the value and index. If the value was not found, print the value and that it was not found.
+We cover how to handle invalid input in lesson 9.5 -- std::cin and handling invalid input.
+
+see ch16_5_3.cpp
+
+4.
+Write a function template to find the largest value in a std::vector
+see ch16_5_4.cpp
+
+
+
+
+
+
+
+
