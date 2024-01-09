@@ -1,0 +1,80 @@
+16_9
+std::vector resizing and capacity
+
+This lesson, and the following lessons within this chapter, will focus on what makes std::vector significantly different than most of the other array types, which is its ability to resize itself after instantiation.
+
+Fixed-size arrays vs dynamic arrays
+Most array types have a significant limitation: the length of the array must be known at the point of instantiation, and then cannot be changed.
+These are called fixed-size arrays or fixed-length arrays.
+std::array and c-style arrays are fixed-size array types.
+
+std::vector is a dynamic array. A dynamic array, also called a resizable array, is an array whose size can be changed after instantiation.
+
+Resizing a std::vector at runtime
+A std::vector can be resized after instantiation by calling the resize() member function with the new desired length.
+e.g.
+    std::vector v{ 0, 1, 2 }; // create vector with 3 elements
+    std::cout << "The length is: " << v.size() << '\n';
+
+    v.resize(5);              // resize to 5 elements
+    std::cout << "The length is: " << v.size() << '\n';
+    
+There are two things to note.
+One is that when we resize the vector, the existing element values are preserved.
+Second is that the new elements are value-initialized, which performs default-initialization for class types and zero-initialization for other types.
+
+Vectors may also be resized to be smaller.
+This removes elements past the last valid index of the resized vector.
+
+The length vs capacity of a std::vector
+While vector has a length (occupied indices), it also has a capacity.
+In the context of std::vector, capacity is how many elements the std::vector has allocated storage for, and length is how many elements are currently being used.
+
+A std::vector with a capacity of 5 has allocated space for 5 elements. Its length may be some lower number, and the remaining elements have memory allocated for them in this case, but are not considered to be in active use. They can be used later without overflowing the vector.
+
+Getting capacity of a std::vector
+vector has a capacity() member function (returns size_t, I'm pretty sure?)
+It will tell the capacity, which can differ from what's returned by size() member function.
+
+Reallocation of storage, and why it's expensive
+When std::vector changes the amount of storage it manages, this process is called reallocation.
+Informally, the process goes something like this:
+    The std::vector acquires new member with capacity for the desired number of elements. These elements are value-initialized.
+    The elements in the old memory are copied (or moved if possible) into the new memory. The old memory is returned to the system.
+    The capacity and length of the vector are set to their new values.
+
+From the outside, it looks like the vector has been resized.
+Internally, the memory and all of its elements have been replaced.
+Because reallocation typically requires every element in the array to be copied, reallocation is expensive. We want to avoid reallocation as much as we reasonably can.
+
+Why differentiate length and capacity?
+vector will reallocate storage if needed, but would rather not because it's computationally expensive.
+If vector only kept track of its length, then every resize() request would be an expensive reallocation.
+Separating length and capacity gives the vector the ability to be smarter about when reallocations are needed.
+
+Vector indexing is based on length, not capacity.
+The subscript operator and at() member function are based off of the vector's length, not its capacity.
+Even if the capacity is 5, if the length is 3, index 4 is out of bounds (not valid).
+
+Shrinking a std::vector
+Resizing a vector to be larger will increase its length, and will increase its capacity if required. However, resizing a vector to be smaller will only decrease its length, not its capacity.
+Reallocating a vector just to reclaim memory from a small number of elements that are no longer needed is a bad choice.
+However, if we havae a vector with a large number of elements we no longer need, the memory waste would be more substantial.
+
+std::vector has a member function called shrink_to_fit() that requests that a vector shrink its capacity to match its length.
+This request is non-binding, so the implementation is free to ignore it. It may fulfill, partially fulfill (reduce capacity somewhat, but not all the way), or ignore the request entirely.
+
+
+Quiz
+1. 
+
+a) What do length and capacity of a std::vector represent?
+Length is number of elements that (have a value? and) are in use.
+Capacity is the number of elements a vector has allocated memory for; exceeding capacity forces a reallocation.
+
+b) Why are length and capacity separate values?
+Keeping track of capacity can prevent reallocations on change of length. Reallocations are costly operations.
+
+
+c) Are the valid indices for std::vector based on length or capacity?
+Valid indices for vector are based on length.
