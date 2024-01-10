@@ -1,0 +1,10 @@
+Another late start today.
+
+Got started on the ch16 quiz, but there definitely isn't enough time tonight to finish the whole thing.
+
+It seems I'll also have to start actually doing a bit of data analytics for work. This... is fine, I guess, but I seem to have made the impression of someone who knows what they're talking about, and I don't intend to let my total inexperience and ignorance ruin that.
+So I'll likely be slowing down a bit on the C++ studies, even from my current reduced pace, and starting another repo pertaining to Python data science studies. 
+I'm still expecting to spend some time on C++ every day, but it might only be 30-45 minutes with the rest of my time spent on Python.
+I'm not happy about that, but it might just have to be like that for a while.
+
+Time will tell. Meanwhile, finishing chapter 16 tomorrow.

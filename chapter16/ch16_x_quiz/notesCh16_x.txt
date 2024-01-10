@@ -1,0 +1,36 @@
+16_x
+Quiz
+
+Question #1
+
+Write definitions for the following. Use CTAD where possible (13.12 -- Class template argument deduction (CTAD) and deduction guides).
+
+a) A std::vector initialized with the first 6 even numbers.
+
+b) A constant std::vector initialized with the values 1.2, 3.4, 5.6, and 7.8.
+
+c) A constant std::vector of std::string_view initialized with the names “Alex”, “Brad”, “Charles”, and “Dave”.
+
+d) A std::vector with the single element value 12.
+
+e) A std::vector with 12 int elements, initialized to the default values.
+
+
+2. 
+Let’s say you’re writing a game where the player can hold 3 types of items: health potions, torches, and arrows.
+
+a)
+Define an unscoped enum in a namespace to identify the different types of items. Define an std::vector to store the number of each item type the player is carrying. The player should start with 1 health potion, 5 torches, and 10 arrows. Assert to make sure the array has the correct number of initializers.
+
+b)
+Modify your program from the prior step so it now outputs:
+
+You have 1 health potion
+You have 5 torches
+You have 10 arrows
+You have 16 total items
+Use a loop to print out the number of items and the item names for each inventory item. Handle proper pluralization of the names.
+
+3. Write a function that takes a std::vector, returns a std::pair containing the indices of the elements with the min and max values in the array. The documentation for std::pair can be found here. Call the function on the following two vectors:
+
+

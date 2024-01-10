@@ -1,0 +1,39 @@
+16_11
+std::vector<bool>
+
+std::bitset has the ability to compact 8 bool values into a byte. Those can be modified via the member functions of std::bitset.
+
+std::vector has a special implementation for std::vector<bool> that may be more space efficient for bool values by similarly compacting 8 bool values into a byte.
+
+Note that when a template class has a different implementation for a particular template type argument, this is called class template specialization.
+
+Unlike std::bitset, which was designed for bit manipulation, std::vector<bool> lacks bit manipulation member functions.
+
+For the most part, std::vector<bool> works just like a normal std::vector.
+However, std::vector<bool> has tradeoffs that users should be aware of.
+First, std::vector<bool> actually has significant overhad; it's 40 bytes on the author's machine, so you won't save memory unless you allocate more bool values than that overhead for your architecture.
+
+Second, the performance of std::vector<bool> is highly dependent upon the implementation (as implementations aren't even required to do optimization, let alone do it well).
+A highly optimized implementation can be significantly faster than alternatives.
+However, a poorly optimized implementaiton will be slower.
+
+Third and most importantly, vector<bool> is not a vector (not required to be contiguous in memory), nor does it hold bool values (it holds a collection of bits), nor does it meet the C++ definition of a container.
+
+While it behaves like a vector in most cases, it's not fully compatible with the rest of the standard library.
+Some code might not work with it.
+
+The modern consensus is that std::vector<bool> should generally be avoided, since the performance gains are unlikely to be worth the incompatibility headaches due to it not being a proper container.
+
+There have been calls to deprecate std::vector<bool>.
+For now:
+    Use (constexpr) std::bitset when the number of bits you need is known at compile-time, you don't have more than a moderate amount of bool values to store, and the limited set of operators and member functions (e.g. lack of iterator support) meets your requirements.
+
+    Prefer std::vector<char> when you need a resizable container of bool values and space-saving isn't necessary. This type behaves like a normal container.
+    
+    Favor 3rd party implementation of a dynamic bitset (such as boost::dynamic_bitset) when you need a dynamic bitset to do bit operations on. Such types won't pretend to be standard library containers when they aren't.
+
+Best practice:
+Favor constexpr std::bitset, std::vector<char>, or 3rd party dynamic bitsets over std::vector<bool>
+
+
+
