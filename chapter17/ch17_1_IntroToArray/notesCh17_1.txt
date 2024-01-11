@@ -1,0 +1,106 @@
+ch17_1
+Introduction to std::array
+
+Arrays fall into two categories:
+    Fixed-size arrays (also called fixed-length arrays) require that the length of the array is known at the point of instantiation, and that length cannot be changed afterward. C-style arrays and std::array are both fixed-size arrays.
+    Dynamic arrays can be resized at runtime. std::vector is a dynamic array.
+
+std::vector is fast, easy to use, and versatile.
+
+So why not use dynamic arrays for everything?
+Dynamic arrays are powerful and convenient, but like everything, they make some tradeoffs for their benefits.
+    std::vector is slightly less performant than the fixed-size arrays. In most cases, the difference is minor (unless your code causes lots of inadvertent reallocations).
+    std::vector only supports constexpr in very limited contexts.
+In modern C++, the latter point is the significant one.
+Constexpr arrays offer the ability to write code that is more robust, and can be optimized more highly by the compiler.
+When we can use a constexpr array, we should. And if we need a constexpr array, std::array should be the container class we use.
+
+Best practice:
+Use std::array for constexpr arrays, and std::vector for non-constexpr arrays
+
+Defining a std::array
+std::array is deifned in the <array> header. It is designed to work similarly to std::vector, and there are more similarities between the two than differences.
+
+One difference is how we declare a std::array
+    std::array<int, 5> a {};  // a std::array of 5 ints
+
+Our std::array declaration has two template arguments, the first being a type template argument defining the type of the array, and the second being an integral non-type template argument defining the array length.
+
+The length of a std::array must be a constant expression
+Unlike std::vector, which can be resized at runtime, the length of a std::array must be a constant expression.
+Most often, the value provided for the length will be an integer literal, constexpr variable, or unscoped enumerator.
+
+Note that non-const variables and runtime constants cannot be used for the length of a std::array
+
+Aggregate initialization of a std::array
+std::array is an aggregate. This means it has no constructors, and is instead intialized using aggregate initialization.
+Aggregate initialization allows us to directly initialize the members of aggregates. To do this, we provide an initializer list, which is a brace-enclosed list of comma-separated initialization values.
+e.g.
+    std::array<int, 6> fibonnaci = { 0, 1, 1, 2, 3, 5 }; // copy-list initialization using braced list
+    std::array<int, 5> prime { 2, 3, 5, 7, 11 };         // list initialization using braced list (preferred)
+
+If std::array is defined without an initializer, the elements will be default initialized. In most cases, this will result in elements being left uninitialized.
+
+Because we generally want our elements to be initialized, std::array should be value initialized (using empty braces) when defined with no initializers.
+e.g.
+    std::array<int, 5> b{}; // Members value initialized (int elements are zero initialized) (preferred)
+
+If more initializers are provided than the defined array length, the compiler will error.
+If fewer initializers are provided than the defined array length, the remaining elements without initializers are value initialized.
+
+Const and constexpr std::array
+A std::array can be const
+Even though the elements of a const std::array are not explicitly marked as const, they are still treated as const (because the whole array is const)
+
+std::array also has full support for constexpr
+This is the key reason to use std::array
+e.g.
+    constexpr std::array<int, 5> prime { 2, 3, 5, 7, 11 };
+
+Best practice:
+Define your std::array as constexpr whenever possible.
+If your std::array is not constexpr, consider using std::vector instead.
+
+CTAD Class template argument deduction for std::array
+Using CTAD, we can have the compiler deduce both the element type and array length from a list of initializers.
+    constexpr std::array a1 { 9, 7, 5, 3, 1 }; // The type is deduced to std::array<int, 5>
+
+We favor this syntax where practical.
+If you don't have C++17, you'll need to explicitly provide the type and length template arguments.
+
+Best practice:
+Use class template argument deduction to have the compiler deduce the type and length of a std::array from its initializers.
+
+C++ does not support partial omission of template parameters, so you can't just omit the length or just the type of a std::array.
+
+Omitting just the array length using std::to_array
+Since C++20, it's possible to omit the array length of a std::array by using the std::to_array helper function.
+e.g.
+    constexpr auto myArray1 { std::to_array<int, 5>({ 9, 7, 5, 3, 1 }) }; // Specify type and size
+    constexpr auto myArray2 { std::to_array<int>({ 9, 7, 5, 3, 1 }) };    // Specify type only, deduce size
+    constexpr auto myArray3 { std::to_array({ 9, 7, 5, 3, 1 }) };         // Deduce type and size
+
+Using std::to_array is more expensive than std::array directly, because it involves creating a temporary std::array and using it to copy initialize our desired std::array.
+For this reason, std::to_array should only be used in cases where the type can't be effectively determined from the initializers, and should be avoided when an array is used many times (e.g. inside a loop).
+
+Accessing array elements using operator[]
+Just like a std::vector, the most common way to access std::array elements is by using the subscript operator.
+This operation does not do bounds checking, so an invalid index will result in undefined behavior.
+
+Quiz
+
+1.What type of initialization does std::array use?
+Aggregate.
+
+1b. Why should you explicitly value-initialize a std::array if you are not providing initialization values?
+If you don't, values will be default initialized, which usually means they'll be uninitialized entirely.
+
+2. Define a std::array that will hold the high temperature for each day of the year.
+std::array<double, 365> peakTemperatures{};
+
+3. Initialize a std::array with the following values: 'h', 'e', 'l', 'l', 'o'.
+Print the value of the element with index 1.
+constexpr std::array<char, 5> generalKenobi{'h','e','l','l','o'};
+std::cout << generalKenobi[1] <<'\n'; //Prints 'e'
+
+
