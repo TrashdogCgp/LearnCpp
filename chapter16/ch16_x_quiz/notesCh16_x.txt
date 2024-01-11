@@ -33,4 +33,11 @@ Use a loop to print out the number of items and the item names for each inventor
 
 3. Write a function that takes a std::vector, returns a std::pair containing the indices of the elements with the min and max values in the array. The documentation for std::pair can be found here. Call the function on the following two vectors:
 
+see ch16_x_3.cpp
+
+4.
+Modify the prior program so that the user can enter as many integers as they like. Stop accepting input when the user enters -1.
+
+Print the vector and find the min and max elements.
+see ch16_x_4.cpp
 
