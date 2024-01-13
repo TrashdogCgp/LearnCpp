@@ -1,0 +1,119 @@
+17_4
+std::array of class types, and brace elision
+
+A std::array isn't limited to fundamental types.
+std::array can have elements of any object type, including compound types.
+This means you can create a std::array of pointers, or a std::array of structs/classes.
+
+However, initializing one of these tends to trip new programmers up.
+
+Take a sample struct:
+    struct House
+    {
+        int number{};
+        int stories{};
+        int roomsPerStory{};
+    };
+
+An array of House and assigning elements works just like you'd expect.
+    std::array<House, 3> houses{};
+
+Initializing a std::array of structs also works like you'd expect, as long as you are explicit about the element type.
+But we can also use CTAD to deduce the type of the std::array.
+e.g.
+    constexpr std::array houses { // use CTAD to deduce template arguments <House, 3>
+            House{ 13, 1, 7 }, //Note the explicit House{} stuff
+            House{ 14, 2, 5 },
+            House{ 15, 2, 4 }
+        };
+
+Initialization without explicitly specifying the element type for each initializer
+Note that each initializer requires us to list the element type, but in the case of assignment, that's not necessary.
+e.g.
+    constexpr std::array houses {
+            House{ 13, 1, 7 }, // we mention House here
+            House{ 14, 2, 5 }, // and here
+            House{ 15, 2, 4 }  // and here
+        };
+    houses[0] = { 13, 1, 7 }; //This is accepted without explicit House typing
+
+Surprisingly, even though we tell the compiler that each element is a House, the following doesn't work:
+    // doesn't work
+    constexpr std::array<House, 3> houses { // we're telling the compiler that each element is a House
+        { 13, 1, 7 }, // but not mentioning it here
+        { 14, 2, 5 },
+        { 15, 2, 4 }
+    };
+
+A std::array is defined as a struct containing a single C-style array member (whose name is implementation defined).
+It looks like this:
+template<typename T, std::size_t N>
+    struct array
+    {
+        T implementation_defined_name[N]; // a C-style array with N elements of type T
+    }
+
+Trashdog's note: Jeez. Is it really that simple? I get that using a c-style array like that is the point, but jeez.
+
+So when we try to initialize it, the compiler interprets the initialization like this:
+    // Doesn't work
+    constexpr std::array<House, 3> houses { // initializer for houses
+        { 13, 1, 7 }, // initializer for C-style array member with implementation_defined_name
+        { 14, 2, 5 }, // ?
+        { 15, 2, 4 }  // ?
+    };
+
+The compiler will interpret {13, 1, 7} as the initializer for the first member of houses, which is the c-style array with the implementation defined name.
+This will initialize the c-style array element 0 with {13, 1, 7} and the rest of the members will be zero-initialized.
+Then the compiler will discover that we've provided two more initialization values, and produces a compilation error telling us that we've provided too many initialization values.
+The correct way to initialize the above is to add an extra set of braces as follows:
+
+    // This works as expected
+    constexpr std::array<House, 3> houses { // initializer for houses
+        { // extra set of braces to initialize the C-style array member with implementation_defined_name
+            { 13, 4, 30 }, // initializer for array element 0
+            { 14, 3, 10 }, // initializer for array element 1
+            { 15, 3, 40 }, // initializer for array element 2
+        }
+    };
+Note that the extra set of braces that are required (to begin initialization of the c-style member inside the std::array struct). Within those braces, we can then initialize each element individually, each inside its own set of braces.
+This is why you'll see std::array initializers with an extra set of braces when the element type requires a list of values and we're not explicitly providing the element type as part of the initializer.
+
+This is why you'll see std::array initializers with an extra set of braces when the element type requires a list of values and we are not explicitly providing the element type as part of the initializer.
+
+Reinforce:
+When initializing a std::array with a struct, class, or array and not providing the element type with each initializer, you'll need an extra pair of braces so that the compiler will properly interpret what to initialize.
+This is an artifact of aggregate initialization, and other standard library container types (that use list constructors) do not require the double braces in these cases.
+
+Brace elision for aggregates
+Given the explanation above, we may wonder why the above case requires double braces, but all other cases only require single braces.
+e.g.
+        constexpr std::array<int, 5> arr { 1, 2, 3, 4, 5 }; // single braces
+You can actually supply double braces for such arrays, though.
+    constexpr std::array<int, 5> arr {{ 1, 2, 3, 4, 5 }}; // double braces
+
+But aggregates in C++ support a concept called brace elision, which lays out some rules for when multiple braces may be omitted.
+Generally, you can omit braces when initializing a std::array with scalar (single) values, or when initializing with class types or arrays where the type is explicitly named with each element.
+
+There's no harm in always initializing std::array with double braces, as it avoids having to think about whether or not brace elision is applicable in a specific case.
+Alternatively, you can try to single-brace init, and the compiler will complain if it's not valid. Then you can add an extra set of braces.
+
+
+Quiz
+
+1. Define a struct named Item that contains two members: std::string_view name and int gold. Define a std::array and initialize it with 4 Item objects, explicitly specifying the element type for each initializer.
+
+The program should print the following:
+
+A sword costs 5 gold.
+A dagger costs 3 gold.
+A club costs 2 gold.
+A spear costs 7 gold.
+
+
+
+
+
+
+
+
