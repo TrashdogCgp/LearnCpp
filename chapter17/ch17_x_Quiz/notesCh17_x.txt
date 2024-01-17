@@ -1,0 +1,35 @@
+17_x
+Chapter 17 summary and quiz
+
+1. What's wrong with each of these snippets, and how would you fix it?
+
+a) The <= comparator will run the loop with count=4, which will go out of the array's bounds.
+Use < instead of <=.
+
+b) Because of decayed arrays passing into functions, the length info of array is lost before it even enters the body of the function. The code won't run and probably won't compile.
+Use std::vector to hold that data instead, or std::array if it can be constexpr.
+
+c) Won't compile because length would have to be a compile-time constant for std::array to use it in defining a variable.
+Use std::vector instead.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
