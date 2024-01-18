@@ -1,0 +1,79 @@
+19_2
+Dynamically allocating arrays
+
+In addition to dynamically allocating single values, we can also dynamically allocate arrays of variables. Unlike a fixed array, where array length must be fixed at compile time, dynamic array allocation allows us to choose a length at runtime.
+Dynamically allocated array length does not need to be constexpr.
+
+Note that in these lessons, we'll be dynamically allocating C-style arrays, which is the most common type of dynamically allocated array.
+While we can dynamically allocate a std::array, you're usually better off using a std::vector in this case.
+
+To allocate an array dynamically, we use the array form of new and delete:
+new[] / delete[]
+
+e.g.
+    std::size_t length{};
+    std::cin >> length;
+
+    int* array{ new int[length]{} }; // use array new.  Note that length does not need to be constant!
+
+Because we're allocating an array, C++ knows it should use the array version of new instead of the scalar version.
+Essentially, the new[] operator is called even though the [] isn't placed next to the new keyword.
+
+The length of dynamically allocated arrays has type std::size_t. If we use a non-constexpr int, we'd need to static_cast it to std::size_t since that's considered a narrowing conversion and the compiler will complain.
+Because this memory is allocated from a different place than the memory used for fixed arrays, the array can be quite large. We could likely run 100 million element arrays without an issue.
+Because of this, programs that need to allocate a lot of memory in C++ usually do so dynamically.
+
+Dynamically deleting arrays
+When deleting a dynamically allocated array, we have to use the array version of delete, which is delete[].
+This tells the CPU it needs to clean up multiple variables instead of a single variable.
+If we use delete instead of delete[], we get undefined behavior like data corruption, memory leaks, crashes, or other problems.
+How does delete[] know how much memory to delete?
+Well, new[] keeps track of how much memory was allocated to a variable, so delete[] can delete the proper amount.
+This size info isn't accessible by the programmer.
+
+Dynamic arrays are almost identical to fixed arrays
+A fixed array holds the memory address of the first array element. A fixed array can decay into a pointer that points to the element of the first element of the array.
+In decayed form, the length of the fixed array is not available, and neither is the size via sizeof(), but otherwise there's little difference.
+
+A dynamic array starts as a pointer that points to the first element of the array. Consequently, it has the same limitations and doesn't know its length or size. A dynamic array functions identically to a decayed fixed array, with the exception that the programmer is responsible for deallocating the dynamic array via the delete[] keyword.
+
+Initializing dynamically allocated arrays
+If you want to initialize a dynamically allocated array to 0, the syntax is simple:
+    int* array{ new int[length]{} };
+Prior to C++11, there was no easy way to initialize a dynamic array to a non-zero value (initializer lists only worked for fixed arrays). This means you had to loop through the array and assign element values explicitly.
+
+As of C++11, we can initialize dynamic arrays using initializer lists.
+e.g.
+    int fixedArray[5] = { 9, 7, 5, 3, 1 }; // initialize a fixed array before C++11
+    int* array{ new int[5]{ 9, 7, 5, 3, 1 } }; // initialize a dynamic array since C++11
+    // To prevent writing the type twice, we can use auto. This is often done for types with long names.
+    auto* array{ new int[5]{ 9, 7, 5, 3, 1 } };
+Note that this syntax doesn't use the = operator between array length and the initializer list.
+
+Explicitly stating the size of the array is optional.
+
+Resizing arrays:
+Dynamically allocating an array allows you to set the array length at the time of allocation.
+However, C++ doesn't provide a built-in way to resize an array that has already been allocated. It is possible to work around this by dynamically allocating a new array, copying elements over, and deleting the old array. But this is error prone, especially for class type elements with special rules for how they're created.
+We consequently should avoid doing this manually, and use std::vector instead.
+
+Quiz
+1. Write a program that:
+Asks the user how many names they wish to enter.
+Dynamically allocates a std::string array.
+Asks the user to enter each name.
+Calls std::sort to sort the names (See 18.1 -- Sorting an array using selection sort and 17.9 -- Pointer arithmetic and subscripting)
+Prints the sorted list of names.
+
+see ch19_2_1.cpp
+
+
+
+
+
+
+
+
+
+
+
