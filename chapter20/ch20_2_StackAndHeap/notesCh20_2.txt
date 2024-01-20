@@ -1,0 +1,60 @@
+20_2
+The stack and the heap
+
+The memory that a program uses is typically divided into different areas, called segments.
+    The code segment (also called text segment) is where the compiled program sits in memory. This is typically read-only.
+    The bss segment (also called uninitialized data segment), where zero-initialized global and static variables are stored.
+    The data segment (also called initialized data segment), where initialized global and static variables are stored.
+    The heap, where dynamically allocated variables are allocated from.
+    The call stack, where function parameters, local variables, and other function-related info are stored.
+
+In this lesson, we'll primarily foucs on heap and stack, since that's where most of the interesting stuff takes place.
+
+The heap segment (aka "free store") keeps track of memory used for dynamic memory allocation.
+In C++, when you use the new operator to allocate memory, this memory is allocated in the application's heap segment.
+e.g.
+    int* ptr { new int }; // ptr is assigned 4 bytes in the heap
+    int* array { new int[10] }; // array is assigned 40 bytes in the heap
+The address of this memory is passed back by operator new, and can be stored in a pointer. You don't have to worry about the mechanics behind the process of how free memory is located and allocated to the user. However, it's worth knowing that sequential memory requests may not result in sequential memory addresses being allocated.
+    int* ptr1 { new int };
+    int* ptr2 { new int };
+ptr1 and ptr2 may not have sequential addresses
+
+The heap has advantages and disadvantages:
+    Allocating from the heap is slow by comparison.
+    Allocated memory stays allocated until it is specifically deallocated (beware memory leaks) or the application ends (OS cleans up at this point).
+    Dynamically allocated memory must be accessed through a pointer, which is slower than accessing a variable directly due to dereferencing.
+    Because the heap is a big pool of memory, large arrays/structures/classes can be allocated here.
+
+The call stack
+The call stack, usually just referred to as the stack, has a much more interesting role to play.
+The call stack keeps track of all the active functions (those that have been called but not yet terminated) from the start of the program to the current point of execution, and handles allocation of all function parameters and local variables.
+The call stack is implemented as a stack data structure. Before we can talk about it, we have to talk about what a stack data structure is.
+
+The stack data structure
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
