@@ -1,0 +1,10 @@
+Still on travel, not going to take the time to get a compiler working for the remaining day before I'm (hopefully) back home.
+
+Going to continue with chapter 17 on std::array.
+Testing code for quiz problems will have to wait until I'm home.
+
+NOTE:
+Today is not a good day for quizzes, even though I'm perfectly sober.
+I'm tired from travel and would rather do more reading, then fight the 17_6 quiz when I'm back home.
+I'm sorry to anyone I may be disappointing by failing to operate at my best every day. Travel complicates things sometimes.
+

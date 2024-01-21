@@ -1,0 +1,199 @@
+17_6
+std::array and enumerations
+
+With constexpr std::array discussed, we're going to continue that discussion and show a few additional tricks, and discuss arrays and enumerations.
+
+Using static assert to ensure the proper number of array initializers
+When initializing a constexpr std::array with CTAD, the compiler will deduce how long the array should be from the number of initializers. If less initializers are provided than there should be, the array will be shorter than expected, and indexing it can lead to undefined behavior.
+
+Whenever the number of initializers in a constexpr std::array can be reasonably sanity checked, you can do so using a static assert.
+
+That way, if you add a new enumerator later but forget to add a corresponding initializer to testScores, the program will fail to compile.
+You can also use static assert to ensure two different constexpr std::array have the same length.
+
+
+Using constexpr arrays for better enumeration input and output
+We've covered ways to output the names of enumerators, as well as a way to input an enumerated value as an integer.
+We can improve these methods a bit.
+We can use an array to hold the name of each enumerator as a std::string_view.
+We can then use this array for two purposes:
+    Easily output the name of enumerators as a string
+    Look up the name of enumerators as a string.
+
+The latter allows us to teach operator>> how to input an enumerator by name (rather than by integer).
+
+Relatively long example:
+    #include <array>
+    #include <iostream>
+    #include <string_view>
+
+    namespace Color
+    {
+        enum Type
+        {
+            black,
+            red,
+            blue,
+            max_colors
+        };
+
+        // use sv suffix so std::array will infer type as std::string_view
+        using namespace std::string_view_literals; // for sv suffix
+        constexpr std::array colorName { "black"sv, "red"sv, "blue"sv };
+
+        // Make sure we've defined strings for all our colors
+        static_assert(std::size(colorName) == max_colors);
+    };
+
+    constexpr std::string_view getColorName(Color::Type color)
+    {
+        return Color::colorName[color];
+    }
+
+    // Teach operator<< how to print a Color
+    // Consider this magic for now since we haven't explained any of the concepts it uses yet
+    // std::ostream is the type of std::cout
+    // The return type and parameter type are references (to prevent copies from being made)!
+    std::ostream& operator<<(std::ostream& out, Color::Type color)
+    {
+        return out << getColorName(color);
+    }
+
+    // Teach operator>> how to input a Color by name
+    // Consider this magic for now
+    // We pass color by non-const reference so we can have the function modify its value
+    std::istream& operator>> (std::istream& in, Color::Type& color)
+    {
+        std::string input {};
+        std::getline(in >> std::ws, input);
+
+        // See if we can find a match
+        for (std::size_t index=0; index < Color::colorName.size(); ++index)
+        {
+            if (input == Color::colorName[index])
+            {
+                color = static_cast<Color::Type>(index);
+                return in;
+            }
+        }
+
+        // We didn't find a match, so input must have been invalid
+        // so we will set input stream to fail state
+        in.setstate(std::ios_base::failbit);
+        return in;
+    }
+
+    int main()
+    {
+        auto shirt{ Color::blue };
+        std::cout << "Your shirt is " << shirt << '\n';
+
+        std::cout << "Enter a new color: ";
+        std::cin >> shirt;
+        if (!std::cin)
+            std::cout << "Invalid\n";
+        else
+            std::cout << "Your shirt is now " << shirt << '\n';
+
+        return 0;
+    }
+
+This example will change the shirt variable to the Color enumerator specified by the user, as long as it matches the values provided in Color.
+
+Range-based for-loops and enumerations
+Occasionally, we run across situations where it would be useful to iterate through the enumerators of an enumeration.
+We can do this using a for-loop with an integer index, but this will require a lot of static casting of the integer index to our enumeration type.
+
+Unfortunately, range-based for-loops won't allow you to iterate over the enumerators of an enumeration.
+e.g.
+    for (auto c: Color::Type) // compile error: can't traverse enumeration
+        std::cout << c < '\n';
+We can get around this by creating a constexpr std::array containing each of our enumerators, and iterate over that.
+This only works if the enumerators have sequential values starting at 0, but most enumerations do.
+
+Example, again overloading the insertion operator to print out the string representation of color from the enumerator:
+    #include <array>
+    #include <iostream>
+    #include <string_view>
+
+    namespace Color
+    {
+        enum Type
+        {
+            black,     // 0
+            red,       // 1
+            blue,      // 2
+            max_colors // 3
+        };
+
+        using namespace std::string_view_literals; // for sv suffix
+        constexpr std::array colorName { "black"sv, "red"sv, "blue"sv };
+        static_assert(std::size(colorName) == max_colors);
+
+        constexpr std::array types { black, red, blue }; // A std::array containing all our enumerators
+        static_assert(std::size(types) == max_colors);
+    };
+
+    constexpr std::string_view getColorName(Color::Type color)
+    {
+        return Color::colorName[color];
+    }
+
+    // Teach operator<< how to print a Color
+    // Consider this magic for now since we haven't explained any of the concepts it uses yet
+    // std::ostream is the type of std::cout
+    // The return type and parameter type are references (to prevent copies from being made)!
+    std::ostream& operator<<(std::ostream& out, Color::Type color)
+    {
+        return out << getColorName(color);
+    }
+
+    int main()
+    {
+        for (auto c: Color::types) // ok: we can do a range-based for on a std::array
+            std::cout << c << '\n';
+
+        return 0;
+    }
+
+Quiz
+Define a namespace named Animal.
+Inside it, define an enum containing the following:
+chicken, dog, cat, elephant, duck, and snake.
+Create a struct named Data to store each animal's name, number of legs, and the sound it makes.
+Create a std::array of Data and fill out a Data element for each animal.
+Ask the user to enter the name of an animal. If the name does not match the name of one of the four animals, tell them so. Otherwise, print the data for that animal. Then print the data for all the other animals that didn't match their input.
+
+
+namespace Animal
+{
+    enum Type
+    {
+        chicken,
+        dog,
+        cat,
+        elephant,
+        duck,
+        snake,
+        max_animals
+    };
+    struct Data
+    {
+        std::string name{};
+        int numLegs{};
+        std::string sound{};
+    }
+    constexpr std::array<Type> types{chicken, dog, cat, elephant, duck, snake};
+    constexpr std::array<Data, max_animals> animals
+    {
+        Data{"chicken", 2, "bukk bukk"},
+        Data{"dog", 4, "bork"},
+        Data{"cat", 4, "meow"},
+        Data{"elephant", 4, "???"},
+        Data{"duck", 4, "quack"},
+        Data{"snake", 4, "hiss"},
+    };
+    static_assert(std::size(types) == max_animals);
+    static_assert(std::size(animals) == max_animals);
+}
+
