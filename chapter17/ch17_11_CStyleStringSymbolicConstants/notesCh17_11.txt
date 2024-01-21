@@ -1,0 +1,50 @@
+17_11
+C-style string symbolic constants
+
+C++ supports two different ways to create C-style string symbolic constants.
+    const char name[] { "Alex" };        // case 1: const C-style string initialized with C-style string literal
+    const char* const color{ "Orange" }; // case 2: const pointer to C-style string literal
+
+While the above two methods produce the same results, memory allocation for them is slightly different.
+
+In case 1, "Alex" is put into read-only memory somewhere. The program allocates memory for a c-style array of length 5 (four characters plus null terminator) and initializes that memory with the string "Alex".
+We end up with 2 copies of "Alex"--one in global memory somewhere, and the other owned by name.
+Since name is const and will never be modified, making a copy is inefficient.
+
+In case 2, the compiler handles it in some manner defined by the implementation.
+What usually happens is that the compiler puts "Orange" into read-only memory somewhere, then initializes the pointer with the address of the string.
+This method has the option for multiple string literals to be consolidated into a single value.
+e.g.
+    const char* name1{ "Alex" };
+    const char* name2{ "Alex" };
+The compiler may opt to save memory by combining these into a single shared string literal, pointed at the same address.
+
+Type deduction with const c-style strings
+Type deduction using a c-style string literal is fairly straightforward.
+
+    auto s1{ "Alex" };  // type deduced as const char*
+    auto* s2{ "Alex" }; // type deduced as const char*
+    auto& s3{ "Alex" }; // type deduced as const char(&)[5]
+
+Outputting pointers and c-style strings
+std::cout handles pointers of different types differently because it makes assumptions about your intent. If you pass a non-char pointer, it'll print the contents of that pointer (address held by the pointer).
+However, if you pass it an object of type char* or const char*, it will assume you intend to print a string. Instead of printing the pointer's value (an address), it'll print the string being pointed to instead.
+This can lead to unexpected results sometimes:
+    char c{ 'Q' };
+    std::cout << &c;
+Since &c has type char*, cout will try to print it as a string, but it's not null-terminated, so we get undefined behavior.
+
+If you actually want to print the address of a char pointer, static_cast it to type const void*
+e.g.
+    const char* ptr{ "Alex" };
+    std::cout << ptr << '\n';                           // print ptr as C-style string
+    std::cout << static_cast<const void*>(ptr) << '\n'; // print address held by ptr
+
+Favor std::string_view for C-style string symbolic constants
+There is little reason to use c-style symbolic constants in modern C++.
+Instead, favor constexpr std::string_view objects, which tend to be as fast or faster and behave more consistently.
+
+
+
+
+

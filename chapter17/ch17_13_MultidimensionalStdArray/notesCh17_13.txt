@@ -1,0 +1,125 @@
+17_13
+Multidimensional std::array
+
+We want to avoid c-style arrays unless they're being used to store global data.
+We'll look at multidimensional arrays with std::array in this lesson.
+
+std::array is implemented as a single-dimensional array.
+There isn't a standard library multidimensional array class.
+
+A 2D std::array
+The canonical way to do a 2D std::array is creating a std::array where the template type argument is another std::array.
+e.g.
+    std::array<std::array<int, 4>, 3> arr {{  // note double braces
+        { 1, 2, 3, 4 },
+        { 5, 6, 7, 8 },
+        { 9, 10, 11, 12 }}};
+Note a few things about this:
+    When initializing multidimensional std::arrays, we need to use double-braces (note brace elision).
+    The syntax is verbose and hard to read.
+    Because of how templates nest, the array dimensions are switched. When we want an array of 3 rows of 4 elements, we have to specify the inner std::array<int, 4>.
+
+We can also pass a 2d std::array to a function just like a 1D std::array.
+e.g.
+    #include <array>
+    #include <iostream>
+
+    template <typename T, std::size_t Row, std::size_t Col>
+    void printArray(std::array<std::array<T, Col>, Row> &arr)
+    {
+        for (const auto& arow: arr)   // get each array row
+        {
+            for (const auto& e: arow) // get each element of the row
+                std::cout << e << ' ';
+            std::cout << '\n';
+        }
+    }
+    int main()
+    {
+        std::array<std::array<int, 4>, 3>  arr {{
+            { 1, 2, 3, 4 },
+            { 5, 6, 7, 8 },
+            { 9, 10, 11, 12 }}};
+        printArray(arr);
+        return 0;
+    }
+
+Making 2D std::array easier using alias templates
+One use of type aliases is to make complex types simpler to use.
+However, with a normal type alias, we must explicitly specify all template arguments, e.g.
+    using Array2dint34 = std::array<std::array<int, 4>, 3>;
+
+We then need one such alias for each combination of element type and dimensions we want to use.
+This is a good place for an alias template, which lets us specify the element type, row length, and column length for a type alias as template arguments.
+e.g.
+    // An alias template for a two-dimensional std::array
+    template <typename T, std::size_t Row, std::size_t Col>
+    using Array2d = std::array<std::array<T, Col>, Row>;
+
+We could then use Array2d<int, 3, 4> anywhere for a 3x4 2d array of int.
+This is much better overall.
+
+One neat thing about our alias template is that we can define our template parameters in whatever order we like.
+Since a std::array specifies element type first and then dimension, we stick with that convention.
+This method also scales up nicely to higher-dimensional std::arrays.
+
+Getting the dimensional length of a 2D array
+Getting the length of a 2D array is slightly non-intuitive.
+In order to get the length of the first dimension, we can just call size() on our array.
+But for the second dimension, we have to call size(arr[0]) to get the subarray's size.
+For a 3D std::array, we'd call arr[0][0].size()
+
+Flattening a 2D array
+Arrays with two or more dimensions have some challenges:
+    They're more verbose to define and work with
+    It's awkward to get the length of dimensions greater than the first
+    They're increasingly hard to iterate over (requiring one more loop for each dimension).
+
+Flattening an array is the process of reducing the dimensionality of an array (often down to a single dimension).
+For example, instead of creating 2d arrays with Row and Col lengths, we can create a 1D array with Row*Col elements. This gives us the same amount of storage with a single dimension.
+Since our 1D array only has a single dimension, we can't work with it as a multidimensional array.
+But we can provide an interface that mimics a multidimensional array. This interface will accept 2D coordinates, then map them to a unique position in the 1D array.
+
+std::mdspan
+As of C++23, std::mdspan is a modifiable view that provides a multidimensional array interface for a contiguous sequence of elements.
+By modifiable, we mean it's not just a read-only view like std::string_view, but it can actually modify a non-const sequence of elements.
+For this, we need to include the <mdspan> header.
+e.g.
+    // Define a one-dimensional std::array of int (with 3 rows and 4 columns)
+    ArrayFlat2d<int, 3, 4> arr {
+        1, 2, 3, 4,
+        5, 6, 7, 8,
+        9, 10, 11, 12 };
+
+    // Define a two-dimensional span into our one-dimensional array
+    // We must pass std::mdspan a pointer to the sequence of elements
+    // which we can do via the data() member function of std::array or std::vector
+    std::mdspan mdView { arr.data(), 3, 4 };
+
+    // print array dimensions
+    // std::mdspan calls these extents
+    std::size_t rows { mdView.extents().extent(0) };
+    std::size_t cols { mdView.extents().extent(1) };
+    std::cout << "Rows: " << rows << '\n';
+    std::cout << "Cols: " << cols << '\n';
+
+A few things worth noting:
+    std::mdspan will let us define a view with as many dimensions as we want.
+    The first parameter to the constructor of std::mdspan should be a pointer to the array data. This can be a decayed c-style array, or we can use the data() member function of std::array or std::vector to get this data.
+    To index a std::mdspan in one dimension, we must fetch the pointer to the array data, which we can do using the data_handle() member function. We can then subscript that.
+    In C++23, the [] operator accepts multiple indices, so we can use [row, col] as our index instead of [row][col].
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
