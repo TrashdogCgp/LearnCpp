@@ -1,0 +1,96 @@
+20_5
+Ellipsis (and why to avoid them)
+
+Ellipsis are rarely used, potentially dangerous, and should mostly be avoided.
+There are certain cases where we do want to use them, and C++ provides the special signifier known as ellipsis (...) to allow us to pass a variable number of parameters to a function.
+
+Functions that use ellipsis take the form:
+    return_type function_name(argument_list, ...)
+The argument list is one or more normal function parameters. Note that functions using the ellipsis must have at least one non-ellipsis parameter. Any arguments passed to the function must match the argument_list parameters first.
+
+The ellipsis must always be the last parameter in the function parameters.
+The ellipsis capture any additional arguments, if there are any. While it's not quite accurate, it's conceptually useful to think of the ellipsis as an array that holds any additional parameters beyond the argument list.
+
+Ellipsis example
+Pretend we want to write a function that calculates the average of a bunch of integers.
+We'd do that like this:
+// The ellipsis must be the last parameter
+// count is how many additional arguments we're passing
+double findAverage(int count, ...)
+{
+    int sum{ 0 };
+
+    // We access the ellipsis through a va_list, so let's declare one
+    std::va_list list;
+
+    // We initialize the va_list using va_start.  The first argument is
+    // the list to initialize.  The second argument is the last non-ellipsis
+    // parameter.
+    va_start(list, count);
+
+    // Loop through all the ellipsis values
+    for (int arg{ 0 }; arg < count; ++arg)
+    {
+         // We use va_arg to get values out of our ellipsis
+         // The first argument is the va_list we're using
+         // The second argument is the type of the value
+         sum += va_arg(list, int);
+    }
+
+    // Cleanup the va_list when we're done.
+    va_end(list);
+
+    return static_cast<double>(sum) / count;
+}
+
+Looking at the components that make up this example:
+
+The cstdarg header has to be included.
+It defines va_list, va_arg, and va_end, which are macros that we need to access parameters that are part of the ellipsis.
+
+Also note that the ellipsis parameter has no name. Instead, we access the values through a special type known as a va_list.
+It's conceptually useful to think of va_list as a pointer that points to the ellipsis array.
+
+We also need to make the "list" variable point to our ellipsis parameters, which is done by calling va_start(). va_start() takes two parameters: the va_list itself, and the name of the last non-ellipsis parameter in the function.
+Once va_start() has been called, va_list points to the first parameter in the ellipsis.
+
+To get the value of the parameter that va_list currently points to, we use va_arg(), which also takes two parameters: the va_list, and the type of parameter we're trying to access.
+Note that va_arg() also moves the va_list to the next parameter in the ellipsis.
+
+va_end cleans up, with va_list as the parameter.
+
+va_start() can be called again anytime if we want to reset the va_list to point to the first parameter in the ellipsis again.
+
+Why ellipsis are dangerous: Type checking is suspended
+Ellipsis offer the programmer a lot of flexibility to implement functions that can take a variable number of parameters, but this comes with downsides.
+With regular function params, the compiler uses type checking to ensure the types of the function arguments match the types of function marameters (or can be implicitly converted to match).
+
+Ellipsis parameters have no type declarations.
+The compiler suspends type checking for ellipsis parameters. This means it's possible to send arguments of any type to the ellipsis, but the compiler won't be able to warn you if you call the function with ellipsis arguments that don't make sense.
+When using the ellipsis, it's upt to the caller to ensure the function is called with ellipsis arguments that the function can handle.
+This leaves a lot of room for error.
+
+e.g. this can go wrong:
+    std::cout << findAverage(6, 1.0, 2, 3, 4, 5, 6) << '\n';
+This will produce a really big number.
+
+Note that the only way to get meaningful values back from the ellipsis is to manually tell va_arg() what the expected parameter type is. If the actual parameter doesn't match the expected parameter type, bad things tend to happen.
+In our findAverage case, the double is 8 bytes and the first call of findAverage will only read the first 4 bytes of the double; this makes our result garbage.
+
+Ellipsis are also dangerous because
+ellipsis don't know how many parameters were passed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
