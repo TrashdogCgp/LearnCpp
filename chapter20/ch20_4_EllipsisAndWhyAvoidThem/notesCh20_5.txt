@@ -77,19 +77,31 @@ This will produce a really big number.
 Note that the only way to get meaningful values back from the ellipsis is to manually tell va_arg() what the expected parameter type is. If the actual parameter doesn't match the expected parameter type, bad things tend to happen.
 In our findAverage case, the double is 8 bytes and the first call of findAverage will only read the first 4 bytes of the double; this makes our result garbage.
 
-Ellipsis are also dangerous because
+Ellipsis are also dangerous because:
 ellipsis don't know how many parameters were passed.
+We have to devise our own solution for keeping track of the number of parameters passed into the ellipsis. This is usually done in one of three ways:
 
+Method 1: Pass a length parameter
+One of the fixed parameters can represent the number of optional parameteres passed.
+However, even here we can run into trouble. If we don't give as many parameters as we say, we'll get garbage or exclude something.
 
+Method 2: Use a sentinel value
+A sentinel is a special value used to terminate a loop when it is encountered. With strings, for example, the null terminator denotes the end of the string.
+With ellipsis, the sentinel is typically passed in as the last parameter.
+However, this also has a couple of problems. First, C++ requires that we pass at least one fixed parameter. If we plan to use the first value, we have to handle it separate from the ellipsis values.
+Second, this requires the user to pass in the sentinel as the last value. If the user forgets to pass in the sentinel value (or passes in the wrong value), the function will loop continuously until it runs into garbage that matches the sentinel.
+Third, the sentinel value only works well if there's a value outside of the valid set of values for the problem to solve.
 
+Method 3: Use a decoder string
+A decoder string can tell the program how to interpret the parameters.
+The decoder string can be a bit cryptic, though, and the number or types of optional parameters might need to match the decoder string precisely.
+In C, printf does this, though!
 
-
-
-
-
-
-
-
+Recommendations for safer use of ellipsis
+If possible, don't use them at all. Other reasonable solutions are usually available, even if they need a bit more work; vectors can frequently work, for example.
+If you do use ellipsis, it's better if all values passed to the ellipsis parameter are the same type (e.g. all int, or all double), not a mix of each.
+Intermixing different types vastly increases the odds of the caller inadvertently passing in data of the wrong type and va_arg(), producing a garbage result.
+Using a count parameter or decoder string parameter is generally safer than using a sentinel value. This forces the user to pick an appropriate value for the count/decoder parameter, which ensures the ellipsis loop will terminate after a reasonable number of iterations even if it produces a garbage value.
 
 
 
