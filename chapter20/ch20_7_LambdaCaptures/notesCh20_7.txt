@@ -1,0 +1,152 @@
+20_7
+Lambda captures
+
+Capture clauses and capture by value
+Unlike nested blocks, where any identifier defined in an outer block is accessible in the scope of the nested block, lambdas can only access specific kinds of identifiers: global identifiers, entities that are known at compile time, and entities with static storage duration.
+
+The capture clause is used to (indirectly) give a lambda access to variables available in the surrounding scope that it normally would not have access to.
+All we need to do is list the entities we want to access from within the lambda as part of the capture clause.
+
+e.g.
+  std::array<std::string_view, 4> arr{ "apple", "banana", "walnut", "lemon" };
+
+  std::cout << "search for: ";
+
+  std::string search{};
+  std::cin >> search;
+
+  // Capture @search                                vvvvvv
+  auto found{ std::find_if(arr.begin(), arr.end(), [search](std::string_view str) {
+    return str.find(search) != std::string_view::npos;
+  }) };
+
+
+So how do captures actually work?
+While it might look like our lambda is directly accessing the value of search, this is not the case.
+Lambdas may look like nested blocks, but they work slightly differently (and the distinction is important).
+When a lambda definition is executed, for each variable that the lambda captures, a clone of that variable is made with an identical name inside the lambda. These cloned variables are initialized from the outer scope variables of the same name at this point.
+Thus, in the above example, when the lambda object is created, the lambda gets its own cloned variable named search. This cloned search has the same value as main's search, so it behaves like we're accessing main's search, but we're not.
+While these cloned variables have the same name, they don't necessarily have the same type as the original variable. We'll explore this later.
+
+Reinforce: The captured variables of a lambda are copies of the outer scope variables, not the actual variables.
+
+Lambdas are actually objects that can be called like functions, called functors.
+When the compiler encounters a lambda definition, it creates a custom object definition for the lambda. Each captured variable becomes a data member of the object.
+At runtime, when the lambda definition is encountered, the lambda object is instantiated, and members of the lambda are initialized at that point.
+
+Captures are treated as const by default
+The lambda is not allowed to modify captures.
+Attempting to modify a captured value will result in a compile error because the capture variables are treated as const within the lambda.
+
+Mutable captures
+To allow modifications of variables that were captured, we can mark the lambda as mutable.
+e.g.
+  auto shoot{
+    [ammo]() mutable { // now mutable
+      // We're allowed to modify ammo now
+      --ammo;
+
+      std::cout << "Pew! " << ammo << " shot(s) left.\n";
+    }
+  };
+
+Note that in this case, the captured "ammo" variable is a copy of whatever was in scope. The original value of ammo is preserved across calls to the lambda, and is not decremented despite the copy in the lambda being decremented.
+
+Capture by reference
+Much like functions can change the value of arguments passed by reference, we can also capture variables by reference to allow our lambda to affect the value of the argument.
+
+To capture a variable by reference, we prepend an ampersand to the variable name in the capture.
+Variables captured by reference are non-const, unless the variable they're capturing is const.
+Capture by reference should be preferred over captuer by value whenever you would normally prefer passing an argument to a function by reference.
+e.g.
+  int ammo{ 10 };
+
+  auto shoot{
+    // We don't need mutable anymore
+    [&ammo]() { // &ammo means ammo is captured by reference
+      // Changes to ammo will affect main's ammo
+      --ammo;
+
+      std::cout << "Pew! " << ammo << " shot(s) left.\n";
+    }
+  };
+
+Capturing multiple variables
+Multiple variables can be captured by separating them with a comma. This can include a mix of variables captured by value or by reference.
+
+Default captures
+Having to explicitly list the variables you want to capture can be trouble.
+We can auto-generate a list of variables we need to capture thanks to the compiler.
+A default capture (aka capture-default) captures all variables mentioned in the lambda. Variables not mentioned in the lambda are not captured if a default capture is used.
+To capture all used variables by value, use a capture value of =
+To capture all variables used by reference, use a capture value of &
+
+Default captures can be mixed with normal captures.
+We can capture some variables by value and others by reference, but each variable can only be captured once.
+e.g. 
+    int health{ 33 };
+    int armor{ 100 };
+    std::vector<CEnemy> enemies{};
+
+    // Capture health and armor by value, and enemies by reference.
+    [health, armor, &enemies](){};
+
+    // Capture enemies by reference and everything else by value.
+    [=, &enemies](){};
+
+    // Capture armor by value and everything else by reference.
+    [&, armor](){};
+
+    // Illegal, we already said we want to capture everything by reference.
+    [&, &armor](){};
+
+    // Illegal, we already said we want to capture everything by value.
+    [=, armor](){};
+
+    // Illegal, armor appears twice.
+    [armor, &health, &armor](){};
+
+    // Illegal, the default capture has to be the first element in the capture group.
+    [armor, &](){};
+
+Defining new variables in the lambda-capture
+Sometimes, we also want to capture a variable with a slight modification or declare a new variable that is only visible in the scope of the lambda. We can do this by defining a variable in the lambda-capture without specifying its type.
+e.g.
+  std::array areas{ 100, 25, 121, 40, 56 };
+
+  int width{};
+  int height{};
+
+  std::cout << "Enter width and height: ";
+  std::cin >> width >> height;
+
+  // We store areas, but the user entered width and height.
+  // We need to calculate the area before we can search for it.
+  auto found{ std::find_if(areas.begin(), areas.end(),
+                           // Declare a new variable that's visible only to the lambda.
+                           // The type of userArea is automatically deduced to int.
+                           [userArea{ width * height }](int knownArea) {
+                             return userArea == knownArea;
+                           }) };
+
+Here, userArea will only be calculated once the lambda is defined. The calculated area is stored in the lambda object and is the same for every call. If a lambda is mutable and modifies a variable that was defined in the capture, the original value will be overridden.
+
+Best practice:
+Only initialize variables in the capture if their value is short and their type is obvious.
+Otherwise, it's better to define the variable outside of the lambda and capture it.
+
+Dangling captured variables
+Variables are captured at the point where the lambda is defined. If a variable captured by reference dies before the lambda, the lambda will be left holding a dangling reference.
+If we want a captured value to be valid when the lambda is used, it helps to capture by value instead of using reference, whether explicitly or by using a default capture by value.
+
+Unintended copies of mutable lambdas
+Because lambdas are objects, they can be copied. In some cases, this can cause problems.
+
+
+
+
+
+
+
+
+
