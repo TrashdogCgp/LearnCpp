@@ -1,0 +1,47 @@
+21_1
+Introduction to operator overloading
+
+Function overloading provides a way to create and resolve function calls to multiple functions with the same name, as long as each function has a unique function prototype.
+
+In C++, operators are implemented as functions. By using function overloading on the operator functions, you can define your own versions of the operators that work with different data types (including classes that you've written). Using function overloading to overload operators is called operator overloading.
+
+The compiler comes with a built-in version of the plus operator (+) for integer operands. This function adds integers together and returns an integer result.
+Function overloading is used to determine when a compiler should be calling the double version of this function instead of the integer version.
+
+For a user-defined type, no built-in version of the plus operator exists by default. We'd need to write an overloaded function to tell the compiler how the + operator should work with two operands of the type.
+
+Resolving overloaded operators
+When evaluating an expression containing an operator, the compiler uses the following rules:
+If all of the operands are fundamental data types, the compiler will call a built-in routine if one exists. If one doesn't exist, the compiler will produce a compiler error.
+If any of the operands are program-defined types, the compiler will use the function overload resolution algorithm to see if it can find an overloaded operator that is an unambiguous best match. This may involve implicit conversion, or may involve implicitly converting program-defined types into fundamental types via an overloaded typecast so it can match a built-in operator.
+If no match an be found, or an ambiguous match is found, the compiler will error.
+
+What are the limitations on operator overloading
+Almost any operator in C++ can be overloaded. The exceptions are the ternary operator, sizeof, scope (::), member selector (.), pointer member selector (.*), typeid, and the casting operators.
+However, you can only overload the operators that exist. You can't create new operators or rename existing operators. For example, you can't create operator** to do exponents.
+
+At least one of the operands in an overloaded operator must be a user-defined type. This means we could overload operator+(int, Mystring), but not operator+(int, double).
+
+Because standard library classes are considered to be user-defined, you could define operator+(double, std::string). But this isn't a great idea; a future language standard could define this, and that'd break any programs that used your overload.
+Best practice is that your overloaded operators should operate on at least one program-defined type. This guarantees that a future language standard won't potentially break your programs.
+
+Best practice: An overloaded operator should operate on at least one program-defined type (either as a parameter of the function, or the implicit object)
+
+It's not possible to change the number of operands an operator supports.
+
+Also, all operators keep their default precedence and associativity, regardless of what they're used for. This cannot be changed.
+
+Best practice: When overloading operators, it's best to keep the function of the operators as close to the original intent of the operator as possible.
+
+Furthermore, because operators don't have descriptive names, it's not always clear what they're intended to do. For example, operator+ might be reasonable for string concatenation. But what about operator -? What would that do for strings? It's unclear
+
+Best practice: If the meaning of an overloaded operator is not clear and intuitive, use a named function instead.
+
+Finally, overloaded operators should return values in a way that is consistent with the original operators. Operators that do not modify their operands (e.g. arithmetic operators) should generally return results by value. Operators that modify their leftmost operand (e.g. pre-increment, any of the assignment operators) should generally return the leftmost operand by reference.
+
+Best practice: Operators that do not modify their operands (e.g. arithmetic operators) should generally return results by value.
+Operators that modify their leftmost operand (pre-increment, any of the assignment operators) should generally return the leftmost operand by reference.
+
+Within these confines, there are plenty of useful functionalities to add to custom classes, like adding strings together and printing to a screen or file.
+Operator overloading is one of the most useful features in C++ just because it allows more intuitive working with classes.
+
