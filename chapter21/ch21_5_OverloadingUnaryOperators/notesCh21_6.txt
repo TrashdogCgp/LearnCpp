@@ -1,0 +1,20 @@
+21_6
+Overloading unary operators +, -, and !
+
+Because unary operators only operate on the object they're applied to, unary operator overloads are implemented as member functions.
+All three of +, -, and ! are implemented in an identical manner.
+
+An example on the previous Cents class would look like:
+    // note: this function is a member function!
+    Cents Cents::operator-() const
+    {
+        return -m_cents; // since return type is a Cents, this does an implicit conversion from int to Cents using the Cents(int) constructor
+    }
+
+Because operator- doesn't modify the Cents object, we can and should make it a const function (so it can be called on const Cents objects).
+Note that because there's a different number of parameters between the negative operator and the minus operator, there's no confusion between the two.
+
+
+
+
+

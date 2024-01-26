@@ -1,0 +1,71 @@
+21_4
+Overloading the I/O operators
+
+For classes that have multiple member variables, printing each of the individual variables on the screen can get tiresome fast.
+It makes more sense to do this as a reusable function rather than something like:
+    Point point{5.0, 6.0, 7.0};
+
+    std::cout << "Point(" << point.getX() << ", " <<
+        point.getY() << ", " <<
+        point.getZ() << ')';
+
+It would be much easier if the following would do the desired output, vice defining a print() function or something similar:
+    Point point{5.0, 6.0, 7.0};
+    cout << "My point is: " << point << " in Cartesian space.\n";
+
+The example of overloading operator<< for this purpos would look like:
+    #include <iostream>
+    class Point
+    {
+    private:
+        double m_x{};
+        double m_y{};
+        double m_z{};
+    public:
+        Point(double x=0.0, double y=0.0, double z=0.0)
+        : m_x{x}, m_y{y}, m_z{z}
+        {
+        }
+
+        friend std::ostream& operator<< (std::ostream& out, const Point& point);
+    };
+    std::ostream& operator<< (std::ostream& out, const Point& point)
+    {
+        // Since operator<< is a friend of the Point class, we can access Point's members directly.
+        out << "Point(" << point.m_x << ", " << point.m_y << ", " << point.m_z << ')'; // actual output done here
+
+        return out; // return std::ostream so we can chain calls to operator<<
+    }
+
+Note that the return type is std::ostream, but it's not returned by value.
+If you try to return std::ostream by value, you'll get a compiler error. std::ostream specifically disallows being copied.
+In this case, we return the left hand parameter as a reference. This prevents a copy of std::ostream from being made, and allows us to chain output commands together, e.g. 
+    std::cout << point << std::endl;
+
+Overloading operator>>
+It's also possible to overload the input operator.
+This is done in a manner analogous to overloading the output operator. The key thing to know is that std::cin is an object of type std::istream.
+
+Example would look something like:
+    std::istream& operator>> (std::istream& in, Point& point)
+    {
+        // Since operator>> is a friend of the Point class, we can access Point's members directly.
+        // note that parameter point must be non-const so we can modify the class members with the input values
+        in >> point.m_x;
+        in >> point.m_y;
+        in >> point.m_z;
+
+        return in;
+    }
+
+Conclusion:
+Overloading operator<< and operator>> make it easy to output your class to the screen and accept user input from the console.
+
+
+
+
+
+
+
+
+
