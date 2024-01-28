@@ -1,0 +1,70 @@
+20_x
+Quiz
+
+1. Write function prototypes for the following cases. Use const if/when necessary.
+
+a) A function named max() that takes two doubles and returns the larger of the two
+double max(double a, double b);
+
+b) A function named swap() that swaps two integers
+void swap(int& a, int& b);
+
+c) A function named getLargestElement() that takes a dynamically allocated array of integers and returns the largest number in such a way that the caller can change the value of the element returned (don’t forget the length parameter).
+int& getLargestElement(int* array, int length);
+
+2. What is wrong with these programs?
+a)
+    int& doSomething()
+    {
+        int array[]{ 1, 2, 3, 4, 5 };
+        return array[3];
+    }
+Answer: Array goes out of scope when the function ends, but the function returns by reference. This will result in a dangling reference, I think? I hope that's the correct term.
+
+b)
+    int sumTo(int value)
+    {
+        return value + sumTo(value - 1);
+    }
+Answer: This function is recursive, but doesn't have termination criteria. This will result in a stack overflow.
+
+c)
+    float divide(float x, float y)
+    {
+        return x / y;
+    }
+
+    double divide(float x, float y)
+    {
+        return x / y;
+    }
+Answer: These functions only differ by the return type in their signature. This will result in a compile error because the compiler will see identical parameters.
+
+d) 
+    #include <iostream>
+
+    int main()
+    {
+        int array[100000000]{};
+        for (auto x: array)
+            std::cout << x << ' ';
+        std::cout << '\n';
+        return 0;
+    }
+Answer: The stack is too small to hold an array that large.
+
+e) 
+    #include <iostream>
+    int main(int argc, char* argv[])
+    {
+        int age{ argv[1] };
+        std::cout << "The user's age is " << age << '\n';
+        return 0;
+    }
+argv[1] will be a c-style string. Initializing age will require some kind of conversion that isn't taking place in this example.
+There also isn't a guarantee that argv[1] will exist.
+
+
+
+
+
