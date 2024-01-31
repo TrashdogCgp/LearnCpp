@@ -1,0 +1,62 @@
+21_8
+Overloading the increment and decrement operators
+
+Overloading the increment and decement operators is pretty straightforward, except that there are two versions of the increment and decrement operators; one is prefix and the other is postfix.
+
+Since they're both unary operators that modify their operands, they're best overloaded as member functions.
+
+Overloading prefix increment and decrement
+Prefix increment and decrement are overloaded just like any normal unary operator.
+example:
+    class Digit
+    {
+    private:
+        int m_digit{};
+    public:
+        Digit(int digit=0)
+            : m_digit{digit}
+        { }
+        Digit& operator++();
+        friend std::ostream& operator<< (std::ostream& out, const Digit& d);
+    };
+    Digit& Digit::operator++()
+    {
+        // If our number is already at 9, wrap around to 0
+        if (m_digit == 9)
+            m_digit = 0;
+        // otherwise just increment to next number
+        else
+            ++m_digit;
+        return *this;
+    }
+
+Our Digit class holds a number between 0 and 9, and we've overloaded increment so it increments the digit, wrapping around if the digit is incremented out of range.
+
+Overloading postfix increment/decrement
+Normally, functions can be overloaded when they have the same name, but a different number and/or parameters.
+However, in the case of the prefix and postfix, both have the same name, are unary, and take one parameter of the same type.
+C++ has a special case to distinguish the two: the compiler looks to see if the overloaded operator has an int parameter.
+If the overloaded operator has an int parameter, the operator is a postfix overload. If the overloaded operator has no parameter, the operator is a prefix overload.
+So for the previous case:
+    Digit operator++(int); // postfix has an int parameter
+    // int parameter means this is postfix operator++
+    Digit Digit::operator++(int)
+    {
+        // Create a temporary variable with our current digit
+        Digit temp{*this};
+
+        // Use prefix operator to increment this digit
+        ++(*this); // apply operator
+
+        // return temporary result
+        return temp; // return saved state
+    }
+
+A few things worth noting. One is that we've distinguished the prefix from postfix via an integer dummy parameter, not even giving it a name, treating it as a placeholder (avoids unused variable warning).
+
+Also note that the prefix and postfix operators both increment/decrement the object, but return a different value. The prefix operators return the object after increment/decrement.
+The postfix operators need to return the object before it is incremented or decremented, which means using a temporary variable to hold the object pre-increment/decrement. The object itself can be incremented or decremented while this copy is returned.
+The return value of the overloaded operator must be non-reference because we can't return a reference to a local variable that will be destroyed when the function exits.
+Also, the postfix operators are typically less efficient than the prefix operators because of the added overhead of instantiating a temporary variable and returning by value instead of reference.
+Lastly, we write post-increment by calling pre-increment; this cuts down on duplicate code and makes things more modifiable.
+
