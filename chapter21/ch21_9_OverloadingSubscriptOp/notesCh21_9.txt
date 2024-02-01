@@ -117,3 +117,45 @@ The function parameter does not need to be an integral type
 While we usually expect an integral value, it's possible to define your overloaded operator to take any value type you want.
 Overloading operator[] to take a std::string parameter can be useful when writing certain kinds of classes, such as those that use words in indices.
 
+Quiz
+
+1. 
+A map is a class that stores elements as a key-value pair. The key must be unique, and is used to access the associated pair. In this quiz, we’re going to write an application that lets us assign grades to students by name, using a simple map class. The student’s name will be the key, and the grade (as a char) will be the value.
+
+a) First, write a struct named StudentGrade that contains the student’s name (as a std::string) and grade (as a char).
+
+b) Add a class named GradeMap that contains a std::vector of StudentGrade named m_map.
+
+c) Write an overloaded operator[] for this class. This function should take a std::string parameter, and return a reference to a char. In the body of the function, first see if the student’s name already exists (You can use std::find_if from <algorithm>). If the student exists, return a reference to the grade and you’re done. Otherwise, use the std::vector::push_back() function to add a StudentGrade for this new student. When you do this, std::vector will add a copy of your StudentGrade to itself (resizing if needed, invalidating all previously returned references). Finally, we need to return a reference to the grade for the student we just added to the std::vector. We can access the student we just added using the std::vector::back() function.
+
+See 21_9_1.cpp
+
+2.
+Extra credit #1: The GradeMap class and sample program we wrote is inefficient for many reasons. Describe one way that the GradeMap class could be improved.
+
+I mean... I can think of hashtable implementation from data structures. Traversing the vector would be a bit annoying to do every time we add something, so a hashing algorithm would allow us to find the intended location for the name in constant time and allow us to see whether or not anything is there.
+I think an optimal hashing algorithm would be a bit much to take on from scratch for an exercise like this, though.
+
+3. 
+Extra credit #2: Why does this program potentially not work as expected?
+
+#include <iostream>
+
+int main()
+{
+	GradeMap grades{};
+
+	char& gradeJoe{ grades["Joe"] }; // does a push_back
+	gradeJoe = 'A';
+
+	char& gradeFrank{ grades["Frank"] }; // does a push_back
+	gradeFrank = 'B';
+
+	std::cout << "Joe has a grade of " << gradeJoe << '\n';
+	std::cout << "Frank has a grade of " << gradeFrank << '\n';
+
+	return 0;
+}
+
+Answer: If the vector resizes, all of the entries in the vector, which are references, are now dangling references because the elements are moved to a new block of memory.
+It might not manifest quickly, depending on how vector is implemented.
