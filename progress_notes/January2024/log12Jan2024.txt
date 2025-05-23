@@ -1,0 +1,8 @@
+Typing today from out of town on a computer that doesn't have an IDE.
+Going through ch 17.4, still not at all clear on what brace elision is or why it means we need to double-brace initialization values for arrays.
+It's important to know this in order to make constexpr arrays for non-fundamental (struct or class) data types, though, and constexpr is kind of the whole point of std::array over std::vector.
+
+Going to need to make sure I understand this, should ask why the double braces are necessary or see if the rest of the tutorials go back over brace elision.
+
+
+

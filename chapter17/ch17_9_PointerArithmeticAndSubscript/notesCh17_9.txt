@@ -1,0 +1,99 @@
+17_9
+Pointer arithmetic and Subscripting
+
+What is pointer arithmetic?
+Pointer arithmetic is a feature that allows us to apply certain arithmetic operators (addition, subtraction, increment, and decrement) to a pointer to produce a new memory address.
+ven a pointer ptr, ptr+1 returns the address of the next object in member (based on type being pointed to).
+
+While it's less common, pointer arithmetic also works with subtraction.
+ptr-1 will return the address of the previous object in memory.
+
+Applying increment ++ and decrement -- operators to a pointer do the same thing as addition and subtraction, but will actually modify the address held by the pointer.
+++ptr is shorthand for ptr=ptr+1, which does pointer arithmetic and assigns back to ptr.
+
+Subscripting is implemented via pointer arithmetic
+It turns out that ptr[n] is just a concise syntax equivalent to:
+    *((ptr) + (n))
+
+Because array elements are always sequential in memory, if ptr is a pointer to element 0 of an array, *(ptr + n) will return the nth element in the array.
+This is the primary reason arrays are 0-based rather than 1-based; it's more efficient since the compiler doesn't have to subtract 1 whenever subscripting.
+
+Interestingly, since ptr[n] converts to *((ptr) + (n)) via compiler, we can actually write it as n[ptr] too; this is confusing, but behaviorally identical. Don't do it.
+
+Pointer arithmetic and subscripting are relative addresses
+
+Array indices are actually relative positions. The indices appear fixed because we almost always index from the start (element 0) of the array.
+If we set a pointer called ptr to the third element of an array, ptr[1] will return element 4 of the array.
+
+Best practice: Favor subscripting when indexing from the start of an array, element 0, so the array index lines up with the element.
+Favor pointer arithmetic for relative positioning from a given element.
+
+Negative indices
+The index of a c-style array can be either an unsigned int or a signed int.
+It's actually possible to index a c-style array with a negative subscript.
+ptr[-1] will return the previous object in memory.
+e.g.
+    #include <array>
+    #include <iostream>
+
+    int main()
+    {
+        const int arr[] { 9, 8, 7, 6, 5 };
+
+        // Set ptr to point at element 3
+        const int* ptr { &arr[3] };
+
+        // Prove that we're pointing at element 3
+        std::cout << *ptr << ptr[0] << '\n'; // prints 66
+        // Prove that ptr[-1] is element 2!
+        std::cout << *(ptr-1) << ptr[-1] << '\n'; // prints 77
+
+        return 0;
+    }
+
+Pointer arithmetic can be used to traverse an array
+One of the most common uses of pointer arithmetic is to iterate through a c-style array without explicit indexing.
+e.g.
+	constexpr int arr[]{ 9, 7, 5, 3, 1 };
+	const int* begin{ arr };                // begin points to start element
+	const int* end{ arr + std::size(arr) }; // end points to one-past-the-end element
+	for (; begin != end; ++begin)           // iterate from begin up to (but excluding) end
+	{
+		std::cout << *begin << ' ';     // dereference our loop variable to get the current element
+	}
+
+Array decay makes refactoring functions difficult because certain things work with non-decayed arrays, but not with decayed arrays.
+One neat thing about traversing arrays this way is that we can refactor the loop part into a separate function exactly as written, and it will still work:
+    void printArray(const int* begin, const int* end)
+    {
+        for (; begin != end; ++begin)   // iterate from begin up to (but excluding) end
+        {
+            std::cout << *begin << ' '; // dereference our loop variable to get the current element
+        }
+        std::cout << '\n';
+    }
+
+Range-based for loops over c-style arrays are implemented using pointer arithmetic
+
+Quiz
+
+1. Why is arr[0] the same as *arr?
+arr[0] converts (via compiler) to:
+    *((arr) + (0))
+This simplifies to *(arr), which simplifies to *arr.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

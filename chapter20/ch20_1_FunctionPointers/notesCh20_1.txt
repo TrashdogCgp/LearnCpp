@@ -1,0 +1,133 @@
+20_1
+Function pointers
+
+A pointer is a variable that holds the address of another variable.
+Function pointers are similar, except that instead of pointing to variables, they point to functions.
+
+Functions have their own l-value function type. Much like variables, functions live at an assigned address in memory.
+When a function is called via the () operator, execution jumps to the address of the function being called.
+When a function pointer is used with the << operator, the standard says that it should be converted to a bool, which operator << does know how to print. Since the function pointer is a non-void pointer, it should always evaluate to bool true.
+
+Some compilers will print the function's address instead, depending on extensions.
+This behavior is implementation-defined.
+
+Just like it's possible to declare a non-constant pointer to a normal variable, it's also possible to declare a non-constant pointer to a function.
+
+Pointers to functions
+The syntax for creating a non-const function pointer is one of the uglier things in C++.
+e.g.
+    int (*fcnPtr)();
+This fcnPtr is a pointer to a function that has no parameters and returns an integer.
+fcnPtr can point to any function that matches this type.
+
+The parentheses around *fcnPtr are necessary for precedence, because int* fcnPtr would be interpreted as a forward declaration for a function named fcnPtr that takes no parameters and returns a pionter to an integer.
+To make a const function pointer, the const goes after the asterisk:
+    int (const fcnPtr)();
+
+If you put the const before the int, that would indicate the function being pointed to would return a const int.
+
+Assigning a function to a function pointer
+Function pointers can be initialized with a function (and non-const function pointers can be assigned a function).
+Like with pointers to variables, we can also use &func to get a function pointer to func.
+    int (*fcnPtr)(){ &foo }; // fcnPtr points to function foo
+    fcnPtr = &goo; // fcnPtr now points to function goo
+
+Note that the type (parameters and return type) of the function pointer must match the type of the function.
+Unlike fundamental type,s C++ will implicitly convert a function pointer if needed, so you don't need to use the & address-of operator to get the function's address.
+However, function pointers will not convert to void pointers, or vice-versa.
+e.g.
+    int foo();
+    int (*fcnPtr5)() { foo }; // okay, foo implicitly converts to function pointer to foo
+    void* vPtr { foo };       // not okay, though some compilers may allow
+
+Function pointers can also be initialized or assigned the value nullptr.
+
+Calling a function using a function pointer
+The other primary thing you can do with a function pointer is use it to actually call the function. There are two ways to do this; the first is via explicit dereference.
+e.g.
+    int (*fcnPtr)(int){ &foo }; // Initialize fcnPtr with function foo
+    (*fcnPtr)(5); // call function foo(5) through fcnPtr.
+
+The second way is via implicit dereference:
+    int (*fcnPtr)(int){ &foo }; // Initialize fcnPtr with function foo
+    fcnPtr(5); // call function foo(5) through fcnPtr.
+
+Implicit dereference looks just like a normal function call, which is what we'd expect, since normal function names are pointers to functions anyway.
+Some older compilers don't support this implicit dereference method, but all modern compilers should.
+
+One interesting note is that default parameters won't work for functions called through function pointers.
+Default parameters are resolved at compile-time (if you don't supply an argument for a defaulted parameter, the compiler substitutes one in for you when the code is compiled). However, function pointers are resolved at runtime. Consequently, default parameters cannot be resolved when making a function call with a function pointer. You have to explicitly pass in values for any defaulted parameters in this case.
+Also, because function pointers can be set to nullptr, it's a good idea to assert or conditionally test whether your function pointer is a null pointer before calling it.
+Just like with normal pointers, dereferencing a null function pointers leads to undefined behavior.
+
+Passing functions as arguments to other functions
+One of the most useful things to do with function pointers is pass a function as an argument to another function. Functions used as arguments to another function are sometimes called callback functions.
+
+Consider a case where you're writing a function to perform a task (such as sorting an array), but you want the user to be able to define how a particular part of that task will be performed (like whether the array is sorted in ascending or descending order).
+Many comparison-based sorting algorithms work on a similar concept: the sorting algorithm iterates thruogh a list of numbers, does comparisons on pairs of numbers, and reorders the numbers based on the results of those comparisons. Consequently, by varying the comparison, we can change the way the algorithm sorts without affecting the rest of the sorting code.
+
+If we were to replace the comparison in selection sort with a function to do the comparison, we could allow the caller to provide their own comparison function to the sorting algorithm.
+This is done via function pointer.
+A comparison function's pointer might look something like this:
+    bool (*comparisonFcn)(int, int);
+
+A function pointer, then, provides a nice way to allow a caller to "hook" their own functionality into something you've previously written and tested, which helps facilitate code reuse. Previously, if you wanted to sort one array in descending order and another in ascending order, you'd need multiple versions of the sort routine. Now you can have one version sort any way the caller desires.
+
+Note that if a function parameter is of a function type, it will be converted to a pointer to the function type.
+This means that the following two lines are equivalent:
+    void selectionSort(int* array, int size, bool (*comparisonFcn)(int, int))
+    void selectionSort(int* array, int size, bool comparisonFcn(int, int))
+This only works for function parameters, so it's sort of limited in usefulness.
+On a non-function parameter, the latter is interpreted as a forward declaration.
+e.g.
+    bool (*ptr)(int, int); // definition of function pointer ptr
+    bool fcn(int, int);    // forward declaration of function fcn
+
+Providing default functions
+If you're going to allow the caller to pass in a function as a parameter, it can often be useful to provide some standard functions for the caller to use for their convenience.
+For example, in the selection sort example, providing ascending and descending comparison functions would make the caller's life easier, since a default wouldn't require them to rewrite ascending/descending every time they want to use them.
+
+Making function pointers prettier with type aliases
+The syntax for pointers to functions is ugly. However, type aliases can be used to make pointers to functions look more like regular variables.
+    using ValidateFunction = bool(*)(int, int);
+This defines a type alias called ValidateFunction that is a pointer to a function that takes two ints and returns a bool.
+
+Using std::function
+An alternate method of defining and storing function pointers is to use std::function, part of the <functional> header.
+To define a function pointer with this method, declare a std::function object like so:
+    #include <functional>
+    bool validate(int x, int y, std::function<bool(int, int)> fcn); // std::function method that returns a bool and takes two int parameters
+Both the return type and the parameters go inside angled brackets, with the parameters inside parentheses. If there are no parameters, the parentheses can be left empty.
+
+Even though this is arguably more readable than normal function pointer syntax, we can still type alias for readability:
+    using ValidateFunctionRaw = bool(*)(int, int); // type alias to raw function pointer
+    using ValidateFunction = std::function<bool(int, int)>; // type alias to std::function
+Note that std::function only allows calling the function via implicit dereference.
+(*fcnPtr)() explicit dereferencing syntax doesn't work with std::function.
+
+Also note that when defining a type alias, we must explicitly specify any template arguments. We can't use CTAD in this case because there's no initializer to deduce the template arguments from.
+
+Type inference for function pointers:
+Much like the auto keyword can be used to infer the type of normal variables, the auto keyword can also infer the type of a function pointer.
+    auto fcnPtr{ &foo };
+This works as expected with very clean syntax.
+But the details about the function's parameters and return type are hidden, so it's easier to make a mistake when making a call with the function, or using its return value.
+
+Quiz
+
+1. Making a basic calculator using function pointers
+
+a) create a short program asking the user for two integer inputs and a math operation (+, -, *, /). Ensure the user enters a valid operation.
+
+
+
+
+
+
+
+
+
+
+
+
+

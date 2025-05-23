@@ -1,0 +1,82 @@
+16_1
+Introduction to containers and arrays
+
+Containers
+Containers in programming are data types that provide storage for a collection of unnamed objects (called elements).
+We typically use containers when we need to work with a set of related values.
+
+Strings are a type of container that we've already used; string containers provide storage for a collection of characters, which can be output as text.
+
+The elements of a container are unnamed
+While the container object itself typically has a name, the elements of a container are unnamed.
+This is so we can put as many elements in the container as we'd like, without giving a unique name to each.
+This lack of named objects is important, and distinguishes containers from other types of data structures.
+Plain structs, for example, aren't containers because their data members require unique names.
+
+Since our elements are unnamed, each container provides a way to access them, but this way depends on the type of container.
+
+Length of a container
+The number of elements in a container is often called its length (sometimes count).
+e.g.
+    std::cout << name << " has " << name.length() << " characters\n";
+The term size is also commonly used for the number of elements in a container. But this is unfortunate, because size can also refer to bytes of memory used by an object.
+We'll call this concept by the term length when referring to number of elements in a container, and "size" will refer to the amount of storage required by an object.
+
+Container operations
+Containers typically implement a significant subset of the following operations:
+    Create a container (e.g. empty, with storage for some initial number of elements, from a list of values)
+    Access elements (e.g. get first element, get last element)
+    Insert and remove elements
+    Get number of elements in the container
+
+Containers may also provide other operations (or variations on the above) that assist in managing the collection of elements.
+
+Element types
+In most programming languages, including C++, containers are homogenous, meaning the elements of a container are required to have the same type.
+Some containers use a preset element type (string uses char), but more often, the element can be set by the user of a container.
+In C++, containers are typically implemented as class templates so the user can provide the desired element type as a template type argument.
+
+Containers in C++
+The Containers library is a part of the C++ library that contains various class types that implement some common types of containers. A class type that implements a container is called a container class.
+See here for the C++ containers list:
+https://en.cppreference.com/w/cpp/container
+
+In C++, "container" is a narrower definition than in general programming.
+Only the types in the Containers library are considered containers in C++.
+This tutorial will call those "container class" if they're part of the Containers library.
+
+To officially be a Container in C++:
+Requirements
+    T, an element type;
+    C, a Container type containing elements of type T;
+    a and b, objects of type C;
+    rv, a prvalue expression of type C.
+    https://en.cppreference.com/w/cpp/named_req/Container
+
+Of the provided container classes, std::vector and std::array see the most use.
+
+Intro to arrays
+An array is a container data type that stores a sequence of values contiguously (each element adjacent in memory, no gaps).
+Arrays allow fast, direct access to any element. They're easy to use and conceptually simple.
+
+C++ contains three primary array types: std::vector, std::array, and c-style arrays.
+
+C-style arrays were inherited from C. C calls them arrays, but modern C++ tends to call them c-style arrays or c-arrays to distinguish from std::array.
+By modern standards, c-style arrays behave strangely and are dangerous.
+
+To help make arrays safer and easier to use in C++, std::vector was introduced in C++03.
+std::vector is the most flexible of the three array types, and has a bunch of useful capabilities the other array types don't.
+
+std::array was introduced in C++11 to directly replace c-style arrays. It's more limited than std::vector, but can also be more efficient, especially for smaller arrays.
+
+One nice thing is that all of the container classes have similar interfaces. Learning how to use one container simplifies using the others.
+
+
+
+
+
+
+
+
+
+

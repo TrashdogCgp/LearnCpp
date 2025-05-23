@@ -1,0 +1,66 @@
+21_2
+Overloading the arithmetic operators using friend functions
+
+Arithmetic operators are some of the most commonly used operators in C++.
+Note that they're binary operators--two operands, one on each side of the operator.
+There are three different kinds of ways to overload operators: the member function way, the friend function way, and the normal function way.
+The friend function way is more intuitive for most binary operators.
+
+The following example overloads the + operator to add two "Cents" objects together:
+    class Cents
+    {
+    private:
+        int m_cents {};
+
+    public:
+        Cents(int cents) : m_cents{ cents } { }
+
+        // add Cents + Cents using a friend function
+        friend Cents operator+(const Cents& c1, const Cents& c2);
+
+        int getCents() const { return m_cents; }
+    };
+
+    // note: this function is not a member function!
+    Cents operator+(const Cents& c1, const Cents& c2)
+    {
+        // use the Cents constructor and operator+(int, int)
+        // we can access m_cents directly because this is a friend function
+        return c1.m_cents + c2.m_cents;
+    }
+
+In this case, implementing our operator+() function is simple.
+We add two Cents objects together, so our function takes two objects of type Cents. The return type is also Cents.
+
+As for the implementation, we need to add the m_cents member from each Cents object. Since our overloaded operator+() function is a friend of the class, we can access the m_cents member of our parameters directly.
+
+While friend functions are not members of the class, they can still be defined inside the class if desired.
+This is fine for overloaded operators with trivial implementations.
+
+Overloading operators for operands of different types
+Often, you want overloaded operands to work with different types. For example, we may want to be able to add an integer to a Cents.
+When C++ evaluates the expression x + y, x becomes the first parameter and y becomes the second parameter. When x and y have the same type, it doesn't matter if you add x + y or y + x. Either way, the same operator overload gets called.
+When operands have different types, x + y and y + x are different function calls.
+Consequently, when we overload binary operands of differen types, we usually need to write two functions--one for each order.
+
+Implementing operators using other operators
+We can reduce the implementation of an operator by calling another implemented operator within it. This makes the code easier to read, less redundant, and simpler to understand.
+This should be done when it produces simpler code. In cases where the implementation is trivial (e.g. a single line), it may or may not be worth doing this.
+
+Quiz
+
+1a. Write a class named Fraction that has an integer numerator and denominator member. Write a print() function that prints out the fraction.
+
+1b) Add overloaded multiplication operators to handle multiplication between a Fraction and integer, and between two Fractions. Use the friend function method.
+
+see ch21_2_1.cpp
+
+1c) Why does the program continue to work correctly if we remove the operators for integer multiplication from the previous solution?
+Answer: There will still be the operator for Fraction multiplcation. The Fraction(int, int) constructor will create a fraction from the int when the * operator is called.
+
+1d)If we remove the const from the Fraction * Fraction operator, the following line no longer works in main(). Why?
+Fraction f6{ Fraction{1, 2} * Fraction{2, 3} * Fraction{3, 4} };
+Answer: f6 attempts to pass rvalues by non-const reference, which doesn't work.
+
+1e) 
+

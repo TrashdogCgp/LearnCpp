@@ -1,0 +1,86 @@
+16_7
+Range-based for loops (for-each)
+
+We've seen examples of using a for loop to iterate through each element of an array using a loop variable as an index.
+
+Although for-loops provide a convenient and flexible way to iterate through an array, they're also easy to mess up and prone to OBO errors.
+
+C++ supports range-based for loops, also sometimes called a for-each loop.
+These allow traversal of a container without having to do explicit indexing.
+Range-based for loops are simpler, safer, and work with all the common array types in C++ (including std::vector, std::array, and c-style arrays).
+
+Range-based for loops
+The syntax is:
+    for(element_declaration : array object)
+    {
+        statements;
+    }
+
+For each iteration, the value of the current array element will be assigned to the variable declared in element_declaration, and then statement will execute.
+For best results, element_declaration should have the same type as the array elements. Otherwise, type conversion will occur.
+
+Best practice: Favor range-based for loops over regular for-loops when traversing containers.
+
+Range-based for loops and type deduction using the auto keyword
+Because the element declaration should have the same type as the array elements (to prevent type conversion from occurring), this is an ideal case for using auto, and letting the compiler deduce the type of the array elements for us.
+This prevents having to redundantly specify the type, and foolproofs it.
+It also has the benefit that if the element type of the array is ever updated, auto will automatically deduce the updated element type, ensuring they stay in sync.
+
+Best practice: Use type deduction (auto) with range-based for-loops to have the compiler deduce the type of the array element.
+
+Avoid element copies using references
+Consider a loop where we iterate over an array of std::string.
+For each iteration, the next std::string element will be assigned (copied) into the iteration element.
+We want to avoid making copies of things unless we really need a copy, or the copy is trivial resource-wise.
+As it happens, we can make our element_declaration a const reference.
+e.g.
+    for (const auto& word : words) // word is now a const reference
+        std::cout << word << ' ';
+With each iteration of this loop, word will be bound to the next array element. This allows us access to the array's element value without having to make a copy.
+If the reference is non-const, it can also change the values in the array, which is not possible if our iteration element is a copy of the value.
+
+Best practice: In range-based for loops, the element declaration should use a const reference whenever you would normally pass that element type by const reference.
+
+Consider always using const auto& when you don't want to work with copies of elements
+Normally, we'd use auto for cheap-to-copy types, and const auto& for expensive-to-copy types.
+With range-based for loops, many developers believe it's preferable to always use const auto& because it's more future-proof.
+Imagine if the loop changes type and you don't change to iterate over const reference!
+This would be a significant performance hit.
+
+To avoid this possibility, there are a couple of options
+    Don't use type deduction; explicitly specify type so that when the container changes type, the compiler errors if the element type is not also updated.
+    Or
+    Always use const auto& instead of auto when using type deduction in a range-based for loop when you don't want to work with copies. The performance penalty of accessing elements through a reference instead of by value is likely to be small, and prevents significant performance penalties later on.
+
+Range-based for loops and other standard container types
+Range-based for loops work with a wide variety of array types, including (non-decayed) c-style arrays, std::array, std::vector, linked lists, trees, and maps.
+Range-based for-loops won't work with decayed c-style arrays. This is because a range-based for loop needs to know the length of the array to know when traversal is complete, and c-style arrays don't have this info.
+Range-based for loops also won't work with enumerations. There's a workaround for this, though.
+
+Getting the index of the current element
+Range-based for loops do not provide a direct way to get the array index of the current element. This is because many of the structures that a range-based for loop can iterate over (such as std::list) do not support indices.
+However, because range-based for-loops always iterate in forward direction and don't skip elements, you can declare your own counter and increment it.
+Might be better to use a normal for loop in this case, though.
+
+Range-based for loops only iterate in forwards order.
+Howver, sometimes we want to go in reverse order.
+C++20 added the std::views::reverse capability of the ranges library to create a reverse view of elements that can be traversed.
+    for (const auto& word : std::views::reverse(words)) // create a reverse view
+        std::cout << word << ' ';
+The ranges library will be covered later.
+
+Quiz
+
+1. 
+Define a std::vector with the following names: “Alex”, “Betty”, “Caroline”, “Dave”, “Emily”, “Fred”, “Greg”, and “Holly”. Ask the user to enter a name. Use a ranged-for-loop to see if the name the user entered is in the array.
+see ch16_7_1.cpp
+
+
+2.
+Modify your solution to quiz 1. In this version, create a function template (not a normal function) called isValueInArray() that takes two parameters: a std::vector, and a value. The function should return true if the value is in the array, and false otherwise. Call the function from main() and pass it the array of names and the name the user entered.
+see ch16_7_2.cpp
+
+
+
+
+

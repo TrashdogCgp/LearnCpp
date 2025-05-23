@@ -1,0 +1,82 @@
+21_5
+Overloading operators using member functions
+
+Overloading operators using a member function is similar to overloading operators using a friend function.
+When overloading an operator using a member function:
+    The overloaded operator must be added as a member function of the left operand
+    The left operand becomes the implicit *this object
+    All other operands become function parameters
+
+Converting a friend overloaded operator to a member overloaded operator is easy:
+    The overloaded operator is defined as a member instead of a friend (Cents::operator+ instead of friend operator+)
+    The left parameter is removed, because it's now the implicit *this object
+    Inside the function body, all references to the left parameter can be removed (e.g. cents.m_cents becomes m_cents, which implicitly references the *this object).
+
+A sample:
+    
+    class Cents
+    {
+    private:
+        int m_cents {};
+    public:
+        Cents(int cents)
+            : m_cents { cents } { }
+        // Overload Cents + int
+        Cents operator+(int value) const;
+        int getCents() const { return m_cents; }
+    };
+    // note: this function is a member function!
+    // the cents parameter in the friend version is now the implicit *this parameter
+    Cents Cents::operator+ (int value) const
+    {
+        return Cents { m_cents + value };
+    }
+    int main()
+    {
+        const Cents cents1 { 6 };
+        const Cents cents2 { cents1 + 2 };
+        std::cout << "I have " << cents2.getCents() << " cents.\n";
+        return 0;
+    }
+
+Note that the usage of the operator doesn't change compared to using a friend function to do the overload; we've just defined the function differently.
+Our two-parameter friend function becomes a one-parameter member function, with the leftmost parameter in the friend version (cents) becoming the implicit *this parameter in the member function version.
+
+In the friend function, the expression cents1 + 2 would become function call operator+(cents1, 2), with two parameters.
+In the case of the member function version, cents1 + 2 becomes cents1.operator+(2).
+The compiler implicitly converts an object prefix into a hidden leftmost parameter named *this, so the function call for cents1.operator+(2) actually becomes operator+(&cents1, 2).
+This is almost identical to the friend version.
+Both cases produce the same result, but in slightly different ways.
+If we can overload an operator as a friend or a member, which should we use?
+
+Not everything can be overloaded as a friend function
+The assignment (=), subscript, function call, and member selection operators must be overloaded as member functions, because the language requires them to be.
+
+Not everything can be overloaded as a member function
+With overloading operator<<, the leftmost operator was the std::ostream. However, the overloaded operator must be added as a member of the left operand. In this case, the left operand is part of the standard library.
+We can't modify the class declaration to add the overload as a member function of std::ostream.
+This means that operator<< must be overloaded as a friend function or a normal function (preferred).
+
+Similarly, although we can overload operator+(Cents, int) as a member function, we can't overload operator+(int, Cents) as a member function, because int isn't a class we can add members to.
+
+Typically, we won't be able to use a member overload if the left operand is either not a class (e.g. int), or it is a class we can't modify (e.g. std::ostream).
+
+When to use a normal, friend, or member function overload
+In most cases, the language leaves it up to you to determine whether you want to use the normal/friend or member function version of the overload.
+However, one of the two is usually a better choice than the other.
+
+When dealing with binary operators that don't modify the left operand (e.g. operator+), the normal or friend function version is typically preferred, because it works for all parameter types (even when the left operand isn't a class object, or is a class that isn't modifiable).
+The normal or friend function version has the added benefit of "symmetry", as all operands become explicit parameters. This is in contrast to the left operand becoming *this and the right operand becoming an explicit parameter.
+
+When dealing with binary operators that do modify the left operand, like operator+=, the member function is typically preferred.
+In these cases, the leftmost operand will always be class type, and having the object being modified become the one pointed to by *this is natural. Because the rightmost operand becomes an explicit parameter, there's no confusion over who is getting modified and who is getting evaluated.
+
+Unary operators are usually overloaded as member functions as well, since the member version has no parameters.
+
+Rules of thumb to help determin which is better for a given situation:
+    If you're overloading assignment, subscript, function call, or member selection, do so as a member function.
+    If you're overloading a unary operator, do so as a member function.
+    If you're overloading a binary operator that does not modify its left operand (e.g. operator+), do so as a normal function (preferred) or friend function.
+    If you're overloading a binary operator that modifies its left operand, but can't add members to the class definition of the left operand (e.g. operator<<, which has a left operand of type ostream), do so as a normal function (preferred) or friend function.
+    If you're overloading a binary operator that modifies its left operand (e.g. operator+=), and you can modify the definition of the left operand, do so as a member function.
+

@@ -1,0 +1,12 @@
+Medium-late start today, but continuing with the chapter on vectors.
+
+Man, 16_5 had five quiz questions that all asked for code to be written.
+Took longer than expected to clear just the one section. Annoying, but I should be coding as much as I can, so no issues here!
+Except that I'll look bad if anyone sees that I had a whole Sunday and didn't knock out much of chapter 16 at all.
+Lame.
+
+Managed to get through 16_5 and 16_6, going over why indexing arrays is a headache and what to maybe think about doing about it if you're using modern C++, which I hope I should be.
+
+Wish I'd gotten more done today, but I had errands and honestly, I've just been so low-energy for the past week or so.
+Might do the unthinkable and take an actual rest day from the working out.
+We'll see.

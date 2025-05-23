@@ -1,0 +1,165 @@
+17_8
+C-style array decay
+
+The c-style array passing challenge
+
+If we consider the following, we reveal a problem:
+    void printElementZero(int arr[1000])
+    {
+        std::cout << arr[0]; // print the value of the first element
+    }
+
+This code works mechanically differently than you might expect. The solution to our problem of passing arrays came up to solve two major challenges.
+
+First, copying a 1000 element array every time a function is called is expensive, even more so if the elements aren't small.
+
+Second, we want to be able to write a single function that can accept array arguments of different lengths.
+C had no templates and no syntax to specify that the function should accept arrays of arbitrary length. And arrays of one length can't be converted to arrays of another length. We'd rather not write a different function for every possible array length we might want to use as an argument.
+
+To solve this, C came up with a solution that was inherited by C++ to solve both of these issues.
+
+If we passed a 7 element array to a function expecting a 1000 element array, no copies are made and the function will accept it.
+We'll look at how this works, why the solution is dangerous and not suited for modern C++.
+
+Array to pointer conversion (array decay)
+In most cases, when a c-style array is used in an expression, the array is implicitly converted into a pointer to the element type, initialized with the address of the first element (with index 0).
+This is called decay or array decay.
+
+There is nothing special about the pointer that an array decays to. It's a normal pointer that holds the address of the first element.
+Similarly, a const array decays into a pointer-to-const.
+
+There are a few common cases where a C-style array doesn't decay:
+    1. When used as an argument to sizeof() or typeid()
+    2. When taking the address of the array using operator &
+    3. When passed as a member of a class type
+    4. When passed by reference
+
+Because c-style arrays decay into a pointer in most cases, it's a common fallacy to believe arrays are pointers. This is not the case. An array object is a sequence of elements, whereas a pointer object just holds an address.
+The type info of an array and a decayed array is different.
+For example, the array might be type int[5] while the decayed array has type int*.
+The array type int[5] would contain length info, whereas the decayed array pointer type int* does not.
+
+A decayed array pointer doesn't know how long the array it is pointing to is. The term decay indicates this loss of length type info.
+
+Subscripting a c-style array actually applies operator[] to the decayed pointer
+Because a c-style array decays to a pointer when evaluated, when a c-style array is subscripted, the subscript is actually operating on the decayed pointer.
+We can also use operator[] directly on a pointer. If that pointer is holding the address of the first element of an array, arr[2] and ptr[2] will be identical.
+
+Array decay solves our c-style array passing issue
+Array decay solves both challenges mentioned earlier. When passing a c-style array as an argument, the array decays into a pointer, and the pointer holding the address of the first element of the array is passed to the function.
+We're actually passing by address even though it looks like pass by value.
+This avoids making a copy of the c-style array argument.
+Also, int[5] and int[7] will decay to the same pointer type (int *), and their decayed versions are interchangeable.
+Dropping the length info from the type allows us to pass arrays of different lengths without a type mismatch.
+
+The function parameter receiving the array can be a (const) pointer of the array's element type.
+We can pass arrays of different lengths to a single function because both decay to the same pointer type.
+
+e.g.
+    #include <iostream>
+
+    void printElementZero(const int* arr) // pass by const address
+    {
+        std::cout << arr[0];
+    }
+
+    int main()
+    {
+        const int prime[] { 2, 3, 5, 7, 11 };
+        const int squares[] { 1, 4, 9, 25, 36, 49, 64, 81 };
+
+        printElementZero(prime);   // prime decays to an const int* pointer
+        printElementZero(squares); // squares decays to an const int* pointer
+
+        return 0;
+    }
+
+Because a c-style array is passed by address, the function has direct access to the array passed in, not a copy. It can modify its elements; for this reason, make sure the function parameter is const if your function should not be modifying the array elements.
+
+C-style array function parameter syntax
+It's not obvious that arr is supposed to be a pointer to an array rather than a pointer to a single integer. For this reason, when passing a c-style array, it's preferable to use the alternate declaration form:
+    void printElementZero(const int arr[]) // treated the same as const int*
+    {
+        std::cout << arr[0];
+    }
+
+This program behaves identically to the prior one, but has the advantage of communicating to the caller that arr is expected to be a decayed c-style array, not a pointer to a single value.
+No length info is required in the square brackets, since it's not used anyway.
+A provided length will be ignored.
+
+Best practice: A function expecting a c-style array type should use the array syntax rather than pointer syntax.
+
+Since this syntax doesn't make it as obvious that arr has decayed, you'll need to take extra care not to do anything that doesn't work as expected with a decayed array.
+
+The problems with array decay
+Although array decay was a clever solution to ensure c-style arrays of different lengths could be passed to a function without expensive copies, the loss of array length info makes several types of mistakes easier.
+
+First, sizeof() will return different values for arrays vs decayed arrays.
+So, using sizeof() on a c-style array is potentially dangerous, since you have to do it when accessing the actual array object, not the decayed array or pointer.
+
+We mentioned that sizeof(arr)/sizeof(*arr) was historically used to get the size of a c-style array.
+But if that array has decayed, sizeof(arr) will return the size of a pointer, not the size of the array.
+
+std::size() and std::ssize() will fail to compile if passed a pointer value. This is good for preventing making a similar mistake!
+
+Second, array decay can make refactoring code more difficult. Code that works as expected with a non-decayed array may not compile, or may silently malfunction, when run using a decayed array.
+
+Third, not having length info creates programmatic challenges. Without length info, it's difficult to sanity check the length of an array.
+Users could pass in arrays that are shorter than expected, or pointers to a single value, and then result in undefined behavior if subscripted with an invalid index.
+Lacking length creates challenges when traversing; how do we know when we've reached the end?
+
+Working around array length issues
+Historically, programmers have worked around the lack of array length info with two methods.
+
+First, we can pass in both the array and the array length as separate arguments.
+However, this still has issues.
+    The caller has to make sure the array and array length are paired. If the wrong value for length is passed in, the function will still malfunction.
+    There are potential sign conversion issues if using std::size or otherwise returning a length as std::size_t
+    Runtime asserts only trigger when encountered at runtime. If our testing path doesn't cover all calls to the function, there's a risk of shipping a program to the customer that will assert when they do something we didn't explicitly test for. In modern C++, we'd want to use static_assert for compile-time validation of array length and constexpr arrays, but there's no easy way to do this since function parameters can't be constexpr, even in constexpr or consteval functions.
+    This method only works if we're making an explicit function call. If the function call is implicit (e.g. calling operator with array as an operand), there's no opportunity to pass in the length.
+
+Second, if there's an element value that isn't semantically valid, we can mark the end of an array using an element of that value.
+This way, the array length can be calculated by counting how many elements exist between the start of the array and the terminating element; this will even work with implicit calls.
+C-style strings do this, using a null-terminator to mark the end of the string, so they can be traversed even if they have decayed.
+This method also has issues
+    If the terminating element doesn't exist, traversal will continue past the end of the array, causing undefined behavior.
+    Functions that traverse the array need special handling for the terminating element
+    There is a mismatch between actual array length and the number of semantically valid elements; the wrong length can be used, and the semantically invalid terminating element could then be processed.
+    This approach only works if there's a semantically invalid value at all, and this isn't often the case.
+
+C-style arrays should be avoided in most cases
+Because of the non-standard passing semantics (pass by address instead of pass by value), and the risks of losing length info, c-style arrays have generally fallen out of favor.
+
+Best practice:
+Avoid c-style arrays where possible
+    Prefer std::string_view for read-only strings (string literal symbolic constants and string parameters)
+    Prefer std::string for modificable strings
+    Prefer std::array for non-global constexpr arrays
+    Prefer std::vector for non-constexpr arrays
+It's okay to use c-style arrays for global constexpr arrays
+
+When are C-style arrays used in modern C++?
+    1. To store constexpr global or constexpr static local) data. Because such arrays can be accessed directly from anywhere in the program, we don't need to pass the array, which avoids decay-related issues.The syntax for defining c-style arrays can be a little less wonky than std::array. More importantly, indexing such arrays doesn't have sign conversion issues like the standard library container classes do.
+    2. As parameters to functions or classes that want to handle non-constexpr c-style string arguments directly (rather than requiring a conversion to std::string_view).
+    Why do this?
+        1. Converting a non-constexpr c-style string to a std::string_view requires traversing the c-style string to determine its length. If the function is in a performance-critical section of code and the length isn't needed (e.g. because the function is going to traverse the string anyway), avoiding the conversion may be useful.
+        2. If the function or class calls other functions that expect c-style strings, converting to std::string_view just to convert back may be suboptimal.
+
+Quiz
+
+1. What is array decay, and why is it a problem?
+Array decay is implicit conversion of a c-style array to a pointer to the first element of the array. It's a problem because this loses length info. This makes errors more likely.
+
+2. Why do c-style strings use a null terminator?
+C-style strings use a null terminator to indicate the end of the c-style char array. Without it, a passed c-style array wouldn't be able to determine how long it was within the function it was passed to.
+
+3. Why do c-style strings use a null-terminator instead of requiring both the decayed c-style string and explicit length info to be passed to a function?
+Requiring the length info to be passed will not work when using an operator; it could only be done by an explicit function call.
+
+
+
+
+
+
+
+

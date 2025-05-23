@@ -1,0 +1,98 @@
+16_8
+Array indexing and length using enumerators
+
+One of the bigger documentation problems with arrays is that integer indices do not provide any info to the programmer about the meaning of the index.
+
+Using unscoped enumerators for indexing
+Our indices need to be either of type std::size_t, or a type that converts to std::size_t.
+Since unscoped enumerations will implicitly convert to a std::size_t, this means we can use unscoped enumerations as array indices to help document the meaning of the index.
+
+This can make it much clearer what each of the array elements represents.
+Because enumerators are implicitly constexpr, conversion of enumerators to unsigned integral types are not considered a narrowing conversion.
+This avoids signed/unsigned indexing problrms.
+
+Using non-constexpr unscoped enumeration for indexing
+The underlying type of an unscoped enumeration is implementation-defined, and thus could be either a signed or unsigned integral type.
+Because enumerators are implicitly constexpr, as long as we stick to indexing with unscoped enumerators, we won't have sign conversion issues.
+
+If we define a non-constexpr variable of the enumeration type, and then try to index on that, we may get sign conversion warnings on any platform that defaults unscoped enums to a signed type.
+
+Rather than deal with this issue by making sure things are constexpr, there's a better way.
+We can explicitly specify the underlying type of the enumeration to be an unsigned int.
+
+e.g.
+    namespace Students
+    {
+        enum Names : unsigned int // explicitly specifies the underlying type is unsigned int
+        {
+            kenny, // 0
+            kyle, // 1
+            stan, // 2
+            butters, // 3
+            cartman, // 4
+            max_students // 5
+        };
+    }
+    Students::Names name { Students::stan }; // non-constexpr
+
+    testScores[name] = 76; // not a sign conversion since name is unsigned
+
+Note that the max_students enumerator at the end of the list will have a value matching the count of the preceding enumerators.
+This enumerator can be used anywhere we need a count of the prior enumerators.
+
+Asserting on array length with a count enumerator
+The intent in creating an array using an intializer list of values is that we index that array with enumerators.
+In such cases, it can be useful to assert that the size of the container equals our count enumerator.
+If the assert triggers, then either our enumerator list is incorrect somehow, or we've given the wrong number of initializers.
+This can easily happen when a new enumerator is added to the enumeration, but a new initialization value is not added to the array.
+
+If your array is constexp, you should use static_assert instead of assert. 
+vector doesn't support constexpr, but std::array and c-style arrays do.
+
+Best practice: Use a static_assert to ensure the length of your constexpr array matches your count enumerator.
+Use an assert to ensure the length of your non-constexpr array matches your count enumerator.
+
+Arrays and enum classes
+Because unscoped enums pollute the namespace they're defined in with their enumerators, it's preferable to use enum classes where the enum isn't already contained in another scope region (e.g. namespace or class).
+
+However, since enum classes don't have an implicit conversion to integral types, we have a problem when we try to use their enumerators as indices for arrays.
+While we can static cast them to size_t or int, we can overload the unary + operator to convert enumerators of enum classes to integral values.
+e.g.
+    #include <iostream>
+    #include <type_traits> // for std::underlying_type_t
+    #include <vector>
+
+    enum class StudentNames
+    {
+        kenny, // 0
+        kyle, // 1
+        stan, // 2
+        butters, // 3
+        cartman, // 4
+        wendy, // 5
+        max_students // 6
+    };
+
+    // Overload the unary + operator to convert StudentNames to the underlying type
+    constexpr auto operator+(StudentNames a) noexcept
+    {
+        return static_cast<std::underlying_type_t<StudentNames>>(a);
+    }
+
+    int main()
+    {
+        std::vector<int> testScores(+StudentNames::max_students);
+
+        testScores[+StudentNames::stan] = 76;
+        return 0;
+    }
+
+If you expect to do a lot of enum to integral conversions, it's probably better to just use a standard enum inside a namespace (or class).
+
+Quiz
+1. 
+Create a program-defined enum (inside a namespace) containing the names of the following animals: chicken, dog, cat, elephant, duck, and snake. Define an array with an element for each of these animals, and use an initializer list to initialize each element to hold the number of legs that animal has. Assert that the array has the correct number of initializers.
+
+Write a main() function that prints the number of legs an elephant has, using the enumerator.
+see ch16_8_1.cpp
+

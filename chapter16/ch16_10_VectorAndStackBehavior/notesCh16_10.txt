@@ -1,0 +1,93 @@
+16_10
+std::vector and stack behavior
+
+Pretend the user is entering a list of values, but the number entered is not known at compile time.
+We can address this problem by adding logic to resize the vector larger when the user reaches the maximum number of values. But this means having to mix array size management with our program logic, which will increase program complexity significantly.
+
+What is a stack?
+We can only modify a stack in one of two ways:
+    Put a new plate on top of the stack (hides the plate underneath, if it exists)
+    Remove the top plate from the stack (expose the plate underneath, if it exists)
+Adding/removing from the middle or bottom of the stack is not allowed.
+The order in which items are added to and removed from a stack can be described as LIFO (last-in, first-out). The last plate added onto the stack will be the first plate removed.
+
+Stacks in programming
+In programming, a stack is a container data type where insertion and removal of elements occurs in a LIFO manner. This is commonly implemented via operations called push and pop.
+
+Push: Put new element on top of stack
+Pop: Remove the top element from the stack
+
+Many stack implementations also support the following:
+    Top/Peek: get element on top of the stack without removing the item
+    Empty: Determine if stack has no elements
+    Size: Count of how many elements are on the stack
+
+Stacks are common in programming; we've discussed the call stack, which keeps track of which functions have been called. The call stack is a stack!
+When a function is called, an entry with info about that function is added to the top of the call stack. When the function returns, the entry containing info about that function is removed form the top of the call stack.
+In this way, the top of the call stack always represents the currently executing function, and each subsequent entry represents the function that was previously executing.
+
+Stacks in C++
+In some languages, a stack is implemented as its own discrete container type (separate from other containers). However, this can be quite limiting. Consider the case where we want to print all the values in a stack without modifying the stack. A pure stack interface doesn't provide a direct method to do this.
+
+In C++, stack-like operations were instead added (as member functions) to existing standard library container classes that support efficient insertion and removal of elements at one end (vector, deque, and list).
+This allows any of these containers to be used as stacks in addition to their native capabilities.
+
+Stack behavior with std::vector
+Stack behavior in std::vector is implemented by the following member functions:
+    push_back(): Add element to end of vector
+    pop_back(): Remove top element from the stack
+    back(): Get the top element on the stack (does not remove item)
+    emplace_back(): Alternate form of push_back() that can be more efficient
+
+Note that the push_back() and emplace_back() functions will increment the length of the vector, and will cause a reallocation to occur if the capacity is not sufficient to insert the value.
+
+Extra capacity from pushing
+When pushing triggers a reallocation, std::vector will typically allocate some extra capacity to allow additional elements to be added without triggering another reallocation the next time an element is added.
+Different compilers do this differently; GCC and Clang usually double the current capacity, while Visual Studio multiplies by 1.5
+
+Resizing a vector doesn't work with stack behavior
+Reallocating a vector is computationally expensive, so we want to avoid reallocations where possible.
+But if we set a vector to size 3 from the start (parenthesis initialization, stack(3) for a vector), it'll set both the capacity and the length even if we use resize(). This will give us a bunch of 0's at the start, and when we push another element, it'll be preceded by those three 0's.
+The resize() member function is fine for when we intend to use subscripts to access elements, but it causes problems when we use the vector as a stack.
+We really want some way to change the capacity without changing the length.
+
+The reserve() member function changes capacity, but not length
+The reserve() member function can be used to reallocate a std::vector without changing the current length.
+This can help prevent reallocations by sizing the vector appropriately in the first place.
+
+push_back() vs emplace_back()
+Both of these push an element onto the stack. If the object to be pushed already exists, push_back() and emplace_back() are equivalent, and push_back() should be preferred.
+However, in cases where we're creating a temporary object (of the same type as the vector's element) for the purpose of pushing it onto the vector, emplace_back() can be more efficient.
+
+push_back() will create the temporary object, then copy it into the vector.
+emplace_back will forward the arguments so the object can be created directly in the vector (no copy mode).
+
+With emplace_back, we don't need to create a temporary object to pass. Instead, we pass the arguments that would be used to create the temporary object, and emplace_back() forwards them (using a feature called perfect forwarding) to the vector, where they're used to create and initialize the object inside of the vector.
+This avoids a copy that would've otherwise been made.
+
+Prior to C++20, emplace_back doesn't work with aggregate initialization.
+
+Best practice:
+Prefer emplace_back() when creating a new temporary object to add to the container.
+Prefer push_back() otherwise.
+
+Quiz
+
+1. Write a program that pushes and pops values, and outputs the following sequence:
+       (Stack: empty)
+Push 1 (Stack: 1)
+Push 2 (Stack: 1 2)
+Push 3 (Stack: 1 2 3)
+Pop    (Stack: 1 2)
+Push 4 (Stack: 1 2 4)
+Pop    (Stack: 1 2)
+Pop    (Stack: 1)
+Pop    (Stack: empty)
+
+Well, this will be annoying.
+see ch16_10_1.cpp
+
+
+
+
+

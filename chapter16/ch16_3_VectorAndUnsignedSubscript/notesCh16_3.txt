@@ -1,0 +1,143 @@
+16_3
+std::vector and the unsigned length and subscript problem
+
+The container length sign problem
+We start with an assertion: the data type used for subscripting an array should match the data type used for storing the length of the array.
+This is so all the elements in the longest possible array can be indexed, and no more.
+
+The designers had to choose whether to make arrays signed or unsigned.
+They chose unsigned.
+Why?
+Subscripts of standard library array types can't be negative, and using unsigned allows greater length due to the extra bit, which mattered a lot in the 16 bit days.
+Plus, with unsigned, you don't have to check to ensure the index is positive.
+
+In retrospect, unsigned is regarded as the wrong choice.
+Using unsigned values to try to enforce non-negativity doesn't work due to implicit conversion rules (negative signed int will just implicitly convert to large unsigned integer, yielding garbage result), and the extra range isn't needed on 32-bit or 64-bit systems.
+Plus, the commonly used [] operator doesn't do range-checking anyway.
+
+Mixing signed and unsigned values is a recipe for unexpected behavior. So the standard library container classes use unsigned values for length and indices, and this makes it impossible to avoid unsigned values even though we'd prefer to.
+
+Sign conversions are narrowing conversions, except when constexpr
+Sign congersions are considered to be narrowing because a signed or unsigned type cannot hold all the values contained in the range of the opposing type. When such a conversion is attempted at runtime, the compiler will issue an error in contexts where narrowing conversions are disallowed (such as in list initialization), and may not issue a warning in other contexts where such a conversion is required.
+
+If the value to be sign converted is constexpr and can be converted to an equivalent value in the opposing type, then sign conversion is not considered to be narrowing.
+This is because the compiler can guarantee that the conversion is safe, or halt the compilation process.
+e.g.
+    constexpr int s { 5 };                 // now constexpr
+    [[maybe_unused]] unsigned int u { s }; // ok: x is constexpr and can be converted safely, not a narrowing conversion
+    foo(s);                                // ok: x is constexpr and can be converted safely, not a narrowing conversion
+
+The length and index of std::vector have type size_type
+Typedefs and type aliases are commonly used in cases where we need a name for a type that may vary (e.g. implementation defined). 
+For example, std::size_t is a typedef for some large unsigned integral type, usually unsigned long or unsigned long long.
+Each of the standard library container classes defines a nested typedef member named size_type (sometimes written as T::size_type), which is an alias used for the type used for the length (and indices, if supported) of the container.
+
+size_type is almost always an alias for std::size_t, but can be overridden in rare cases to use a different type.
+All of the standard library containers except for std::array use std::allocator to allocate memory. For those containers, T::size_type is derived from the size_type of the allocator used.
+Since std::allocator can allocate up to size_t bytes of memory, std::allocator<T>::size_type is defined as std::size_t.
+Therefore, T::size_type defaults to std::size_t.
+
+T::size_type will only be something other than std::size_t when using a custom allocator. This is rare and done on a per-application basis, so it's generally safe to assume T::size_type will be std::size_t unless your application uses a custom allocator, and you'll know if that is the case.
+
+When accessing size_type of a container class, we must scope qualify it with the fully templated name of the container class.
+e.g.
+    std::vector<int>::size_type
+
+Getting the length of a std::vector using the size() member function or std::size()
+We can ask a container class object for its length using the size() member function.
+This returns the length as unsigned size_type.
+
+Unlike string and string_view, which both have length() and size() member functions to do the same thing, std::vector and most other container types in C++ only have the size() member function.
+This is why length is commonly (and ambiguously) called size, which we've established... sucks.
+
+In C++17, we can also use the std::size() non-member function, which for container classes just calls the size() member function.
+e.g.
+    std::cout << "length: " << std::size(prime); // C++17, returns length as type `size_type` (alias for `std::size_t`)
+
+Because std::size() can also be used on non-decayed C-style arrays, this method is sometimes favored over using the size() member function, especially when writing function templates that can accept either a container class or non-decayed C=c-style array argument.
+
+If we want to store the length in a variable with a signed type, this will likely result in a signed/unsigned conversion warning or error.
+The simplest answer is to use static_cast to get the result as its desired type.
+    std::vector prime { 2, 3, 5, 7, 11 };
+    int length { static_cast<int>(prime.size()) }; // static_cast return value to int
+
+Getting the length of a std::vector using std::ssize()
+C++20 introduces std::ssize(), which is a non-member function that returns the length as a large signed integral type (usually std::ptrdiff_t, the usually used signed counterpart of std::size_t).
+While this returns a signed type, you may still want to static_cast it to int to avoid a possible narrowing conversion.
+int may be smaller than the signed type returned by std::ssize(), so static_cast may be necessary to avoid a possible narrowing conversion.
+
+It's also acceptable to use auto to have the compiler deduce the correct signed type to use for the variable.
+
+Accessing array elements using the [] operator does no bounds checking
+The subscript operator doesn't do bounds checking. The index for operator[] can be non-const.
+We'll cover this later.
+
+Accessing array elements using the at() member function does runtime bounds checking
+The at() member function can be used to do array access with runtime bounds checking.
+e.g.
+    std::vector prime{ 2, 3, 5, 7, 11 };
+    std::cout << prime.at(3); // print the value of element with index 3
+    std::cout << prime.at(9); // invalid index (throws exception)
+When the at() member function encounters an out-of-bounds index, it actually throws an exception of type std::out_of_range.
+If the exception is not handled, the program will be terminated. Chapter 27 covers exceptions, because why would they ever cover something that huge EARLY ON?
+Just like operator[], the index passed to at() can be non-const.
+Since it does bounds checking at runtime for every call, at() is slower but safer than []. Despite being less safe, [] is typically used over at() because it's better to do bounds checking before we call at() so we don't call it with an invalid index in the first place.
+
+Indexing std::vector with a constexpr signed int
+When indexing std::vector with a signed constexpr int, we can let the compiler implicitly convert this to a std::size_t without it being a narrowing conversion.
+e.g.
+    constexpr int index { 3 };         // constexpr
+    std::cout << prime[index] << '\n'; // okay: constexpr index implicitly converted to std::size_t, not a narrowing conversion
+
+The subscripts used to index an array can be non-const
+However, we generally want to avoid using unsigned types to hold quantities.
+When our subscript is a non-constexpr signed value, we run into problems.
+e.g.
+    int index { 3 };                   // non-constexpr
+    std::cout << prime[index] << '\n'; // possible warning: index implicitly converted to std::size_t, narrowing conversion
+
+This should produce a compiler warning (although a non-negative signed value will safely convert to an unsigned value, it's a runtime conversion and thus considered narrowing).
+
+There are ways to avoid this issue, and it's important to do so because array subscripting is common.
+static_cast the int to a std::size_t might be a good answer every time you index an array, but it's cluttered and not convenient.
+The simplest thing to do in this case is use a variable of std::size_t as your index, and only use this variable for indexing.
+
+Quiz
+
+1. Initialize a std::vector with the following values: 
+‘h’, ‘e’, ‘l’, ‘l’, ‘o’. Then print the length of the array (use std::size()). Finally, print the value of the element with index 1 using the subscript operator and the at() member function.
+see ch16_3_1.cpp
+
+2. 
+a) What is size_type and what is it used for?
+An alias of std::size_t (in most cases) used for length and indexing of containers. std::allocator uses this type for almost all containers. 
+
+b) What type does size_type default to? Is it signed or unsigned?
+std::size_t, which is unsigned.
+
+c) Which functions to get the length of a container return size_type?
+std::size() and vector<T>.size() or the container's corresponding size() member function
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

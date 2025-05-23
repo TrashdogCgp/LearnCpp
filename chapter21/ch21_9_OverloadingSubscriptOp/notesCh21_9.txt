@@ -1,0 +1,161 @@
+21_9
+Overloading the subscript operator
+
+When working with arrays, we typically use the subscript operator to index specific elements of an array.
+
+Pretending we have a list within a class meant to hold a list, how do we access the list? If it's private, we can't directly get/set it.
+We typically use access functions, but they're not especially user-friendly.
+
+A better solution would be to overload the subscript operator, [], to allow access to the elements of m_list.
+The subscript operator is one of the operators that must be overloaded as a member function. An overloaded operator function will always take one parameter: the subscript that the user places between the hard braces.
+
+Example:
+    class IntList
+    {
+    private:
+        int m_list[10]{};
+
+    public:
+        int& operator[] (int index)
+        {
+            return m_list[index];
+        }
+    };
+
+Why operator[] returns a reference
+If we run list[2] = 3, note that we're calling operator[]. 
+It returns a reference to list.m_list[2], and since it's returning a reference, it returns the actual array element.
+Our partially evaluated expression becomes:
+    list.m_list[2] = 3
+Any value on the left side of an assignment statement must be an l-value, a variable that has an actual memory address.
+Because the result of operator[] can be used on the left hand side of an assignment, the return value of operator[] must be an l-value.
+References, as it turns out, are always l-values, because you can only take a reference of variables that have memory addresses.
+Thus, the compiler is satisfied that we're returning an l-value when we return a reference.
+
+Overloading operator[] for const objects
+When we use operator[] for non-const objects, we can use it as an l-value to change non-const objects.
+For const objects, we wouldn't be able to call this operator because it would potentially allow changing a const object.
+We can define a non-const and const version of operator[] separately.
+The non-const version will be used with non-const objects, and the const version with const objects.
+
+e.g.
+    int& operator[] (int index)
+    {
+        return m_list[index];
+    }
+
+    // For const objects: can only be used for access
+    // This function could also return by value if the type is cheap to copy
+    const int& operator[] (int index) const;
+    {
+        return m_list[index];
+    }
+
+Removing duplicate code between const and non-const overloads
+Note that these implementations are identical. The only difference is the type of the function.
+In cases where the implementation is trivial, it's fine (and preferred) to have both functions use an identical implementation. The small redundancy isn't worth removing.
+
+In the case where the implementation of these operators is complex, it might be important to validate that the index is actually valid, and the redundancy might be more problematic.
+We can't just implement one function in terms of the other for this case; the const version can't call the non-const version, because that would require discarding mthe const of a const object.
+
+The preferred solution:
+Refactor the logic into another function (usually private const member function, but could be a non-member function).
+Have the non-const function call the const function and use const_cast to remove the const of the returned reference.
+e.g.
+    class IntList
+    {
+    private:
+        int m_list[10]{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }; // give this class some initial state for this example
+
+        // Use private const member function to handle duplicate logic
+        const int& getIndex(int index) const
+        {
+            // Complex code goes here
+            return m_list[index];
+        }
+
+    public:
+        // These overloaded operators can now be implemented as a single line,
+        // helping to highlight the actual difference between them
+        int& operator[] (int index)
+        {
+            // Since we know our implicit object is non-const
+            // We can strip the const off the reference returned by getIndex
+            return const_cast<int&>(getIndex(index));
+        }
+
+        const int& operator[] (int index) const
+        {
+            return getIndex(index);
+        }
+    };
+
+We normally prefer not to use const_cast to remove const, but in this case, it's acceptable. If the non-const overload is called, then we know we're working with a non-const object, so it's okay to remove the const on a const reference.
+
+Detecting index validity
+One other advantage of overloading the subscript operator is that we can make it safer than direct array access. Normally, when accessing arrays, the subscript operator doesn't check whether the index is valid or not.
+But if we know the size of our array, our overloaded subscript operator can check to ensure the index is within bounds.
+e.g.
+    int& operator[] (int index)
+    {
+        assert(index >= 0 && static_cast<std::size_t>(index) < std::size(m_list));
+
+        return m_list[index];
+    }
+
+Pointers to objects and overloaded operator[] don't mix
+If you try to call operator[] on a pointer to an object, C++ will assume you're trying to index an array of objects of that type.
+    IntList* list{ new IntList{} };
+    list [2] = 3; // error: this will assume we're accessing index 2 of an array of IntLists
+Here, because we can't assign an integer to an IntList, this won't compile. However, if assigning an integer were valid, this would compile and run, with undefined results.
+The proper way to do this would be to dereference the pointer first, using parentheses because operator[] has higher precedence than operator*, and then calling operator[].
+e.g.
+    IntList* list{ new IntList{} };
+    (*list)[2] = 3; // get our IntList object, then call overloaded operator[]
+
+The function parameter does not need to be an integral type
+While we usually expect an integral value, it's possible to define your overloaded operator to take any value type you want.
+Overloading operator[] to take a std::string parameter can be useful when writing certain kinds of classes, such as those that use words in indices.
+
+Quiz
+
+1. 
+A map is a class that stores elements as a key-value pair. The key must be unique, and is used to access the associated pair. In this quiz, we’re going to write an application that lets us assign grades to students by name, using a simple map class. The student’s name will be the key, and the grade (as a char) will be the value.
+
+a) First, write a struct named StudentGrade that contains the student’s name (as a std::string) and grade (as a char).
+
+b) Add a class named GradeMap that contains a std::vector of StudentGrade named m_map.
+
+c) Write an overloaded operator[] for this class. This function should take a std::string parameter, and return a reference to a char. In the body of the function, first see if the student’s name already exists (You can use std::find_if from <algorithm>). If the student exists, return a reference to the grade and you’re done. Otherwise, use the std::vector::push_back() function to add a StudentGrade for this new student. When you do this, std::vector will add a copy of your StudentGrade to itself (resizing if needed, invalidating all previously returned references). Finally, we need to return a reference to the grade for the student we just added to the std::vector. We can access the student we just added using the std::vector::back() function.
+
+See 21_9_1.cpp
+
+2.
+Extra credit #1: The GradeMap class and sample program we wrote is inefficient for many reasons. Describe one way that the GradeMap class could be improved.
+
+I mean... I can think of hashtable implementation from data structures. Traversing the vector would be a bit annoying to do every time we add something, so a hashing algorithm would allow us to find the intended location for the name in constant time and allow us to see whether or not anything is there.
+I think an optimal hashing algorithm would be a bit much to take on from scratch for an exercise like this, though.
+
+3. 
+Extra credit #2: Why does this program potentially not work as expected?
+
+#include <iostream>
+
+int main()
+{
+	GradeMap grades{};
+
+	char& gradeJoe{ grades["Joe"] }; // does a push_back
+	gradeJoe = 'A';
+
+	char& gradeFrank{ grades["Frank"] }; // does a push_back
+	gradeFrank = 'B';
+
+	std::cout << "Joe has a grade of " << gradeJoe << '\n';
+	std::cout << "Frank has a grade of " << gradeFrank << '\n';
+
+	return 0;
+}
+
+Answer: If the vector resizes, all of the entries in the vector, which are references, are now dangling references because the elements are moved to a new block of memory.
+It might not manifest quickly, depending on how vector is implemented.

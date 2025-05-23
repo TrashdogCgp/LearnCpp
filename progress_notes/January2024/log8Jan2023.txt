@@ -1,0 +1,9 @@
+Another late start and another low-energy day.
+Haven't been sleeping well for a while here and not sure why.
+
+Today is range-based for loops (for-each) and array indexing and length using enums.
+More if I have time, but we'll see.
+
+Yeah, made time to at least go over vector resizing and capacity.
+There might be enough time tomorrow to even finish the chapter, but I bet the quiz will take an hour on its own, this late into the series.
+Going to do what I can. I'm probably making my current exhaustion worse with this attitude, but I continue to hold out hope that I'll be hit with a second wind of energy any day now.

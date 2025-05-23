@@ -1,0 +1,4 @@
+Just continuing with the operator overloading chapter today.
+Honestly have a bunch of quizzes left to go back and do, and it's because I was so low-energy for this whole month that I didn't have it in me to tackle most of them.
+Hoping to get to that soon, but I have a bit of a busy personal life this weekend.
+Anyway, went through overloading the parenthesis operator today.

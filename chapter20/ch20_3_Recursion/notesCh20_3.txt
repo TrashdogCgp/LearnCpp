@@ -1,0 +1,107 @@
+20_3
+Recursion
+
+A recursive function in C++ is a function that calls itself.
+Every function call causes data to be placed on the call stack. BAn endlessly recursive function will eventually cause stack overflow.
+
+Recursive termination conditions
+Recursive function calls generally work like normal function calls. However, there's an important difference; you must include a termination condition, or the program will run until the stack runs out of memory.
+A recursive termination is a condition that, when met, will cause the recursive function to stop calling itself.
+Recursive termination generally involves using an if statement.
+
+e.g.
+    void countDown(int count)
+    {
+        std::cout << "push " << count << '\n';
+
+        if (count > 1) // termination condition
+            countDown(count-1);
+
+        std::cout << "pop " << count << '\n';
+    }
+    countDown(5);
+
+In this case, the call stack would look like:
+    countDown(1)
+    countDown(2)
+    countDown(3)
+    countDown(4)
+    countDown(5)
+    main()
+
+Because of the termination condition, countDown(1) doesn't call countDown(0). Instead the if statement doesn't execute.
+countDown(1) is popped off the stack, and control returns to countDown(2).
+The recursive function calls get subsequently popped off the stack until all instances of countDown have been removed.
+
+Recursive programs are often hard to figure out just by looking at them. It's often instructive to see what happens when we call a recursive function with a particular value.
+Because recursive functions can be hard to understand by looking at them, good comments are particularly important.
+
+Recursive algorithms
+Recursive functions typically solve a problem by first finding the solution to a subset of the problem (recursively) and then modifying that sub-solution to get to a solution.
+
+In many recursive algorithms, some inputs produce trivial outputs that don't benefit from further recursion. In puts for which an algorithm trivially produces an output is called a base case.
+Base cases act as termination conditions for an algorithm, and can commonly be identified by considering the output for an input of 0, 1, "", '', or null.
+
+Memoization algorithms
+Pretend we implement a fibonnaci algorithm where:
+
+F(n) =	0 if n = 0
+1 if n = 1
+f(n-1) + f(n-2) if n > 1
+
+The default recursive fibonnaci algorithm isn't too efficient, in part because each call to a non-base case results in two more fibonnaci calls. This produces an exponential number of function calls.
+There are techniques that can be used to reduce the number of calls necessary.
+One technique, called memoization, caches the results of expensive function calls so the result can be returned when the same input occurs again.
+Here's an example of memoization for the fibonnaci numbers:
+    int fibonacci(std::size_t count)
+    {
+        // We'll use a static std::vector to cache calculated results
+        static std::vector results{ 0, 1 };
+
+        // If we've already seen this count, then use the cache'd result
+        if (count < std::size(results))
+            return results[count];
+
+        // Otherwise calculate the new result and add it
+        results.push_back(fibonacci(count - 1) + fibonacci(count - 2));
+        return results[count];
+    }
+
+    // And a main program to display the first 13 Fibonacci numbers
+    int main()
+    {
+        for (int count { 0 }; count < 13; ++count)
+            std::cout << fibonacci(static_cast<std::size_t>(count)) << ' ';
+
+        return 0;
+    }
+
+Compared to an implementation that calls the fibonacci function each time without the option to memoize, this version is much more efficient. It makes 35 function calls, vice the 1205 for the default approach.
+
+Recursive vs iterative
+One question often asked is: why use a recursive function if you can do many of the same tasks iteratively, like with a for/while loop?
+It turns out that you can always solve a recursive problem iteratively. However, for non-trival problems, the recursive version is often much simpler to write and read. For example, while it's possible to write the fibonacci function iteratively, it's more difficult.
+
+Iterative functions are almost always more efficient than their recursive counterparts. This is because there's overhead in calling functions in pushing/popping stack frames.
+Iterative functions avoid this overhead.
+
+However, iterative functions aren't always a better choice; the recursive implementation of a function can be much cleaner and easier to follow, and can be worth the overhead for the benefit in maintainability, especially if the algorithm doesn't need to recurse too many times for a solution.
+
+In general, recursion is a good choice when most of the following are true:
+    The recursive code is simpler to implement
+    The recursion depth can be limited (e.g. no way to provide an input that'll recurse 100000 levels deep)
+    The iterative version of the algorithm requires managing a stack of data
+    The section of the code isn't performance-critical
+
+If the recursive algorithm is simpler to implement, it may still make sense to start recursively and then optimize to an iterative algorithm later.
+
+Best practice: Generally favor iteration over recursion, except when recursion really makes sense.
+
+
+
+
+
+
+
+
+

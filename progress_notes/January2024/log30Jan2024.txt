@@ -1,0 +1,2 @@
+Hands are feeling much better than even yesterday.
+Resuming C++ with operator overloads.

@@ -1,0 +1,10 @@
+Seems I'm stuck in what might be considered exceptional circumstances pretty often at this point.
+Today, I'm having company arrive pretty late in the night.
+Rather than try to progress on lessons and hope things stick, this will be a review. I'll do my hour by looking back at past lessons and reinforcing:
+Pass/return by reference
+Lambdas
+std::string_view behavior
+std::cin invalid input handling
+Type deduction via auto and for functions
+
+

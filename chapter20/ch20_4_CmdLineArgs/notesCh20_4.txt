@@ -1,0 +1,92 @@
+20_4
+Command Line Arguments
+
+When we compile and link a program, the output is an executable file.
+When a program is run, execution starts at the top of the function called main().
+We've declared main like this:
+    int main()
+While main() takes no parameters, many programs need some kind of input to work with.
+We could take user input, but then the user has to input something every time the program runs.
+
+Pretend we want to create thumbnails for all the image files in a given directory.
+If there are hundreds of images, running manually and inputting all of the filenames could take a long time.
+A good solution would be to write a program that loops through each filename in the directory.
+
+Next, consider the case where we're running a website and want the website to create a thumbnail every time a user uploads an image to the website.
+This program isn't set up to accept web input, so how would the uploader enter a filename in this case? A good solution here would be to have the web server call Thumbnail automatically after upload.
+
+In both of these cases,we need a way for an external program to pass in the filename as input to our Thumbnail program when Thumbnail is launched, rather than having Thumbnail wait for the user to enter the filename after it has started.
+
+Passing command line arguments
+Executable programs can be run on the command line by invoking them by name. For example, to run the executable file WordCout in the current directory of a Windows machine, you could type:
+    WordCout
+    or on Linux
+    ./WordCout
+In order to pass command line arguments to WordCount, we list the command line arguments after the executable name:
+    WordCount Myfile.txt
+Now when WordCount is executed, Myfile.txt will be provided as a command line argument. A program can have multiple command line arguments, separated by spaces:
+    WordCount Myfile.txt Myotherfile.txt
+Most IDEs allow for command line arguments to be entered; in Visual Studio, "configuration properties" will allow command line arguments to be entered for testing; they'll automatically be passed to the program when you run it.
+
+Using command line arguments
+To provide command line arguments to a program, we use a different form of main() than we've previously used; we pass two arguments named argc and argv by convention.
+
+    int main(int argc, char* argv[])
+    int main(int argc, char** argv)
+
+Even though these are treated identically, we prefer the first representation because it's intuitively easier to understand.
+
+argc is an integer parameter containing a count of the number of arguments passed to the program (think argc is argument count). argc will always be at least 1, because the first argument is always the name of the program itself. Each command line argument the user provides will increase argc by 1.
+argv is where the actual argument values are stores (think argv is argument values, though the proper name is "argument vectors"). Although the declaration of argv looks intimidating, it's just an array of character pointers, each of which points to a c-style string. The length of this array is argc.
+
+Example: Print all command line parameters
+    // Program: MyArgs
+    #include <iostream>
+    int main(int argc, char* argv[])
+    {
+        std::cout << "There are " << argc << " arguments:\n";
+        // Loop through each argument and print its number and value
+        for (int count{ 0 }; count < argc; ++count)
+        {
+            std::cout << count << ' ' << argv[count] << '\n';
+        }
+        return 0;
+    }
+
+When we invoke this with command line arguments, we get the program name and then whatever arguments were provided.
+
+Dealing with numeric alignments
+Command line arguments are always passed as strings, even if the value provided is numeric in nature.
+To use a command line argument as a number, we have to convert it from a string to a number.
+C++ doesn't make this espeically easy.
+However, there's std::stringstream, which works much like std::cin.
+	std::stringstream convert{ argv[1] }; // set up a stringstream variable named convert, initialized with the input from argv[1]
+
+	int myint{};
+	if (!(convert >> myint)) // do the conversion
+		myint = 0; // if conversion fails, set myint to a default value
+
+We'll talk more about std::stringstream in a future chapter.
+
+The OS parses command line arguments first
+When you type something at command line (or run from IDE), it's the operating system's responsibility to translate and route that request as appropriate. This involves not only running the executable, but also parsing any arguments to determine how they should be handled and passed to the application.
+
+Generally, operating systems have special rules about how special characters like double quotes and backslashes are handled.
+Typically, strings passed in as double quotes are considered to be part of the same string.
+Most operating systems will allow you to include a literal double quote by backslashing the double quote (escape character).
+e.g. run MyArgs program from command line:
+    MyArgs \"Hello world!\"
+Other characters may also require backslashing or escaping depending on how your OS interprets them.
+
+
+
+
+
+
+
+
+
+
+
+
+

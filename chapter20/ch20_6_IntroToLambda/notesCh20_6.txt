@@ -1,0 +1,212 @@
+20_6
+Introduction to lambdas (anonymous functions)
+
+Recall that std::find_if requires that we pass it a function pointer. Because of that, we have to define a function that will probably only be used once, needs a name, and must be put in the global scope, since functions can't be nested.
+
+Lambdas are anonymous functions
+A lambda expression (also called lambda or closure) allows us to define an anonymous function inside another function. The nesting is important, since it allows us to avoid namespaces and naming pollution, and allows us to define the function as close to where it is used as possible (for additional context).
+
+Lambda syntax is a bit weird. Lambdas take the form:
+[ captureClause ] (parameters) -> returnType 
+{
+    statements;
+}
+
+The capture clause can be empty if no captures are needed.
+The parameter list can be empty if no parameters are required. It can also be omitted entirely unless a return type is specified.
+The return type is optional, and if omitted, auto will be assumed (thus using type deduction used to determine the return type). While we previously noted that type deduction for function return types should be avoided, in this context, it's fine to use (because these functions are typically so trivial).
+Also note that lambdas have no name, so we don't need to provide one.
+
+We can use this for an example:
+    #include <algorithm>
+    #include <array>
+    #include <iostream>
+    #include <string_view>
+
+    int main()
+    {
+    constexpr std::array<std::string_view, 4> arr{ "apple", "banana", "walnut", "lemon" };
+
+    // Define the function right where we use it.
+    auto found{ std::find_if(arr.begin(), arr.end(),
+                            [](std::string_view str) // here's our lambda, no capture clause
+                            {
+                                return str.find("nut") != std::string_view::npos;
+                            }) };
+
+    if (found == arr.end())
+    {
+        std::cout << "No nuts\n";
+    }
+    else
+    {
+        std::cout << "Found " << *found << '\n';
+    }
+
+    return 0;
+    }
+
+This prints:
+Found walnut
+
+Note that here, our capture clause is empty because we don't need one. We've omitted the trailing return type and allowed it to be deduced, but our lambda will return a bool.
+
+Best practice:
+Following the best practice of defining things in the smallest scope and closest to first use, lambdas are preferred over normal functions when we need a trivial, one-off function to pass as an argument to some other function.
+
+Type of lambda
+The use of a lambda is sometimes called a function literal when the lambda is defined right where it was needed.
+However, writing a lambda in the same line as it's used can sometimes make code harder to read. Much like we can initialize a variable with a literal value or function pointer for use later, we can also initialize a lambda variable with a lambda definition and use it later.
+A named lambda along with a good function name can make code easier to read.
+e.g.
+    auto isEven{
+    [](int i)
+    {
+        return (i % 2) == 0;
+    }
+    };
+
+Storing a lambda in a variable provides a way for us to give the lambda a useful name, which makes our code more readable.
+It also provides us with a way to use that lambda more than once.
+
+But what is the type of lambda isEven?
+Well, lambdas don't have a type we can explicitly use. When we write a lambda, the compiler generates a unique type for the lambda that isn't accessible to us.
+Really, a lambda isn't a function; lambdas are a special type of object called a functor. Functors are objects that contain an overloaded () operator that make them callable like a function.
+
+While we can't know the type of a lambda, there are several ways to store a lambda for use post-definition.
+If the lambda has an empty capture clause, we can use a regular function pointer. std::function or type deduction via the auto keyword will also work (even if the lambda has a non-empty capture clause).
+
+The only way of using the lambda's actual type is by means of auto. Auto also has the benefit of having no overhead compared to std::function.
+
+If we want to pass a lambda to a function, there are three options:
+
+Case 1: Use a std::function parameter
+Case 2: Use a function template with a type template parameter
+Case 3: Use the bbreviated function template syntax (cpp20)
+
+e.g.
+    // Case 1: use a `std::function` parameter
+    void repeat1(int repetitions, const std::function<void(int)>& fn)
+    {
+        for (int i{ 0 }; i < repetitions; ++i)
+            fn(i);
+    }
+
+    // Case 2: use a function template with a type template parameter
+    template <typename T>
+    void repeat2(int repetitions, const T& fn)
+    {
+        for (int i{ 0 }; i < repetitions; ++i)
+            fn(i);
+    }
+
+    // Case 3: use the abbreviated function template syntax (C++20)
+    void repeat3(int repetitions, const auto& fn)
+    {
+        for (int i{ 0 }; i < repetitions; ++i)
+            fn(i);
+    }
+
+    int main()
+    {
+        auto lambda = [](int i) {
+        std::cout << i << '\n';
+    };
+
+    repeat1(3, lambda);
+    repeat2(3, lambda);
+    repeat3(3, lambda);
+
+    return 0;
+    }
+
+In case 1, our function parameter is a std::function, which is nice because we explicitly see the parameters and return type. However, this requires the lambda to be implicitly converted whenever the function is called, which adds some overhead.
+This method is also separable into a declaration (in a header) and a definition (in a cpp file) if that's desirable.
+
+In case 2, we use a function template with a type template parameter T. When the function is called, a function will be instantiated where T matches the actual type of the lambda. This is more efficient, but the parameters and return type of T are not obvious.
+
+In case 3, we use C++'s auto to invoke the abbreviated function template syntax. This generates a function identical to case 2.
+Both of these latter cases require the full definition to be seen to use.
+
+Best practice: When storing a lambda in a variable, use auto as the variable's type.
+When passing a lambda to a function, if C++20 capable, use auto as the parameter's type. Otherwise, use a function with a type template parameter or std::function parameter.
+
+Generic lambdas
+For the most part, lambda parameters work by the same rules as regular function parameters.
+One notable exception is that since C++14, we're allowed to use auto for parameters (and in C++20, we can use auto for parameters in regular functions, too).
+
+Because lambdas with one or more auto parameters can potentially work with a wide variety of types, they're called generic lambdas.
+
+When used in the context of a lambda, auto is just shorthand for a template parameter.
+
+Looking at a generic lambda:
+      // Search for two consecutive months that start with the same letter.
+    const auto sameLetter{ std::adjacent_find(months.begin(), months.end(),
+                                      [](const auto& a, const auto& b) {
+                                        return a[0] == b[0];
+                                      }) };
+
+Here, we use auto parameters to capture our strings by const reference. Because all string types allow access to their individual characters via operator[], we don't need to care whether the user is passing in a std::string, c-style string, or something else.
+This allows us to write a lambda that could accept any of these, meaning if we change the type later, we won't have to rewrite the lambda.
+
+Auto isn't always the best choice, though. For example, if we expected a std::string_view and tried to call length on it, we'd want to explicitly work with the underlying data and not accept a c-style string.
+
+Constexpr lambdas
+As of C++17, lambdas are implicitly constexpr if the result satisfies the requirements of a constant expression.
+This generally requires two things:
+    The lambda must either have no captures, or all captures must be constexpr
+    The functions called by the lambda must be constexpr. Note that many standard library algorithms and math functions weren't made constexpr until C++20 or C++23.
+
+Generic lambdas and static variables
+One thing to be aware of is that a unique lambda will be generated for each different type that auto resolves to.
+Most of the time, this is inconsequential. However, if the generic lambda uses static duration variables, those variables are not shared between the generated lambdas.
+To have a shared counter between two generated lambdas, we'd have to define a global variable or a static local variable outside of the lambda. Both global and static local variables can cause problems and make it more difficult to understand code. Lambda captures will help avoid those variables.
+
+Return type deduction and trailing return types
+If return type deduction is used, a lambda's return type is deduced from the return statements inside the lambda, and all return statements in the lambda must return the same type (otherwise the compiler won't know which one to prefer).
+
+For example, this produces a compile error:
+  auto divide{ [](int x, int y, bool intDivision) { // note: no specified return type
+    if (intDivision)
+      return x / y; // return type is int
+    else
+      return static_cast<double>(x) / y; // ERROR: return type doesn't match previous return type
+  } };
+
+In the case where we're returning different types, we have two options:
+    Do explicit casts to make all the return types match
+    or
+    Explicitly specify a return type for the lambda, and let the compiler do implicit conversions.
+The latter is usually the better choice.
+
+e.g.
+  // note: explicitly specifying this returns a double
+  auto divide{ [](int x, int y, bool intDivision) -> double {
+    if (intDivision)
+      return x / y; // will do an implicit conversion of result to double
+    else
+      return static_cast<double>(x) / y;
+  } };
+
+Standard library function objects
+For common operations, the standard library comes with many basic callable objects that can be used instead of writing your own lambdas.
+These are defined in the <functional> header.
+e.g.
+  std::array arr{ 13, 90, 99, 5, 40, 80 };
+
+  // Pass std::greater to std::sort
+  std::sort(arr.begin(), arr.end(), std::greater{}); // note: need curly braces to instantiate object
+
+Conclusion
+Lambdas and the algorithm library may seem unnecessarily complicated when compared to a solution that uses a loop, but this combination can allow some very powerful operations in just a few lines of code, and can be more readable than writing our own loops.
+The algorithm library also features easy parallelism, which you won't get with loops. Upgrading source code that uses library functions is easier than upgrading code that uses loops.
+Lambdas, while great, don't replace regular functions for all cases. Prefer regular functions for non-trivial, reusable cases.
+
+Quiz
+
+2.
+See ch20_6_2.cpp
+
+
+
+

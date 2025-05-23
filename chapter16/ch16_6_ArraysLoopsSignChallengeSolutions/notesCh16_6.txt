@@ -1,0 +1,119 @@
+16_6
+Arrays, loops, and sign challenge solutions
+
+Unsigned integers are generally annoying and better off avoided for holding quantities, because unsigned ints can act in surprising ways.
+But we use unsigned integral types for length and indices.
+
+When we use signed integral types to avoid the issues brought on by unsigned integral types, we end up with clutter and less readability due to excessive static_cast usage.
+
+This is an area where there's actually no ideal solution.
+There are many viable options, and other coders will likely choose many of them.
+
+Leave signed/unsigned conversion warnings off
+This is a bad option, but also it's pretty understandable from some point of view that signed/unsigned conversion warnings are often disabled by default. Every time we subscript a standard library container using a signed index, a sign conversion warning is generated, which will drown out legitimate warnings.
+This is the simplest solution, but might also cause overlooking of legitimate sign conversion warnings and bugs.
+
+Use an unsigned loop variable
+Since standard array types were designed to use unsigned indices, we should use unsigned indices, right?
+Reasonable, but we have to be careful not to run into signed/unsigned mismatches when doing so; we should avoid using the index loop variable for anything but indexing.
+
+Using size_type as the type of your index is technically the most consistent and safe unsigned type use available, since it'll work even when size_type isn't just size_t.
+
+However, it has a downside; we have to prefix it with a fully templated name of the container (meaning std::vector<int>::size_type rather than just std::size_type).
+This is a lot of typing and is clutter in your code.
+
+When used in a function template, we can use T for template arguments, but we also need to prefix the type with the typename keyword:
+    template <typename T>
+    void printArray(const std::vector<T>& arr)
+    {
+        // typename keyword prefix required for dependent type
+        for (typename std::vector<T>::size_type index { 0 }; index < arr.size(); ++index)
+            std::cout << arr[index] << ' ';
+    }
+
+If you forget the typename keyword, your compiler will probably remind you to add it.
+
+Any name that depends on a type containing a template parameter is called a dependent name.
+Dependent names must be prefixed with the keyword typename in order to be used as a type.
+Since the above example has std::vector<T> as a type with a template parameter, std::vector<T>::size_type is a dependent name, and must be prefixed with typename to be used as a type.
+
+A more general solution is to have the compiler fetch the type of the array object for us, so we won't have to explicitly specify the container type or template arguments.
+For this, we can use the decltype keyword, which returns the type of its parameter.
+    // arr is some non-reference type
+    for (decltype(arr)::size_type index { 0 }; index < arr.size(); ++index) // decltype(arr) resolves to std::vector<int>
+
+This doesn't work if arr is a reference type (e.g. array passed by reference)
+So we can remove the reference from arr:
+template <typename T>
+    void printArray(const std::vector<T>& arr)
+    {
+        // arr can be a reference or non-reference type
+        for (typename std::remove_reference_t<decltype(arr)>::size_type index { 0 }; index < arr.size(); ++index)
+            std::cout << arr[index] << ' ';
+    }
+But now we're back to square one in a way, because this isn't concise or easy to remember.
+
+It's really just as reasonable to just use size_t instead of size_type to avoid all this headache, since size_type is almost always a typedef for size_t (not the case when we use custom allocators, but who does that?).
+
+Using a signed loop variable
+Although it makes it harder to work with the standard library containers, using signed loop variables is consistent with best practices for the rest of our code.
+The more consistent we are with best practices, the fewer errors we get overall.
+
+We have to address three issues with signed loop variables:
+    What signed type should we use?
+    What is the length of the array and how do we get it as a signed value?
+    How do we convert the signed loop variable to an unsigned index?
+
+What signed type should we use?
+Options:
+    int should be fine unless the array is very large. We should use int by default for everything when we don't care much about the type otherwise.
+    If dealing with giant arrays, or if you want to be defensive, std::ptrdiff_t, which is a weird freaking name. It's the signed counterpart to std::size_t.
+    Because std::ptrdiff_t is weird, consider defining an alias for it
+        e.g. using Index = std::ptrdiff_t;
+
+Getting the length of an array as a signed value
+Prior to C++20, the best option is to static_cast the return value of size() member function to a signed type.
+This way, the unsigned value from size() will be converted to signed type, and we can compare signed operands without the unsigned-to-signed comparison issues.
+
+To avoid clutter with static_cast in a for loop, move the length outside of the loop.
+
+Also note that C++20 introduced std::ssize(), which returns the size of an array type as a signed type, likely ptrdiff_t.
+
+Converting the signed loop variable to an unsigned index
+The obvious option is to static cast our signed loop variable into an unsigned index. Unfortunately, this has to happen everywhere the array is subscripted.
+
+But we can also use a conversion function with a sort name to do the static casting!
+
+We could also use a custom view, much like what std::string_view does for string (can view different types of strings: c-style string literals, std::string, and std::string_view).
+The tutorial gives a rather long SignedArrayView.h example of how to do this for a vector.
+Their example uses operator overloading, which is part of a future chapter.
+
+The most sane choice is to avoid indexing altogether.
+Since all options have their downsides here, we can use other methods that C++ provides for traversing through arrays without using indices.
+If we don't have indices, we don't run into the signed/unsigned conversion issues.
+Range-based for loops and iterators are two common methods for this.
+
+Best practice: Avoid array indexing with integral values whenever possible.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

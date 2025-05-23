@@ -1,0 +1,79 @@
+17_12
+Multidimensional C-style arrays
+
+Consider the 3x3 grid for tic tac toe.
+While we could store the board data as 9 individual variables, it's better to use an array.
+But using 9 elements isn't representative of the two-dimensional tic tac toe board.
+We can do better.
+
+Two-dimensional arrays
+In previous lessons, we noted that the elements of an array can be of any object type. This means the element type of an array can be another array.
+e.g.
+    int a[3][5]; // a 3-element array of 5-element arrays of int
+
+An array of arrays is called a two-dimensional array (sometimes 2d array) because it has two subscripts.
+With a 2d array, it's convenient to think of the first (left) subscript as selecting the row and the right as selecting the column.
+
+To access the elements of a 2d array, we simply use two subscripts.
+So for a tic tac toe board, we can define:
+    int ttt[3][3];
+
+Multidimensional arrays
+Arrays with more than one dimension are called multidimensional arrays.
+C++ supports more than 2 dimensions, but arrays with dimensions higher than 3 are rare.
+
+How 2d arrays are laid out in memory
+Memory is linear (1 dimensional), so multidimensional arrays are actually stored as a sequential list of elements.
+There are two possible ways for the following array to be stored in memory:
+// col 0   col 1   col 2   col 3   col 4
+// [0][0]  [0][1]  [0][2]  [0][3]  [0][4]  row 0
+// [1][0]  [1][1]  [1][2]  [1][3]  [1][4]  row 1
+// [2][0]  [2][1]  [2][2]  [2][3]  [2][4]  row 2
+
+C++ uses row-major order, where elements are sequantially placed in memory row-by-row, ordered from left to right, top to bottom.
+
+Some other languages use column-major order, where elements are sequentially placed in memory column by column, from top to bottom, left to right.
+
+In C++, when initializing an array, elements are initialized in row-major order, and it's most efficient to access elements in the order they're laid out in memory when traversing an array.
+
+
+Initializing two-dimensional arrays
+To initialize a 2d array, it's easiest to use nested braces, with each set of numbers representing a row:
+    int array[3][5]{
+        {1,2,3},
+        {4,5,6},
+        {7,8,9}
+    };
+
+When using inner braces like this, missing initializers will be value-initialized.
+An initialized multidimensional array can only omit the leftmost length specification; in such cases, the compiler can do the math to figure out what the leftmost length is from the number of initializers.
+e.g.
+    int array[][5]
+    {
+    { 1, 2, 3, 4, 5 },
+    { 6, 7, 8, 9, 10 },
+    { 11, 12, 13, 14, 15 }
+    };
+
+Omitting non-leftmost dimensions is not allowed.
+e.g. int array[][] {{1,2}, {3,4} };// invalid!
+
+Just like normal arrays, multidimensional arrays can be initialized to 0 as follows:
+    int array[3][5] {};
+
+Two-dimensional arrays and loops
+With a one-dimensional array, we can use a single loop to iterate through all of the elements in the array.
+With a two-dimensional array, we need two loops: one to select the row, and the other to select the column.
+
+And with two loops, we also need to determine which loop will be the outer loop, and which will be the inner loop.
+It's most efficient to access elements in the order they're laid out in memory.
+Since C++ uses row-major order, the row selector should be the outer loop, and the column selector should be the inner loop.
+
+
+
+
+
+
+
+
+

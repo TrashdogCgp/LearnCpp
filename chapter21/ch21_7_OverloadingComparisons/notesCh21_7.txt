@@ -1,0 +1,88 @@
+21_7
+Overloading the comparison operators
+
+Because the comparison operators are all binary operators that do not modify their left operands, our overloaded comparison operators will be friend functions.
+
+Example:
+    class Car
+    {
+    private:
+        std::string m_make;
+        std::string m_model;
+
+    public:
+        Car(std::string_view make, std::string_view model)
+            : m_make{ make }, m_model{ model }
+        {
+        }
+
+        friend bool operator== (const Car& c1, const Car& c2);
+        friend bool operator!= (const Car& c1, const Car& c2);
+    };
+
+    bool operator== (const Car& c1, const Car& c2)
+    {
+        return (c1.m_make == c2.m_make &&
+                c1.m_model == c2.m_model);
+    }
+
+    bool operator!= (const Car& c1, const Car& c2)
+    {
+        return (c1.m_make != c2.m_make ||
+                c1.m_model != c2.m_model);
+    }
+
+Operators < and > wouldn't really make intuitive sense for a Car.
+Since they don't make intuitive sense, it's probably better to leave these operators undefined.
+
+Best practice: Only define overloaded operators that make intuitive sense for your classes.
+
+There's an exception that's somewhat common.
+If we wanted to sort a list of Cars, we might want to overload the comparison operators to return the member or members we're most likely to want to sort on.
+For example, < might help sort based on make/model alphabetically.
+Some of the container classes in the standard library require an overloaded operator< so they can keep elements sorted.
+
+Comparison operators have a lot of redundancy in general.
+
+Fortunately, many of the comparison operators can be implemented using the other comparison operators:
+
+    operator!= can be implemented as !(operator==)
+    operator> can be implemented as operator< with the order of the parameters flipped
+    operator>= can be implemented as !(operator<)
+    operator<= can be implemented as !(operator>)
+
+So we really only need to implement operator== and operator<, and the other four comparison operators can be defined in terms of those two.
+
+example:
+    class Cents
+    {
+    private:
+        int m_cents;
+
+    public:
+        Cents(int cents)
+            : m_cents{ cents }
+        {}
+        friend bool operator== (const Cents& c1, const Cents& c2) { return c1.m_cents == c2.m_cents; }
+        friend bool operator!= (const Cents& c1, const Cents& c2) { return !(operator==(c1, c2)); }
+
+        friend bool operator< (const Cents& c1, const Cents& c2) { return c1.m_cents < c2.m_cents; }
+        friend bool operator> (const Cents& c1, const Cents& c2) { return operator<(c2, c1); }
+
+        friend bool operator<= (const Cents& c1, const Cents& c2) { return !(operator>(c1, c2)); }
+        friend bool operator>= (const Cents& c1, const Cents& c2) { return !(operator<(c1, c2)); }
+    };
+
+Quiz
+1. Add the six comparison operators to the Fraction class.
+
+see ch21_7_1.cpp
+
+2.
+Add an overloaded operator<< and operator< to the Car class at the top of the lesson so that the following program compiles:
+See ch21_7_2.cpp
+
+
+
+
+

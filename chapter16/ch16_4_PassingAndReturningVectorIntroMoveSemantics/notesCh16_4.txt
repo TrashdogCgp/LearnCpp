@@ -1,0 +1,142 @@
+16_4
+Passing and returning std::vector, and an introduction to move semantics
+
+An object of type std::vector can be passed to a function just like any other object.
+So if we pass a std::vector by value, an expensive copy will be made.
+We typically pass std::vector by (const) reference to avoid such copies.
+
+With std::vector, the element type is part of the type info of the object. So when we use std::vector as a function parameter, we have to explicitly specify the element type.
+e.g.
+    void passByRef(const std::vector<int>& arr) // we must explicitly specify <int> here
+    {
+        std::cout << arr[0] << '\n';
+    }
+
+Passing std::vector of different element types
+Because the above passByRef function expects a std::vector<int>, we can't pass vectors with different element types.
+Post-C++17, we might try CTAD to fix this issue.
+While CTAD will work to deduce a vector's element type from initializers when it's defined, it doesn't currently work with function parameters.
+
+So we should use function templates that parameterizes the element type, and C++ will use that function template to instantiate functions with actual types.
+e.g.
+    template <typename T>
+    void passByRef(const std::vector<T>& arr)
+    {
+        std::cout << arr[0] << '\n';
+    }
+
+Passing a std::vector using a generic template or abbreviated template
+We can also create a function template that will accept any type of object.
+    template <typename T>
+    void passByRef(const T& arr) // will accept any type of object that has an overloaded operator[]
+    {
+        std::cout << arr[0] << '\n';
+    }
+
+In C++20, we can use an abbreviated template via an auto parameter to do the same thing:
+    void passByRef(const auto& arr) // abbreviated function template
+    {
+        std::cout << arr[0] << '\n';
+    }
+Trashdog's note: I hate this and the intent is not very clear and kill it with fire please (maybe it'll grow on me though?)
+
+These are nice to accept any type that will compile, like if we want to pass a std::array and a std::string to the same function.
+The downside is that this method can lead to bugs if the function is passed on an object of a type that compiles, but doesn't make sense semantically.
+
+Asserting on array length
+Pretend we have a function that prints the first three elements of a vector.
+Trying to access the third element of an array that isn't three or greater in length will lead to undefined behavior.
+One option here is to assert on array size, which will catch such errors via runtime assert.
+
+A better option is to not use std::vector for this purpose, since you need to assert on array length.
+Use a type that supports constexpr instead, like std::array, so you can static_assert on the length of a constexpr array.
+
+The best option is to avoid writing functions that rely on the user passing in a vector with a minimum length in the first place.
+
+Returning a std::vector
+When we need to pass a std::vector to a function, we pass by const reference to avoid making a copy.
+But it's okay to return a std::vector by value.
+
+Intro to move semantics
+    std::vector arr1 { 1, 2, 3, 4, 5 }; // copies { 1, 2, 3, 4, 5 } into arr1
+    std::vector arr2 { arr1 };          // copies arr1 into arr2
+
+    arr1[0] = 6; // We can continue to use arr1
+    arr2[0] = 7; // and we can continue to use arr2
+When we assign to arr1 and arr2, we need them both to live on independently.
+This example makes two copies: one for each initialization.
+When initializing or assigning a value to an object copies the value, we say the object is using copy semantics.
+
+In the next case, though, we're intentionally returning by value:
+    std::vector<int> generate() // return by value
+    {
+        // We're intentionally using a named object here so mandatory copy elision doesn't apply
+        std::vector arr1 { 1, 2, 3, 4, 5 }; // copies { 1, 2, 3, 4, 5 } into arr1
+        return arr1;
+    }
+
+    int main()
+    {
+        std::vector arr2 { generate() }; // the return value of generate() dies at the end of the expression
+        // There is no way to use the return value of generate() here
+        arr2[0] = 7; // we only have access to arr2
+        std::cout << arr2[0] << '\n';
+        return 0;
+    }
+
+In this case, we initialize arr2 using a temporary object returned from function generate().
+The temporary value is an rvalue that will be destroyed at the end of the initialization expression, and the temporary object can't be used beyond that point.
+We thus need a way to get the data into arr2 from the temporary.
+The usual thing here is to use copy semantics and make a potentially expensive copy; this lets arr2 get its own copy of the data that can be used even after the temporary is destroyed.
+But the temporary is going to be destroyed anyway; after initialization, the temporary doesn't need its data anymore, which is why we can destroy it.
+In such cases, making a potentially expensive copy and then destroying the original data is suboptimal.
+
+So what if we could make arr2 the new owner of the elements we care about, and no copy needs to be made? We wouldn't even have to destroy the temporary in this case.
+This is the essence of move semantics; we can move the data from the object that is about to be destroyed to the one that lives on. This is usually a trivial cost (usually just a couple of pointer assignments, much faster than copying an array of data).
+
+When initializing or assigning a value to an object moves the value (from another object), we say the object is using move semantics.
+
+Move semantics will be used instead of copy semantics when all of the following are true:
+    The type supports move semantics
+    We are initializing or assigning to an object using an rvalue object of the same type
+
+Not too many types support move semantics.
+But std::vector and std::string both do.
+
+We can return move-capable types like std::vector by value
+Because return by value returns an rvalue, if the returned type supports move semantics, then the returned value can be moved instead of being copied into the destination object.
+This makes return by value very inexpensive for these types.
+std::vector and std::string, then, will inexpensively move their values (instead of making an expensive copy) with return by value.
+
+Quiz
+1.
+Write a function that takes two parameters: a std::vector and an index.
+If the index is out of bounds, print an error. If the index is in bounds, print the value of the element.
+see ch16_4_1.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

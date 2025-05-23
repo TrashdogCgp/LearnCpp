@@ -1,0 +1,88 @@
+21_10
+Overloading the parenthesis operator
+
+The parenthesis operator is interesting in that it allows you to vary both the type and the number of parameters it takes.
+
+There are two things to keep in mind.
+First, the parenthesis operator must be implemented as a member function.
+Second, in non-object-oriented C++, the () operator is used to call functions. In the case of classes, operator() is just a normal operator that calls a function (named operator()) like any other overloaded operator.
+
+Example:
+    #include <cassert> // for assert()
+    class Matrix
+    {
+    private:
+        double m_data[4][4]{};
+
+    public:
+        double& operator()(int row, int col);
+        double operator()(int row, int col) const; // for const objects
+    };
+
+    double& Matrix::operator()(int row, int col)
+    {
+        assert(row >= 0 && row < 4);
+        assert(col >= 0 && col < 4);
+
+        return m_data[row][col];
+    }
+
+    double Matrix::operator()(int row, int col) const
+    {
+        assert(row >= 0 && row < 4);
+        assert(col >= 0 && col < 4);
+
+        return m_data[row][col];
+    }
+    int main()
+    {
+        Matrix matrix;
+        matrix(1, 2) = 4.5;
+        std::cout << matrix(1, 2) << '\n';
+
+        return 0;
+    }
+
+Because the () operator is flexible, it's tempting to use it for many different reasons. However, this is discouraged because the () symbol doesn't give an indication of what the operator is doing.
+
+
+Having fun with functors
+
+Operator() is also commonly overloaded to implement functors (or function objects), which are classes that operate like functions. The advantage of a functor over a normal function is that functors can store data in member variables (since they're classes).
+
+Here's an example functor:
+    class Accumulator
+    {
+    private:
+        int m_counter{ 0 };
+    public:
+        int operator() (int i) { return (m_counter += i); }
+        void reset() { m_counter = 0; } // optional
+    };
+
+    int main()
+    {
+        Accumulator acc{};
+        std::cout << acc(1) << '\n'; // prints 1
+        std::cout << acc(3) << '\n'; // prints 4
+        Accumulator acc2{};
+        std::cout << acc2(10) << '\n'; // prints 10
+        std::cout << acc2(20) << '\n'; // prints 30
+        return 0;
+    }
+
+The nice thing about functors is that we can instantiate as many separate functor objects as we need, and use them all simultaneously. Functors can also have other member functions that do convenient things.
+
+Operator() is sometimes overloaded with two parameters to index multidimensional arrays, or to retrieve a subset of a one dimensional array (with the two parameters defining the subset to return). Anything else is probably better written as a member function with a more descriptive name.
+Operator() is also often overloaded to create functors.
+
+Quiz
+
+1. Write a class named MyString that holds a std::string.
+Overload operator<< to output the string. Overload operator() to return the substring that starts at the index of the first parameter (as a MyString). The length of the substring should be defined by the second parameter.
+
+See ch21_10_1.cpp
+
+
+2.
+Why is the tutorial's code inefficient if we don't need to modify the returned substring?

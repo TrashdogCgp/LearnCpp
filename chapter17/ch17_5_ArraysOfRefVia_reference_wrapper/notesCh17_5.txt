@@ -1,0 +1,82 @@
+17_5
+Arrays of references via std::reference_wrapper
+
+In the prior lesson, we mentioned elements of any object type in arrays.
+This includes objects with fundamental types and objects with compound types (e.g. pointers to int)
+
+However, because references are not objects, you can't make an array of references.
+The elements of an array must also be assignable, and references can't be reseated.
+
+We'll use std::array in the examples, but this is equally applicable to all array types.
+
+If you want an array of references, there is a workaround.
+
+std::reference_wrapper is a standard library class template that lives in the <functional> header.
+It takes a type template argument T, and then behaves like a modifiable lvalue reference to T.
+
+There are a few things worth noting about std::reference_wrapper
+    Operator= will reseat a std::reference_wrapper (change which object is being referenced)
+    std::reference_wrapper<T> will implicitly convert to T&
+    The get() member function can be used to get a T&. This is useful when we want to update the value of the object being referenced.
+
+Simple example:
+    #include <array>
+    #include <functional> // for std::reference_wrapper
+    #include <iostream>
+
+    int main()
+    {
+        int x { 1 };
+        int y { 2 };
+        int z { 3 };
+
+        std::array<std::reference_wrapper<int>, 3> arr { x, y, z };
+
+        arr[1].get() = 5; // modify the object in array element 1
+
+        std::cout << arr[1] << y << '\n'; // show that we modified arr[1] and y, prints 55
+        return 0;
+    }
+
+Note that we must use arr[1].get() = 5, and not arr[1] = 5.
+The latter is ambiguous; the compiler can't tell if we intend to reseat the std::reference_wrapper<int> to value 5, which is illegal anyway, or change the value being referenced.
+Using get() disambiguates this.
+
+When printing arr[1], the compiler will realize it can't print a std::reference_wrapper<int> and will implicitly convert it to an int&, which it can print. So we don't need to use get() here.
+
+std::ref and std::cref
+Prior to C++17, CTAD didn't exist, so all template arguments for a class type needed to be listed explicitly.
+To create a std::reference_wrapper<int>, you could do either of these:
+
+    int x { 5 };
+
+    std::reference_wrapper<int> ref1 { x };        // C++11
+    auto ref2 { std::reference_wrapper<int>{ x }}; // C++11
+
+Between the long name and having to explicitly list the template arguments, creating many of these could be a pain.
+To make things easier, std::ref() and std::cref() functions were provided as shortcuts to create std::reference_wrapper and const std::reference_wrapper wrapped objects.
+Note that these functions can be used with auto to avoid having to explicitly specify the template argument.
+e.g.
+    int x { 5 };
+    auto ref { std::ref(x) };   // C++11, deduces to std::reference_wrapper<int>
+    auto cref { std::cref(x) }; // C++11, deduces to std::reference_wrapper<const int>
+
+Because C++17 has CTAD, we can also do this:
+    std::reference_wrapper ref1 { x };        // C++17
+    auto ref2 { std::reference_wrapper{ x }}; // C++17
+
+Since std::ref and std::cref are shorter to type, they're still widely used to create std::reference_wrapper objects.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
